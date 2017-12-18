@@ -14,31 +14,48 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package tv.phantombot.event.pubsub.moderation;
+package tv.phantombot.twitchwsirc.chat.utils;
 
-public class PubSubModerationBanEvent extends PubSubModerationEvent {
-	private final String reason;
+public class Message {
+	private final String message;
+	private final boolean hasPriority;
 
 	/*
 	 * Class constructor.
 	 *
-	 * @param {String} username
-	 * @param {String} creator
 	 * @param {String} message
-	 * @param {String} reason
 	 */
-	public PubSubModerationBanEvent(String username, String creator, String message, String reason) {
-		super(username, creator, message);
-
-		this.reason = reason;
+	public Message(String message) {
+		this.message = message;
+		this.hasPriority = false;
 	}
 
 	/*
-	 * Method that returns the reason as to why the user was banned.
+	 * Class constructor.
 	 *
-	 * @return {String} reason
+	 * @param {String} message
+	 * @param {boolean} hasPriority
 	 */
-	public String getReason() {
-		return this.reason;
+	public Message(String message, boolean hasPriority) {
+		this.message = message;
+		this.hasPriority = hasPriority;
+	}
+
+	/*
+	 * Method that returns the message.
+	 *
+	 * @return {String} message
+	 */
+	public String getMessage() {
+		return this.message;
+	}
+
+	/*
+	 * Method that returns if the message has priority.
+	 *
+	 * @return {boolean} message
+	 */
+	public boolean hasPriority() {
+		return this.hasPriority;
 	}
 }

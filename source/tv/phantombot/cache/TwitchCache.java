@@ -41,7 +41,6 @@ import org.json.JSONObject;
 import com.gmt2001.TwitchAPIv5;
 
 import tv.phantombot.PhantomBot;
-import tv.phantombot.twitchwsirc.Channel;
 import tv.phantombot.event.EventBus;
 import tv.phantombot.event.twitch.online.TwitchOnlineEvent;
 import tv.phantombot.event.twitch.offline.TwitchOfflineEvent;
@@ -206,7 +205,7 @@ public class TwitchCache implements Runnable {
         if (clipURL.length() > 0) {
             setDBString("last_clips_tracking_id", String.valueOf(largestTrackingId));
             setDBString("last_clip_url", clipURL);
-            EventBus.instance().postAsync(new TwitchClipEvent(clipURL, creator, getChannel()));
+            EventBus.instance().postAsync(new TwitchClipEvent(clipURL, creator));
         }
     }
 
@@ -240,11 +239,11 @@ public class TwitchCache implements Runnable {
 
                 if (!this.isOnline && isOnline) {
                     this.isOnline = true;
-                    EventBus.instance().postAsync(new TwitchOnlineEvent(getChannel()));
+                    EventBus.instance().postAsync(new TwitchOnlineEvent());
                     sentTwitchOnlineEvent = true;
                 } else if (this.isOnline && !isOnline) {
                     this.isOnline = false;
-                    EventBus.instance().postAsync(new TwitchOfflineEvent(getChannel()));
+                    EventBus.instance().postAsync(new TwitchOfflineEvent());
                 }
 
                 if (isOnline) {
@@ -309,7 +308,7 @@ public class TwitchCache implements Runnable {
                             /* Send an event if we did not just send a TwitchOnlineEvent. */
                             if (!sentTwitchOnlineEvent) {
                                 this.gameTitle = gameTitle;
-                                EventBus.instance().postAsync(new TwitchGameChangeEvent(gameTitle, getChannel()));
+                                EventBus.instance().postAsync(new TwitchGameChangeEvent(gameTitle));
                             }
                             this.gameTitle = gameTitle;
                         }
@@ -393,15 +392,6 @@ public class TwitchCache implements Runnable {
     }
 
     /*
-     * Gets the PhantomBot channel object.
-     *
-     * @return  Channel  Channel object.
-     */
-    private Channel getChannel() {
-        return PhantomBot.getChannel(this.channel);
-    }
-
-    /*
      * Returns if the channel is online or not.
      */
     public Boolean isStreamOnline() {
@@ -445,7 +435,7 @@ public class TwitchCache implements Runnable {
      public void setGameTitle(String gameTitle) {   
          forcedGameTitleUpdate = true;
          this.gameTitle = gameTitle;
-         EventBus.instance().postAsync(new TwitchGameChangeEvent(gameTitle, getChannel()));
+         EventBus.instance().postAsync(new TwitchGameChangeEvent(gameTitle));
      }
 
     /*
