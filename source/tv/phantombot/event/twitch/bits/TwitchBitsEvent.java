@@ -20,8 +20,9 @@ package tv.phantombot.event.twitch.bits;
 import tv.phantombot.event.twitch.TwitchEvent;
 
 public class TwitchBitsEvent extends TwitchEvent {
-	private final String username;
+    private final String username;
     private final String bits;
+    private final String message;
 
     /*
      * Class constructor.
@@ -29,9 +30,10 @@ public class TwitchBitsEvent extends TwitchEvent {
      * @param {String} username
      * @param {String} bits
      */
-	public TwitchBitsEvent(String username, String bits) {
+	public TwitchBitsEvent(String username, String bits, String message) {
         this.username = username;
         this.bits = bits;
+        this.message = message;
     }
 
     /*
@@ -50,5 +52,14 @@ public class TwitchBitsEvent extends TwitchEvent {
      */
     public String getBits() {
         return this.bits;
+    }
+    
+     /*
+     * Method that returns the full message.
+     *
+     * @return {String} message
+     */
+    public String getMessage() {
+        return this.message;
     }
 }

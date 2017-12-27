@@ -40,8 +40,9 @@
 		if (bits >= minimum) {
 			$.say(s);
 		}
+
 		$.writeToFile(username + ' ', './addons/bitsHandler/latestCheer.txt', false);
-		$.writeToFile(username + ': ' + bits + ' ', './addons/bitsHandler/latestCheer&Bits.txt', false);
+		$.writeToFile(username + ': ' + bits, './addons/bitsHandler/latestCheer&Bits.txt', false);
 	});
 
 	/*
@@ -60,7 +61,7 @@
 		if (command.equalsIgnoreCase('bitstoggle')) {
 			toggle = !toggle;
 			$.setIniDbBoolean('bitsSettings', 'toggle', toggle);
-			$.say($.whisperPrefix(sender) + (toggle ? $.lang.get('bitshandler.toggle.on') : $.lang.get('bitshandler.toggle.off')))
+			$.say($.whisperPrefix(sender) + (toggle ? $.lang.get('bitshandler.toggle.on') : $.lang.get('bitshandler.toggle.off')));
 		}
 		
 

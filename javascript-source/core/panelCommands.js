@@ -459,6 +459,17 @@
             $.reloadLogs();
             return;
         }
+        
+        /*
+         * Reloads the bit tracking variables.
+         */
+        if (command.equalsIgnoreCase('bitTrackingreloadtable')) {
+            if (!$.isBot(sender)) {
+                return;
+            }
+            $.loadBitTrackingTable();
+            return;
+        }
     });
 
     $.bind('initReady', function() {
