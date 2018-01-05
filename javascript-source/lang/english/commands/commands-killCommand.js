@@ -64,7 +64,7 @@ $.lang.register('killcommand.other.8', '$1 shanked $2\'s butt, over and over aga
 $.lang.register('killcommand.other.9', '$1 just wrote $2\'s name in their Death Note.');
 $.lang.register('killcommand.other.10', '$1 put $2 out of their misery.');
 $.lang.register('killcommand.other.11', '$1 destroyed $2!');
-$.lang.register('killcommand.other.12', '$1 atacó a $2 con un consolador grande!');
+$.lang.register('killcommand.other.12', '$1 attacked $2 with a big lowcoAim !');
 $.lang.register('killcommand.other.13', '$2 was poked a bit too hard by $1 with a spork!');
 $.lang.register('killcommand.other.14', 'ZA WARUDO! $1 stopped time and throw hundreds of knives at $2. END!');
 $.lang.register('killcommand.other.15', '$1 attacked $2 with a rusty spork...and managed to kill $2 with very little effort.');
