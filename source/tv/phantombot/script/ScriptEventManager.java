@@ -17,7 +17,7 @@
 
 package tv.phantombot.script;
 
-import com.google.common.eventbus.Subscribe;
+import net.engio.mbassy.listener.Handler;
 
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map.Entry;
@@ -33,8 +33,8 @@ import tv.phantombot.event.Event;
 
 public class ScriptEventManager implements Listener {
     private static final ScriptEventManager instance = new ScriptEventManager();
-    private final ConcurrentHashMap<String, EventHandler> events = new ConcurrentHashMap<>();
-    private final List<String> classes = new ArrayList<>();
+    private final ConcurrentHashMap<String, EventHandler> events = new ConcurrentHashMap<String, EventHandler>();
+    private final List<String> classes = new ArrayList<String>();
     private boolean isKilled = false;
 
     /*
@@ -65,7 +65,7 @@ public class ScriptEventManager implements Listener {
      *
      * @param {Event} event
      */
-    @Subscribe
+    @Handler
     public void onEvent(Event event) {
         if (!isKilled) {
             try {

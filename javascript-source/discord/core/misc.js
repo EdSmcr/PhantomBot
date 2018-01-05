@@ -11,7 +11,7 @@
  * 	- Make sure to comment on every function what their name is and the parameters they require and if they return something.
  */
 (function() {
-	var embedReg = new RegExp(/\(embed\s([\s\d]+),\s([\w\W]+)\)/),
+	var embedReg = new RegExp(/\(embed\s([\s\d\w]+),\s([\w\W]+)\)/),
 		fileRegMsg = new RegExp(/\(file\s([\w\W]+),\s?([\r\n\w\W]*)\)/),
 		fileReg = new RegExp(/\(file\s([\w\W]+)\)/);
 
@@ -225,7 +225,7 @@
 				return;
 			}
 
-			setStream(action, args.slice(1).join(' '));
+			setStream(args.slice(1).join(' '), action);
 			say(channel, userPrefix(mention) + $.lang.get('discord.misc.game.stream.set', action, args.slice(1).join(' ')));
 		}
 

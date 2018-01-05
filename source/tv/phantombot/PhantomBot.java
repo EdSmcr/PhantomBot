@@ -17,7 +17,7 @@
 
 package tv.phantombot;
 
-import com.google.common.eventbus.Subscribe;
+import net.engio.mbassy.listener.Handler;
 
 import com.gmt2001.Logger;
 import com.gmt2001.datastore.DataStore;
@@ -40,7 +40,7 @@ import com.illusionaryone.DataRenderServiceAPIv1;
 
 import com.scaniatv.CustomAPI;
 import com.scaniatv.TipeeeStreamAPIv1;
-import com.scaniatv.StreamElementsAPIv1;
+import com.scaniatv.StreamElementsAPIv2;
 import com.scaniatv.BotImporter;
 import com.scaniatv.GenerateLogs;
 
@@ -196,6 +196,7 @@ public final class PhantomBot implements Listener {
 
     /* StreamElements Information */
     private String streamElementsJWT = "";
+    private String streamElementsID = "";
     private int streamElementsLimit = 5;
 
     /* GameWisp Information */
@@ -456,6 +457,7 @@ public final class PhantomBot implements Listener {
 
         /* Set the StreamElements variables */
         this.streamElementsJWT = this.pbProperties.getProperty("streamelementsjwt", "");
+        this.streamElementsID = this.pbProperties.getProperty("streamelementsid", "");
         this.streamElementsLimit = Integer.parseInt(this.pbProperties.getProperty("streamelementslimit", "5"));
 
         /* Set the PhantomBot Commands API variables */
@@ -622,9 +624,10 @@ public final class PhantomBot implements Listener {
         }
 
         /* Set the StreamElements JWT token. */
-        if (!streamElementsJWT.isEmpty()) {
-            StreamElementsAPIv1.instance().SetJWT(streamElementsJWT);
-            StreamElementsAPIv1.instance().SetLimit(streamElementsLimit);
+        if (!streamElementsJWT.isEmpty() && !streamElementsID.isEmpty()) {
+            StreamElementsAPIv2.instance().SetJWT(streamElementsJWT);
+            StreamElementsAPIv2.instance().SetID(streamElementsID);
+            StreamElementsAPIv2.instance().SetLimit(streamElementsLimit);
         }
 
         /* Set the PhantomBot Commands authentication key. */
@@ -1184,7 +1187,7 @@ public final class PhantomBot implements Listener {
      * Connected to Twitch.
      *
      */
-    @Subscribe
+    @Handler
     public void ircJoinComplete(IrcJoinCompleteEvent event) {
         /* Check if the bot already joined once. */
         if (joined) {
@@ -1247,7 +1250,7 @@ public final class PhantomBot implements Listener {
      * Get private messages from Twitch.
      *
      */
-    @Subscribe
+    @Handler
     public void ircPrivateMessage(IrcPrivateMessageEvent event) {
         String sender = event.getSender();
         String message = event.getMessage();
@@ -1274,7 +1277,7 @@ public final class PhantomBot implements Listener {
      * user modes from twitch
      *
      */
-    @Subscribe
+    @Handler
     public void ircUserMode(IrcChannelUserModeEvent event) {
         /* Check to see if Twitch sent a mode event for the bot name */
         if (event.getUser().equalsIgnoreCase(this.botName) && event.getMode().equalsIgnoreCase("o")) {
@@ -1290,7 +1293,7 @@ public final class PhantomBot implements Listener {
      * messages from Twitch chat
      *
      */
-    @Subscribe
+    @Handler
     public void ircChannelMessage(IrcChannelMessageEvent event) {
         if (event.getMessage().startsWith("!debug !dev")) {
             devDebugCommands(event.getMessage(), event.getTags().get("user-id"), event.getSender(), false);
@@ -1305,7 +1308,7 @@ public final class PhantomBot implements Listener {
      * Check to see if someone is typing in the console.
      *
      */
-    @Subscribe
+    @Handler
     public void consoleInput(ConsoleInputEvent event) {
         String message = event.getMessage();
         Boolean changed = false;
@@ -1347,45 +1350,45 @@ public final class PhantomBot implements Listener {
         }
 
         if (message.equalsIgnoreCase("createcmdlist")) {
-        	print("[CONSOLE] Executing createcmdlist, this can take a bit of time.");
+            print("[CONSOLE] Executing createcmdlist, this can take a bit of time.");
 
-        	String[] headers = new String[] {"Command", "Permission", "Module"};
-        	String[] keys = dataStore.GetKeyList("permcom", "");
-        	List<String[]> values = new ArrayList<String[]>();
+            String[] headers = new String[] {"Command", "Permission", "Module"};
+            String[] keys = dataStore.GetKeyList("permcom", "");
+            List<String[]> values = new ArrayList<String[]>();
 
-        	for (int i = 0; i < keys.length; i++) {
-        		String[] str = new String[3];
-        		str[0] = ("!" + keys[i]);
-        		str[1] = dataStore.get("groups", dataStore.get("permcom", keys[i]));
-        		str[2] = Script.callMethod("getCommandScript", (keys[i].contains(" ") ? keys[i].substring(0, keys[i].indexOf(" ")) : keys[i]));
+            for (int i = 0; i < keys.length; i++) {
+                String[] str = new String[3];
+                str[0] = ("!" + keys[i]);
+                str[1] = dataStore.get("groups", dataStore.get("permcom", keys[i]));
+                str[2] = Script.callMethod("getCommandScript", (keys[i].contains(" ") ? keys[i].substring(0, keys[i].indexOf(" ")) : keys[i]));
 
-        		// If the module is disabled, return.
-        		if (str[2].contains("Undefined")) {
-        			continue;
-        		}
-        		values.add(str);
-        	}
+                // If the module is disabled, return.
+                if (str[2].contains("Undefined")) {
+                    continue;
+                }
+                values.add(str);
+            }
 
-        	toCSV(headers, values, "command_list.csv");
+            toCSV(headers, values, "command_list.csv");
             print("[CONSOLE] Command list has been created under command_list.csv");
         }
 
         if (message.equalsIgnoreCase("createcustomcmdlist")) {
-        	print("[CONSOLE] Executing createcustomcmdlist, this can take a bit of time.");
+            print("[CONSOLE] Executing createcustomcmdlist, this can take a bit of time.");
 
-        	String[] headers = new String[] {"Command", "Permission"};
-        	String[] keys = dataStore.GetKeyList("command", "");
-        	List<String[]> values = new ArrayList<String[]>();
+            String[] headers = new String[] {"Command", "Permission"};
+            String[] keys = dataStore.GetKeyList("command", "");
+            List<String[]> values = new ArrayList<String[]>();
 
-        	for (int i = 0; i < keys.length; i++) {
-        		String[] str = new String[2];
-        		str[0] = ("!" + keys[i]);
-        		str[1] = dataStore.get("groups", dataStore.get("permcom", keys[i]));
+            for (int i = 0; i < keys.length; i++) {
+                String[] str = new String[2];
+                str[0] = ("!" + keys[i]);
+                str[1] = dataStore.get("groups", dataStore.get("permcom", keys[i]));
 
-        		values.add(str);
-        	}
+                values.add(str);
+            }
 
-        	toCSV(headers, values, "custom_command_list.csv");
+            toCSV(headers, values, "custom_command_list.csv");
             print("[CONSOLE] Command list has been created under custom_command_list.csv");
         }
 
