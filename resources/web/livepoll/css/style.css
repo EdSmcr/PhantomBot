@@ -1,0 +1,61 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    background-color: rgb(34, 34, 34);
+    padding: 20px;
+}
+
+#chartLocation, #chartLocation table{
+    color: #ffffff;
+}
+
+#chartLocation{
+    border: 1px solid #eeeeee;
+    display: inline-block;
+    width: 480px;
+    height: 310px;
+}
+
+#chartLocation table{
+    margin: 10px;
+    border-collapse: collapse;
+    height: auto;
+}
+
+#chartLocation table td{
+    padding-bottom: 3px;
+}
+
+#chartLocation table .title{
+    font-size: 20px;
+}
+
+#chartLocation table .count, #chartLocation table .votes{
+    display: inline-block;
+    width: 30px;
+    text-align: center;
+}
+
+#chartLocation table .bar{
+    display: inline-block;
+    max-width: 398px;
+    min-width: 398px;
+    text-align: left;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+#chartLocation table .bar span{
+    display: inline-block;
+    background-color: red;
+    white-space: nowrap;
+    font-size: 18px;
+}
+
+body input[type="color"]{
+    padding: 2px!important;
+}
+#lblDimensions{
+    color: #ffffff;
+}

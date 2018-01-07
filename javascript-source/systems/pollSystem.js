@@ -19,6 +19,7 @@
         result: '',
         hasTie: 0,
         counts: [],
+        liveResults: {'votes':{}},
     },
     timeout;
 
@@ -83,11 +84,21 @@
         poll.voters = [];
         poll.counts = [];
         poll.hasTie = 0;
+        poll.liveResults = {'votes': {}};
+
+        if (poll.liveResults['question']==undefined){
+            poll.liveResults['question'] = question;
+        }
 
         for (var i = 0; i < poll.options.length; i++) {
             optionsStr += (i + 1) + ") " + poll.options[i] + " ";
+            if (poll.liveResults.votes[poll.options[i]] == undefined){
+                poll.liveResults.votes[poll.options[i]] = 0;
+            }
         }
-
+        
+        $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
+        
         if (poll.time > 0) {
             $.say($.lang.get('pollsystem.poll.started', $.resolveRank(pollMaster), time, poll.minVotes, poll.question, optionsStr));
 
@@ -125,6 +136,17 @@
         optionIndex--;
         poll.voters.push(sender);
         poll.votes.push(optionIndex);
+
+        if (poll.liveResults.votes[poll.options[optionIndex]] == undefined){
+            poll.liveResults.votes[poll.options[optionIndex]] = 1;
+        }
+        else {
+            poll.liveResults.votes[poll.options[optionIndex]]++;
+        }
+        
+        $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
+        
+        $.consoleLn('votes: ' +  JSON.stringify(poll.liveResults));
     };
 
     /**
@@ -166,6 +188,8 @@
         $.inidb.set('pollresults', 'options', poll.options.join(','));
         $.inidb.set('pollresults', 'counts', poll.counts.join(','));
         $.inidb.set('pollresults', 'istie', poll.hasTie);
+        
+        //$.inidb.del('livePoll', 'openPoll');
 
         poll.callback(poll.result);
     };
