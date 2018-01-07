@@ -124,11 +124,12 @@ public class MessageQueue implements Runnable {
 					if (lastWrite > time) {
 						if (writes > limit && !message.hasPriority()) {
 							nextWrite = (time + (lastWrite - time));
+							com.gmt2001.Console.warn.println("Message limit of (" + limit + ") has been reached. Messages will be sent again in " + (nextWrite - time) + "ms");
 							continue;
 						}
 						writes++;
 					} else {
-						writes = 0;
+						writes = 1;
                         lastWrite = (time + 30200);
 					}
 
