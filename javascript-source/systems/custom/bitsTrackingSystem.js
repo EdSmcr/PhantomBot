@@ -12,13 +12,14 @@
 		    bits = event.getBits(),
                     userMessage = event.getMessage();
 
-		var bits_sender = $.getSetIniDbNumber('bits', username, 0);
-
-		if (bits_sender) {
+                var bits_sender = $.getSetIniDbNumber('bits', username, 0);
+                
+		if (bits_sender === 0) {
 			$.inidb.incr('bits', username, bits);
 		} else {
 			$.getSetIniDbNumber('bits', username, bits);
 		}
+                
 	});
 
     /**
