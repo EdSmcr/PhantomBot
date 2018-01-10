@@ -1,6 +1,6 @@
 //Bits check a user or yourself
-$.lang.register('bits.check.self', '$1, has given the stream $2 bits so far.');
-$.lang.register('bits.check.user', '$1, $2 has given the stream $3 bits so far.');
+$.lang.register('bits.check.self', '$1, has contributed $2 bits to the Looneybin.');
+$.lang.register('bits.check.user', '$1, $2 has contributed $3 bits to the Looneybin.');
 $.lang.register('bits.check.noname', '$1, Useage: !bits check <user>.');
 
 //Bits set your to a number givven

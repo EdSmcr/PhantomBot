@@ -323,7 +323,7 @@ public class SqliteStore extends DataStore {
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
 
-            try (ResultSet rs = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name='phantombot_" + fName + "';")) {
+            try (ResultSet rs = statement.executeQuery("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name='phantombot_" + fName + "';")) {
 
                 return rs.next();
             }

@@ -46,7 +46,7 @@
                 if (action.equalsIgnoreCase('set')) {
                     if (intAction2) {
                         if (action3) {
-                            $.setIniDbString('bits', action3, intAction2);
+                            $.setIniDbString('bits', action3.toLowerCase(), intAction2);
                             $.say($.lang.get('bits.set.pass', ranked_sender, action3, intAction2));
                         } else {
                             $.say($.lang.get('bits.set.useage', ranked_sender, action3));
@@ -58,7 +58,7 @@
 
                 if (action.equalsIgnoreCase('reset')) {
                     if (action2) {
-                        $.setIniDbString('bits', action2, 0);
+                        $.setIniDbString('bits', action2.toLowerCase(), 0);
                         $.say($.lang.get('bits.reset.user', ranked_sender, action2));
                     } else {
                         $.say($.lang.get('bits.reset.noname', ranked_sender));
@@ -67,13 +67,47 @@
 
                 if (action.equalsIgnoreCase('check')) {
                     if (action2) {
-                        var bits_check = $.getSetIniDbNumber('bits', action2, 0);
+                        var bits_check = $.getSetIniDbNumber('bits', action2.toLowerCase(), 0);
                         $.say($.lang.get('bits.check.user', ranked_sender, action2, bits_check));
                     } else {
                         $.say($.lang.get('bits.check.noname', ranked_sender));
                     }
                 }
             }
+        }
+        
+        if (command.equalsIgnoreCase('bitranking')){
+            var ranked_sender = $.username.resolve(sender),
+                bits_sender = $.getSetIniDbNumber('bits', sender, 0),
+                rank = 0;
+
+            if (!action) {
+                if ($.inidb.exists('bitranking', sender)) {
+                    rank = parseInt($.inidb.get('bitranking', sender));
+                    if (rank > 1){
+                        var closest_ranked_users = $.inidb.GetKeysByLikeValues('bitranking','', rank - 1);
+                        if (closest_ranked_users){
+                            var closest_ranked_user_name;
+                            if (closest_ranked_users instanceof Array){
+                                closest_ranked_user_name = closest_ranked_users[0];
+                            }
+                            else
+                            {
+                                closest_ranked_user_name = closest_ranked_users;
+                            }
+                            
+                            var bits_user2 = $.getSetIniDbNumber('bits', closest_ranked_user_name, 0),
+                        }
+                        
+                    }
+                    else{
+                        $.say('You are ranked first');
+                    }
+                }
+                else{
+                    
+                }
+            } 
         }
     });
 
@@ -83,6 +117,7 @@
     $.bind('initReady', function() {
         if ($.bot.isModuleEnabled('./systems/custom/bitsTrackingSystem.js')) {
             $.registerChatCommand('./systems/custom/bitsTrackingSystem.js', 'bits', 7);
+            $.registerChatCommand('./systems/custom/bitsTrackingSystem.js', 'bitranking', 7);
             $.registerChatSubcommand('bits', 'set', 2);
             $.registerChatSubcommand('bits', 'check', 2);
             $.registerChatSubcommand('bits', 'reset', 2);
