@@ -84,28 +84,33 @@
             if (!action) {
                 if ($.inidb.exists('bitranking', sender)) {
                     rank = parseInt($.inidb.get('bitranking', sender));
+                    
                     if (rank > 1){
                         var closest_ranked_users = $.inidb.GetKeysByLikeValues('bitranking','', rank - 1);
-                        if (closest_ranked_users){
-                            var closest_ranked_user_name;
-                            if (closest_ranked_users instanceof Array){
-                                closest_ranked_user_name = closest_ranked_users[0];
-                            }
-                            else
-                            {
-                                closest_ranked_user_name = closest_ranked_users;
-                            }
-                            
-                            var bits_user2 = $.getSetIniDbNumber('bits', closest_ranked_user_name, 0),
-                        }
                         
+                        if (closest_ranked_users){
+                            var bits_user2 = $.getSetIniDbNumber('bits', closest_ranked_users[0], 0);
+                            
+                            var difference = parseInt(bits_user2) - parseInt(bits_sender);
+                            
+                            $.say($.lang.get('bits.ranking.user', sender, $.getOrdinal(rank), $.username.resolve(closest_ranked_users[0]),difference));
+                        }
                     }
                     else{
-                        $.say('You are ranked first');
+                        var closest_ranked_users = $.inidb.GetKeysByLikeValues('bitranking','', rank + 1);
+                        var difference = 0;
+                        
+                        if (closest_ranked_users){
+                            var bits_user2 = $.getSetIniDbNumber('bits', closest_ranked_users[0], 0);
+                            
+                            difference =  parseInt(bits_sender) - parseInt(bits_user2);
+                        }
+                        
+                        $.say($.lang.get('bits.ranking.userfirst', sender, difference));
                     }
                 }
                 else{
-                    
+                    $.say($.lang.get('bits.ranking.norank', sender));
                 }
             } 
         }
