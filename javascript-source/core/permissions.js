@@ -399,6 +399,7 @@
      */
     function addSubUsersList(username) {
         username = (username + '').toLowerCase();
+        var i;
         for (i in subUsers) {
             if (subUsers[i][0].equalsIgnoreCase(username)) {
                 return;
@@ -414,7 +415,7 @@
      */
     function delSubUsersList(username) {
         var newSubUsers = [];
-
+        var i;
         username = (username + '').toLowerCase();
         for (i in subUsers) {
             if (!subUsers[i][0].equalsIgnoreCase(username)) {
@@ -616,9 +617,9 @@
                 // Cast the user as a string, because Rhino.
                 parts[i] = (parts[i] + '');
                 // Remove the user from the users array.
-                for (var t = 0; t < $.users.length; t++) {
-                    if ($.users[t][0] == parts[i]) {
-                        $.users.splice(t, 1);
+                for (var t = 0; t < users.length; t++) {
+                    if (users[t][0] == parts[i]) {
+                        users.splice(t, 1);
                         break;
                     }
                 }
@@ -639,7 +640,7 @@
                     $.setIniDbBoolean('visited', joins[i], true);
                 }
                 $.checkGameWispSub(joins[i]);
-                $.users.push([joins[i], now]);
+                users.push([joins[i], now]);
             }
             // Enable auto commit again and force save.
             $.inidb.setAutoCommit(true);

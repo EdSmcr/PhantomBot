@@ -8,19 +8,23 @@
 	 * @event twitchBits
 	 */
 	$.bind('twitchBits', function(event) {
-		var username = event.getUsername(),
-		    bits = event.getBits(),
-                    userMessage = event.getMessage();
+            var username = event.getUsername(),
+                bits = event.getBits(),
+                userMessage = event.getMessage();
 
-                var bits_sender = $.getSetIniDbNumber('bits', username, 0);
-                
-		if (bits_sender === 0) {
-			$.inidb.incr('bits', username, bits);
-		} else {
-			$.getSetIniDbNumber('bits', username, bits);
-		}
-                
-	});
+            var bits_sender = $.getSetIniDbNumber('bits', username, 0);
+
+            if (bits_sender === 0) {
+                    $.inidb.incr('bits', username, bits);
+            } else {
+                    $.getSetIniDbNumber('bits', username, bits);
+            }
+            try {
+                $.writeToFile(username + ', ' + 'bits: ' + bits + ', message: ' + userMessage, './addons/bitsHandler/Cheers&Bits&Message.txt', true);
+            } catch (e) {
+            
+            }
+        });
 
     /**
      * @event command
@@ -82,7 +86,7 @@
                 rank = 0;
 
             if (!action) {
-                if ($.inidb.exists('bitranking', sender)) {
+                if (bits_sender > 0) {
                     rank = parseInt($.inidb.get('bitranking', sender));
                     
                     if (rank > 1){
