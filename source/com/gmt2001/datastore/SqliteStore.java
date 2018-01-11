@@ -163,9 +163,9 @@ public class SqliteStore extends DataStore {
         try {
             SQLiteConfig config = new SQLiteConfig();
             config.setCacheSize(cache_size);
-            config.setSynchronous(safe_write ? SQLiteConfig.SynchronousMode.FULL : SQLiteConfig.SynchronousMode.OFF);
+            config.setSynchronous(safe_write ? SQLiteConfig.SynchronousMode.FULL : SQLiteConfig.SynchronousMode.NORMAL);
             config.setTempStore(SQLiteConfig.TempStore.MEMORY);
-            config.setJournalMode(journal ? SQLiteConfig.JournalMode.TRUNCATE : SQLiteConfig.JournalMode.OFF);
+            config.setJournalMode(journal ? SQLiteConfig.JournalMode.WAL : SQLiteConfig.JournalMode.OFF);
             connection = DriverManager.getConnection("jdbc:sqlite:" + dbname.replaceAll("\\\\", "/"), config.toProperties());
             connection.setAutoCommit(autocommit);
         } catch (SQLException ex) {
