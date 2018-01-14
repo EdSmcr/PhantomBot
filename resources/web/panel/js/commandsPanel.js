@@ -20,7 +20,7 @@
  */
 
 /*
- * customCommandsPanel.js
+ * commandsPanel.js
  * Drives the Custom Commands Panel
  */
 (function() {
@@ -71,6 +71,7 @@
 
             if (panelCheckQuery(msgObject, 'commands_cooldown')) {
                 html = "<table>";
+                msgObject['results'].sort(sortCommandTable);
                 for (idx in msgObject['results']) {
                     commandName = msgObject['results'][idx]['key'];
                     time = JSON.parse(msgObject['results'][idx]['value']).seconds;
@@ -138,6 +139,7 @@
 
                 html = '<table>';
                 commands.splice(0);
+                msgObject['results'].sort(sortCommandTable);
                 for (var idx in msgObject['results']) {
                     commandName = msgObject['results'][idx]['key'];
                     commandNameSafe = commandName.replace(/\?/g, '__QM__');
@@ -167,6 +169,8 @@
                     $('#aliasCommandsList').html('<i>There are no aliased commands defined.</i>');
                     return;
                 }
+
+                msgObject['results'].sort(sortCommandTable);
                 for (idx in msgObject['results']) {
                     commandName = msgObject['results'][idx]['key'];
                     commandValue = msgObject['results'][idx]['value'];
@@ -191,6 +195,7 @@
                     $('#priceCommandsList').html('<i>There are no commands with prices defined.</i>');
                     return;
                 }
+                msgObject['results'].sort(sortCommandTable);
                 for (idx in msgObject['results']) {
                     commandName = msgObject['results'][idx]['key'];
                     commandValue = msgObject['results'][idx]['value'];
@@ -217,6 +222,7 @@
                     $('#payCommandsList').html('<i>There are no commands with payments defined.</i>');
                     return;
                 }
+                msgObject['results'].sort(sortCommandTable);
                 for (idx in msgObject['results']) {
                     commandName = msgObject['results'][idx]['key'];
                     commandValue = msgObject['results'][idx]['value'];
@@ -580,18 +586,20 @@
             sendDBUpdate("commands_cooldown_toggle", "cooldownSettings", "modCooldown", "false");
         } else if (modCooldown == "false") {
             sendDBUpdate("commands_cooldown_toggle", "cooldownSettings", "modCooldown", "true");
+            
         }
         setTimeout(function() { doQuery(); }, TIMEOUT_WAIT_TIME * 2);
-        setTimeout(function() { sendCommand("reloadcooldown"); }, TIMEOUT_WAIT_TIME * 2);
+        setTimeout(function() { sendWSEvent('cooldown', './core/commandCoolDown.js', null, ['update']); }, TIMEOUT_WAIT_TIME * 2);
     };
 
     /**
      * @function setGlobalCooldownTime
      */
     function setDefaultCooldown() {
-        var newValue = $("#defaultCooldownInput").val();
-        if (newValue.length > 0) {
+        var newValue = parseInt($("#defaultCooldownInput").val());
+        if (!isNaN(newValue) && newValue >= 5) {
             sendDBUpdate("commands_cooldown_time", "cooldownSettings", "defaultCooldownTime", String(newValue));
+            setTimeout(function() { sendWSEvent('cooldown', './core/commandCoolDown.js', null, ['update']); }, TIMEOUT_WAIT_TIME * 2);
             setTimeout(function() { doQuery();  }, TIMEOUT_WAIT_TIME * 2);
         }
     }
