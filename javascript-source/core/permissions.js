@@ -617,11 +617,16 @@
                 // Cast the user as a string, because Rhino.
                 parts[i] = (parts[i] + '');
                 // Remove the user from the users array.
-                for (var t = 0; t < users.length; t++) {
-                    if (users[t][0] == parts[i]) {
-                        users.splice(t, 1);
-                        break;
+                try {
+                    for (var t = 0; t < users.length; t++) {
+                        var user = (users[t][0] + '');
+                        if (user === parts[i]) {
+                            users.splice(t, 1);
+                            break;
+                        }
                     }
+                } catch (e) {
+                    
                 }
 
                 $.restoreSubscriberStatus(parts[i], true);
