@@ -8,19 +8,19 @@
 	 * @event twitchBits
 	 */
 	$.bind('twitchBits', function(event) {
-            var username = event.getUsername(),
+            var username = event.getUsername().toLowerCase(),
                 bits = event.getBits(),
                 userMessage = event.getMessage();
 
             var bits_sender = $.getSetIniDbNumber('bits', username, 0);
-
-            if (bits_sender === 0) {
-                    $.inidb.incr('bits', username, bits);
-            } else {
-                    $.getSetIniDbNumber('bits', username, bits);
-            }
+            
+            $.inidb.incr('bits', username, bits);
+            
+            var i = parseInt(bits_sender) + parseInt(bits);
+            
             try {
-                $.writeToFile(username + ', ' + 'bits: ' + bits + ', message: ' + userMessage, './addons/bitsHandler/Cheers&Bits&Message.txt', true);
+                var message = username + ', bits: ' + bits + ', had: ' + bits_sender + ', new balance: ' + i + ' , message: ' + userMessage;
+                $.log.file('bits', '' + message);
             } catch (e) {
             
             }
@@ -42,7 +42,7 @@
 
         if (command.equalsIgnoreCase('bits')) {
             var ranked_sender = $.username.resolve(sender),
-                bits_sender = $.getSetIniDbNumber('bits', sender, 0);
+                bits_sender = $.getSetIniDbNumber('bits', sender.toLowerCase(), 0);
 
             if (!action) {
                 $.say($.lang.get('bits.check.self', ranked_sender, bits_sender));
