@@ -30,7 +30,11 @@ public class TwitchBitsEvent extends TwitchEvent {
      * @param {String} username
      * @param {String} bits
      */
+<<<<<<< HEAD
 	public TwitchBitsEvent(String username, String bits, String message) {
+=======
+    public TwitchBitsEvent(String username, String bits) {
+>>>>>>> upstream/master
         this.username = username;
         this.bits = bits;
         this.message = message;

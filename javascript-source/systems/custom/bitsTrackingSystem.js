@@ -4,28 +4,58 @@
  * Command handler for a bits system!
  */
 (function() {
-	/*
-	 * @event twitchBits
-	 */
-	$.bind('twitchBits', function(event) {
-            var username = event.getUsername().toLowerCase(),
-                bits = event.getBits(),
-                userMessage = event.getMessage();
+    /*
+     * @event twitchBits
+     */
+    $.bind('twitchBits', function(event) {
+        var username = event.getUsername().toLowerCase(),
+            bits = event.getBits(),
+            userMessage = event.getMessage();
 
-            var bits_sender = $.getSetIniDbNumber('bits', username, 0);
-            
-            $.inidb.incr('bits', username, bits);
-            
-            var i = parseInt(bits_sender) + parseInt(bits);
-            
-            try {
-                var message = username + ', bits: ' + bits + ', had: ' + bits_sender + ', new balance: ' + i + ' , message: ' + userMessage;
-                $.log.file('bits', '' + message);
-            } catch (e) {
-            
+        var bits_sender = $.getSetIniDbNumber('bits', username, 0);
+
+        $.inidb.incr('bits', username, bits);
+
+        var i = parseInt(bits_sender) + parseInt(bits);
+
+        try {
+            var message = username + ', bits: ' + bits + ', had: ' + bits_sender + ', new balance: ' + i + ' , message: ' + userMessage;
+            $.log.file('bits', '' + message);
+        } catch (e) {
+
+        }
+        handleKeywords(event);
+    });
+
+    /*
+     * @function handleKeywords 
+     * @param {type} event
+     * @returns {undefined}
+     */
+    function handleKeywords(event){
+        var username = event.getUsername().toLowerCase(),
+            bits = event.getBits(),
+            userMessage = event.getMessage(),
+            keywords,
+            found = false,
+            i, t;
+    
+        keywords = $.inidb.GetKeyList('bitKeywords', '');
+        
+        for (i in keywords) {
+            var keys = keywords[i].split(',');
+            for(t in keys){
+                keys[t] = (keys[t] + '').trim();
+                if(userMessage.toLowerCase().includes(keys[t])){
+                    found = true;
+                }
             }
-        });
-
+            if (found){
+                found = false;
+                $.inidb.incr('bitKeywords', keywords[i], bits);
+            }
+        }
+    }
     /**
      * @event command
      */

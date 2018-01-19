@@ -20,7 +20,7 @@
  */
 
 /*
- * ranksPanel.js
+ * bitTrackingPanel.js
  * Drives the Bit Tracking Panel
  */
 (function() {
@@ -38,96 +38,96 @@
             return;
         }
 
-//        if (panelHasQuery(msgObject)) {
-//            var customHours = "",
-//                customCost = "",
-//                bitTrackingData = [],
-//                user = "",
-//                hours = "",
-//                rank = "",
-//                html = "";
-//
-//            if (panelCheckQuery(msgObject, 'ranks_time')) {
-//                customHours = msgObject['results']['rankEligableTime'];
-//                $("#customRankTimeInput").attr("placeholder", customHours);
-//                $("#customRankTimeInput").val('');
-//            }
-//            
-//            if (panelCheckQuery(msgObject, 'ranks_cost')) {
-//                customCost = msgObject['results']['rankEligableCost'];
-//                $("#customRankCostInput").attr("placeholder", customCost);
-//                $("#customRankCostInput").val('');
-//            }
-//
-//            if (panelCheckQuery(msgObject, 'ranks_ranksmapping')) {
-//                html = "<br><table><th>&nbsp;&nbsp;&nbsp; Hours &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rank Name</th></tr>";
-//                ranksData = msgObject['results'];
-//                ranksData.sort(sortRanks);
-//                for (idx = 0; idx < ranksData.length; idx++) {
-//                    hours = ranksData[idx]['key'];
-//                    rank = ranksData[idx]['value'];
-//                    html += "<tr class=\"textList\">" +
-//                            "    <td><form onkeypress=\"return event.keyCode != 13\">" +
-//                            "        <input type=\"text\" class=\"input-control\" id=\"inlineRankHoursEdit_" + hours + "\"" +
-//                            "               value=\"" + hours + "\" style=\"width: 10%\"/>" +
-//                            "        <input type=\"text\" class=\"input-control\" id=\"inlineRankNameEdit_" + hours + "\"" +
-//                            "               value=\"" + rank + "\" style=\"width: 50%\"/>" +
-//                            "        <button type=\"button\" class=\"btn btn-default btn-xs\"" +
-//                            "                onclick=\"$.updateRank('" + hours + "')\"><i class=\"fa fa-hdd-o\" />" +
-//                            "        <button type=\"button\" class=\"btn btn-default btn-xs\" id=\"deleteRank_" + hours + "\"" +
-//                            "                onclick=\"$.deleteRank('" + hours + "')\"><i class=\"fa fa-trash\" />" +
-//                            "        </button>" +
-//                            "    </form></td>" +
-//                            "</tr>";
-//                }
-//                html += "</table>";
-//                if (ranksData.length === 0) {
-//                    html = "<i>There are no ranks presently defined</i>";
-//                }
-//                $("#ranksMapping").html(html);
-//                handleInputFocus();
-//            }
-//
-//            if (panelCheckQuery(msgObject, 'ranks_customranks')) {
-//                html = "<br><table><tr><th /><th>User Name</th><th>Rank Name</th></tr>";
-//                ranksData = msgObject['results'];
-//                ranksData.sort();
-//                for (idx = 0; idx < ranksData.length; idx++) {
-//                    user = ranksData[idx]['key'];
-//                    rank = ranksData[idx]['value'];
-//
-//                    html += "<tr class=\"textList\">" +
-//                            "    <td style=\"width: 15px\">" +
-//                            "        <div id=\"deleteCustomRankIcon_" + user + "\" class=\"button\"" +
-//                            "             onclick=\"$.deleteCustomRank('" + user + "')\"><i class=\"fa fa-trash\" />" +
-//                            "        </div>" +
-//                            "    </td>" +
-//                            "    <td style=\"width: 8em\">" + user + "</td>" +
-//                            "    <td><form onkeypress=\"return event.keyCode != 13\">" +
-//                            "        <input type=\"text\" class=\"input-control\" id=\"inlineRankCustomEdit_" + user + "\"" +
-//                            "               value=\"" + rank + "\" style=\"width: 80%\" />" +
-//                            "        <button type=\"button\" class=\"btn btn-default btn-xs\"" +
-//                            "                onclick=\"$.updateCustomRank('" + user + "')\"><i class=\"fa fa-hdd-o\" />" +
-//                            "        </button>" +
-//                            "    </form></td>" +
-//                            "</tr>";
-//                }
-//                html += "</table>";
-//                if (ranksData.length === 0) {
-//                    html = "<i>There are no users with custom ranks</i>";
-//                }
-//                $("#ranksCustom").html(html);
-//                handleInputFocus();
-//            }
-//        
-//        }
+        if (panelHasQuery(msgObject)) {
+            var customHours = "",
+                customCost = "",
+                bitTrackingData = [],
+                user = "",
+                hours = "",
+                bits = "",
+                html = "";
+
+            if (panelCheckQuery(msgObject, 'ranks_time')) {
+                customHours = msgObject['results']['rankEligableTime'];
+                $("#customRankTimeInput").attr("placeholder", customHours);
+                $("#customRankTimeInput").val('');
+            }
+            
+            if (panelCheckQuery(msgObject, 'ranks_cost')) {
+                customCost = msgObject['results']['rankEligableCost'];
+                $("#customRankCostInput").attr("placeholder", customCost);
+                $("#customRankCostInput").val('');
+            }
+
+            if (panelCheckQuery(msgObject, 'ranks_ranksmapping')) {
+                html = "<br><table><th>&nbsp;&nbsp;&nbsp; Hours &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Rank Name</th></tr>";
+                ranksData = msgObject['results'];
+                ranksData.sort(sortRanks);
+                for (idx = 0; idx < ranksData.length; idx++) {
+                    hours = ranksData[idx]['key'];
+                    rank = ranksData[idx]['value'];
+                    html += "<tr class=\"textList\">" +
+                            "    <td><form onkeypress=\"return event.keyCode != 13\">" +
+                            "        <input type=\"text\" class=\"input-control\" id=\"inlineRankHoursEdit_" + hours + "\"" +
+                            "               value=\"" + hours + "\" style=\"width: 10%\"/>" +
+                            "        <input type=\"text\" class=\"input-control\" id=\"inlineRankNameEdit_" + hours + "\"" +
+                            "               value=\"" + rank + "\" style=\"width: 50%\"/>" +
+                            "        <button type=\"button\" class=\"btn btn-default btn-xs\"" +
+                            "                onclick=\"$.updateRank('" + hours + "')\"><i class=\"fa fa-hdd-o\" />" +
+                            "        <button type=\"button\" class=\"btn btn-default btn-xs\" id=\"deleteRank_" + hours + "\"" +
+                            "                onclick=\"$.deleteRank('" + hours + "')\"><i class=\"fa fa-trash\" />" +
+                            "        </button>" +
+                            "    </form></td>" +
+                            "</tr>";
+                }
+                html += "</table>";
+                if (ranksData.length === 0) {
+                    html = "<i>There are no ranks presently defined</i>";
+                }
+                $("#ranksMapping").html(html);
+                handleInputFocus();
+            }
+
+            if (panelCheckQuery(msgObject, 'ranks_customranks')) {
+                html = "<br><table><tr><th /><th>User Name</th><th>Rank Name</th></tr>";
+                ranksData = msgObject['results'];
+                ranksData.sort();
+                for (idx = 0; idx < ranksData.length; idx++) {
+                    user = ranksData[idx]['key'];
+                    rank = ranksData[idx]['value'];
+
+                    html += "<tr class=\"textList\">" +
+                            "    <td style=\"width: 15px\">" +
+                            "        <div id=\"deleteCustomRankIcon_" + user + "\" class=\"button\"" +
+                            "             onclick=\"$.deleteCustomRank('" + user + "')\"><i class=\"fa fa-trash\" />" +
+                            "        </div>" +
+                            "    </td>" +
+                            "    <td style=\"width: 8em\">" + user + "</td>" +
+                            "    <td><form onkeypress=\"return event.keyCode != 13\">" +
+                            "        <input type=\"text\" class=\"input-control\" id=\"inlineRankCustomEdit_" + user + "\"" +
+                            "               value=\"" + rank + "\" style=\"width: 80%\" />" +
+                            "        <button type=\"button\" class=\"btn btn-default btn-xs\"" +
+                            "                onclick=\"$.updateCustomRank('" + user + "')\"><i class=\"fa fa-hdd-o\" />" +
+                            "        </button>" +
+                            "    </form></td>" +
+                            "</tr>";
+                }
+                html += "</table>";
+                if (ranksData.length === 0) {
+                    html = "<i>There are no users with custom ranks</i>";
+                }
+                $("#ranksCustom").html(html);
+                handleInputFocus();
+            }
+        
+        }
     }
 
     /**
      * @function doQuery
      */
     function doQuery() {
-//        sendDBKeys("ranks_ranksmapping", "ranksMapping");
+        sendDBKeys("bittracking_userbits", "bits");
 //        sendDBKeys("ranks_customranks", "viewerRanks");
 //        sendDBQuery("ranks_time", "settings", "rankEligableTime");
 //        sendDBQuery("ranks_cost", "settings", "rankEligableCost");
@@ -153,7 +153,7 @@
         
         $("#addBitTrackingInput").val('');
 
-        sendDBUpdate(keyword, "bitTracking", keyword, 0);
+        sendDBUpdate("add_BitKeyword", "bitKeywords", keyword, '0');
         setTimeout(function() { doQuery(); sendCommand('bittrackingreloadtable'); }, TIMEOUT_WAIT_TIME);
 
     }
