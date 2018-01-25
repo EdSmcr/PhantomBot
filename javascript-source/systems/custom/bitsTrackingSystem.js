@@ -53,6 +53,10 @@
             if (found){
                 found = false;
                 $.inidb.incr('bitKeywords', keywords[i], bits);
+                try {
+                    var message = username + ', bits: ' + bits + ', to: ' + keywords[i] + ' , message: ' + userMessage;
+                    $.log.file('bitsKeywords', '' + message);
+                } catch (e) {}
             }
         }
     }

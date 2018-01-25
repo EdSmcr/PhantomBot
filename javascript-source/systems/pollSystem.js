@@ -6,24 +6,6 @@
  */
 (function() {
     var poll = {
-<<<<<<< HEAD
-        pollId: 0,
-        options: [],
-        votes: [],
-        voters: [],
-        callback: function() {},
-        pollRunning: false,
-        pollMaster: '',
-        time: 0,
-        question: '',
-        minVotes: 0,
-        result: '',
-        hasTie: 0,
-        counts: [],
-        liveResults: {'votes':{}},
-    },
-    timeout;
-=======
             pollId: 0,
             options: [],
             votes: [],
@@ -37,9 +19,10 @@
             result: '',
             hasTie: 0,
             counts: [],
+            liveResults: {'votes':{}}
         },
         timeout;
->>>>>>> upstream/master
+
 
     /** 
      * @function hasKey
