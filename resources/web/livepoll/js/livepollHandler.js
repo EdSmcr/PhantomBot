@@ -19,7 +19,7 @@ let votesTestData = {
         "Good idea not for me": 2,
         "Optimus Prime?": 20
     }
-}
+};
 
 function refreshData() {
     let jsonObject = {};
@@ -191,7 +191,7 @@ function init (){
         "hideEasing": "linear",
         "showMethod": "fadeIn",
         "hideMethod": "fadeOut"
-    }
+    };
 
     for (let index = 0; index < 20; index++) {
         COLORS.push(getRandomColor());
