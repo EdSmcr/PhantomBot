@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 phantombot.tv
+ * Copyright (C) 2016-2018 phantombot.tv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -102,6 +102,18 @@ public class H2Store extends DataStore {
             return connection;
         } catch (SQLException ex) {
             return null;
+        }
+    }
+
+    @Override
+    public void CloseConnection() {
+        try {
+            if (connection != null) {
+                connection.close();
+                connection = null;
+            }
+        } catch (SQLException ex) {
+            com.gmt2001.Console.err.printStackTrace(ex);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 phantombot.tv
+ * Copyright (C) 2016-2018 phantombot.tv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -464,7 +464,7 @@ public final class PhantomBot implements Listener {
 
         /* Set the PhantomBot Commands API variables */
         this.dataRenderServiceAPIToken = this.pbProperties.getProperty("datarenderservicetoken", "");
-        this.dataRenderServiceAPIURL = this.pbProperties.getProperty("datarenderserviceurl", "https://phantombot.illusionaryone.tv");
+        this.dataRenderServiceAPIURL = this.pbProperties.getProperty("datarenderserviceurl", "https://drs.phantombot.tv");
 
         /* Set the MySql variables */
         this.mySqlName = this.pbProperties.getProperty("mysqlname", "");
@@ -525,8 +525,8 @@ public final class PhantomBot implements Listener {
         PhantomBot.messageLimit = Math.floor(Double.parseDouble(this.pbProperties.getProperty("msglimit30", "19.0")));
         if (PhantomBot.messageLimit > 99.0) {
             PhantomBot.messageLimit = 99.0;
-        } else if (PhantomBot.messageLimit < 18.0) {
-            PhantomBot.messageLimit = 18.0;
+        } else if (PhantomBot.messageLimit < 19.0) {
+            PhantomBot.messageLimit = 19.0;
         }
 
         // *Not currently being used.*
@@ -1181,7 +1181,11 @@ public final class PhantomBot implements Listener {
             com.gmt2001.Console.err.printStackTrace(ex);
         }
 
+
         com.gmt2001.Console.out.print("\r\n");
+        print("Closing the database...");
+        dataStore.CloseConnection();
+
         print(this.botName + " is exiting.");
     }
 

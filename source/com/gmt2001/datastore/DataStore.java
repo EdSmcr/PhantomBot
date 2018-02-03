@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2017 phantombot.tv
+ * Copyright (C) 2016-2018 phantombot.tv
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -353,6 +353,9 @@ public class DataStore {
 
     public Connection CreateConnection(String db, String user, String pass) {
         return null;
+    }
+    
+    public void CloseConnection() {
     }
 
     public void setAutoCommit(boolean mode) {
