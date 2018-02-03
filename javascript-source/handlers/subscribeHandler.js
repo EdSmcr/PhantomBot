@@ -204,9 +204,38 @@
             if (giftSubReward > 0) {
                 $.inidb.incr('points', gifter, giftSubReward);
             }
+            
+            //Community Reward 
+            
+            if (event.getPlan().equals('1000')) {
+                givePointsAll(gifter, 5);
+            } else if (event.getPlan().equals('2000')) {
+                givePointsAll(gifter, 20);
+            } else if (event.getPlan().equals('3000')) {
+                givePointsAll(gifter, 100);
+            } else
+            {
+                givePointsAll(gifter, 5);
+            }
         }
     });
 
+    /**
+     * 
+     * @param {type} gifter
+     * @param {type} amount
+     * @returns {undefined}
+     */
+    function givePointsAll(gifter, amount) {
+        $.inidb.setAutoCommit(false);
+        for (i in $.users) {
+            $.inidb.incr('points', $.users[i][0].toLowerCase(), amount);
+        }
+        $.inidb.setAutoCommit(true);
+
+        $.say('Thank you ' + gifter + ' for your generosity in gifting a sub!  Because of your kindness everyone in chat gets ' + amount + ' candy.');
+    };
+    
     /*
      * @event command
      */
