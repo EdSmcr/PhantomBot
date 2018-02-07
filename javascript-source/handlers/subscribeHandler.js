@@ -212,7 +212,7 @@
             } else if (event.getPlan().equals('2000')) {
                 givePointsAll(gifter, 20);
             } else if (event.getPlan().equals('3000')) {
-                givePointsAll(gifter, 100);
+                givePointsAll(gifter, 50);
             } else
             {
                 givePointsAll(gifter, 5);
