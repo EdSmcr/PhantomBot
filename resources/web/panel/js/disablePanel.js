@@ -240,9 +240,14 @@
             if (panelMatch(module, './discord/games/roll.js')) {
                 handlePanel('./discord/games/roll.js', '#_discord_roll', moduleEnabled);
             }
+            
+            if (panelMatch(module, './systems/custom/bitsTrackingSystem.js')) {
+                handlePanel('./systems/custom/bitsTrackingSystem.js', '#_bitTrackingPanel', moduleEnabled);
+                handlePanel('./systems/custom/bitsTrackingSystem.js', '#_bitTrackingbyUserPanel', moduleEnabled);
+            }
         }
     }
 
     // Export Function
-    $.disablePanels = disablePanels
+    $.disablePanels = disablePanels;
 })();

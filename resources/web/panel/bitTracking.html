@@ -22,26 +22,42 @@
 
 <!-- Accordion object.  Each section is separated by an <h3 /> header and the content is to be enclosed in <div />.  -->
 <div id="bitTrackingAccordion">
-    <h3>Bit Tracking</h3>
+    <h3>Bit Tracking by Keywords</h3>
     <div>
-    <div id="_bitTrackingPanelDisabled" />
-    <div id="_bitTrackingPanel">
+        <div id="_bitTrackingPanelDisabled"></div>
+        <div id="_bitTrackingPanel">
+            <form role="form">
+                <div class="form-group" onkeypress="return event.keyCode != 13">
+                    <label for="addBitTracking">Add Tracking Keyword</label>
+                    <button type="button" class="btn btn-primary inline pull-right" onclick="$.addBitTracking()">Submit</button>
+                    <input type="text" class="form-control" id="addBitTrackingInput" placeholder="Keyword" 
+                           data-toggle="tooltip" title="Add keywords to track the amount of bits given to them. (i.e. #charity)" />
+                </div>
+            </form>
+            <br>
+
+            <strong>Current Bits by Keywords</strong>
+            <div id="bitsByKeywords" style="height: 300px; overflow: auto;"></div>
+
+        </div>
+    </div>
+
+    <h3>Bit Tracking by User</h3>
+    <div>
+        <div id="_bitTrackingbyUserPanelDisabled"></div>
+        <div id="_bitTrackingbyUserPanel">
         <form role="form">
             <div class="form-group" onkeypress="return event.keyCode != 13">
-                <label for="addBitTracking">Add Tracking Keyword</label>
-                <button type="button" class="btn btn-primary inline pull-right" onclick="$.addBitTracking()">Submit</button>
-                <input type="text" class="form-control" id="addBitTrackingInput" placeholder="Keyword" 
-                       data-toggle="tooltip" title="Add keywords to track the amount of bits given to them. (i.e. #charity)" />
+
             </div>
         </form>
         <br>
 
-        <strong>Current Bits by Keywords</strong>
-        <div id="bitsByKeywords" style="height: 300px; overflow: auto;"></div>
+        <strong>Current Bits by User</strong>
+        <div id="bitsByUser" style="height: 300px; overflow: auto;"></div>
         
     </div>
     </div>
-
 </div>
 
 <!-- Run the Accordion -->
