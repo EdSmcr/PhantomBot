@@ -287,6 +287,15 @@ $(function() {
     		};
         });
 
+		// Pause listener.
+        player.addListener('pause', () => {
+            if (player.API.getPlayerState() === 2) {
+                player.API.playVideo();
+            } else {
+                player.API.pauseVideo();
+            }
+        });
+
         // Load the player.
         player.API = new YT.Player('player-frame', {
         	events: {
@@ -391,11 +400,16 @@ $(function() {
 	});
 
 	// Load playlist button.
-	//$('#load-playlist-button').on('click', () => {
-	//	helpers.getSongModal('Load Playlist', 'Playlist Name', 'Load', 'Playlist', () => {
+	$('#load-playlist-button').on('click', () => {
+		helpers.getPlaylistModal('Load Playlist', 'Playlist Name', 'Load', 'Playlist', () => {
+            let playlist = $('#playlist-load').val();
 
-	//	}).modal('toggle');
-	//});
+            if (playlist.length > 0) {
+                player.loadPlaylist(playlist);
+                toastr.success('Loading playlist: ' + playlist);
+            }
+		}).modal('toggle');
+	});
 
     // Settings button.
     $('#settings-button').on('click', () => {
@@ -404,7 +418,25 @@ $(function() {
             localStorage.setItem('phantombot_ytplayer_size', $('#player-size-btn').text().toLowerCase());
             // Set the new size.
             helpers.setPlayerSize();
-        }).modal('toggle');
+
+            // Update DJ name.
+            let djName = $('#dj-name').val();
+            if (djName.length > 0) {
+                player.dbUpdate('dj_name_up', 'ytSettings', 'playlistDJname', String(djName));
+            }
+
+            // Update user max songs.
+            let maxSongs = $('#max-song-user').val();
+            if (parseInt(maxSongs) > 0) {
+                player.dbUpdate('max_song_up', 'ytSettings', 'songRequestsMaxParallel', String(maxSongs));
+            }
+
+            // Update max song length.
+            let maxSongLen = $('#max-song-length').val();
+            if (parseInt(maxSongLen) > 0) {
+                player.dbUpdate('max_song_len_up', 'ytSettings', 'songRequestsMaxSecondsforVideo', String(maxSongLen));
+            }
+        });
     });
 
 	// Playlist shuffle button.
@@ -418,7 +450,7 @@ $(function() {
         container: 'body',
         trigger: 'hover',
         delay: {
-            show: 250,
+            show: 350,
             hide: 50
         }
     });
