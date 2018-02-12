@@ -46,8 +46,19 @@ $(function() {
 
             // Set the playlist name.
             $('#playlist-name').html('(' + e.playlistname + ')');
-
-            for (let i = 0; i < playlist.length; i++) {
+            
+            // Show the player even if the default playlist is empty.
+            if (playlist.length === 0)
+            {
+                // Remove loader.
+                $('.loader').fadeOut(6e2, () => {
+                    $(this).remove();
+                });
+                // Show the page.
+                $('#main').fadeIn(5e2);
+            }
+            else{
+                for (let i = 0; i < playlist.length; i++) {
                 let row = $('<tr/>');
 
                 // Add position.
@@ -104,6 +115,7 @@ $(function() {
 
                 // Append the row.
                 table.append(row);
+            }
             }
         });
 

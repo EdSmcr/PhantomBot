@@ -15,7 +15,7 @@
  You should have received a copy of the GNU General Public License
  along with this program.  If not, see <http://www.gnu.org/licenses/>.
  
- @author IllusionaryOne
+ @author EdSmcr
 -->
 
 <!-- This is outside of the accordion, so will always be on top of the tab -->
@@ -29,7 +29,7 @@
             <form role="form">
                 <div class="form-group" onkeypress="return event.keyCode != 13">
                     <label for="addBitTracking">Add Tracking Keyword</label>
-                    <button type="button" class="btn btn-primary inline pull-right" onclick="$.addBitTracking()">Submit</button>
+                    <button type="button" class="btn btn-primary inline pull-right" onclick="$.addKeywords_BitTracking()">Submit</button>
                     <input type="text" class="form-control" id="addBitTrackingInput" placeholder="Keyword" 
                            data-toggle="tooltip" title="Add keywords to track the amount of bits given to them. (i.e. #charity)" />
                 </div>
@@ -46,15 +46,21 @@
     <div>
         <div id="_bitTrackingbyUserPanelDisabled"></div>
         <div id="_bitTrackingbyUserPanel">
-        <form role="form">
-            <div class="form-group" onkeypress="return event.keyCode != 13">
-
-            </div>
-        </form>
+        <div class="form-group" onkeypress="return event.keyCode != 13">
+            <label for="adjustUserBits">Adjust User Bits</label>
+            <button type="button" class="btn btn-primary inline pull-right" onclick="$.modifyUserBits('take')">Take</button>
+            <button type="button" class="btn btn-primary inline pull-right" onclick="$.modifyUserBits('add')">Add</button>
+            <button type="button" class="btn btn-primary inline pull-right" onclick="$.modifyUserBits('set')">Set</button>
+            <input type="text" class="form-control" id="adjustUserBitsNameInput" placeholder="Username or click row from user bits table" />
+            <input type="number" min="0" class="form-control" id="adjustUserBitsInput" placeholder="Bits" />
+        </div>
         <br>
 
-        <strong>Current Bits by User</strong>
-        <div id="bitsByUser" style="height: 300px; overflow: auto;"></div>
+        <div>
+            <span id="userPtsTableTitle">User Bits Table</span>
+        </div>
+        <br>
+        <div id="userPointsTable" style="height: 510px; overflow: auto;" />
         
     </div>
     </div>

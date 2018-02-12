@@ -26,7 +26,7 @@
 (function() {
 
 
-    let _section = '';
+    let _section = 0;
     let _webauth = '38xVUOaiLdOp3GDfth2kR6tu3cmEXU';
 
     /*
@@ -36,8 +36,11 @@
     function doRefresh(){
         var bitTrackingData = [],
             html = "";
+    
+        _section = $( "#bitTrackingAccordion" ).accordion( "option", "active" );
         
-        if (_section === ''){
+        ///Track by keywords.
+        if (_section === 0){
             html = "<br><table><th><span style='width:80%; display:inline-block;padding-left:5px;'>Keywords</span><span style='width:10%; display:inline-block;padding-left:5px;'>Bits</span></th></tr>";
             $.get("http://localhost:25000/dbquery?table=bitKeywords&getSortedRows", { webauth: _webauth } )
             .done(function( data ) {
@@ -75,7 +78,7 @@
                 }
             });
         }
-        else
+        else if (_section === 1) ///Track by User.
         {
             
         }
@@ -96,7 +99,7 @@
     /**
      * @function addBitTracking
      */
-    function addBitTracking() {
+    function addKeywords_BitTracking() {
         var keywords = $("#addBitTrackingInput").val();
         
         $("#addBitTrackingInput").val('');
@@ -184,5 +187,5 @@
     $.bitTrackingDoRefresh = doRefresh;
     $.updateBitTracking = updateBitTracking;
     $.deleteBitTracking = deleteBitTracking;
-    $.addBitTracking = addBitTracking;
+    $.addKeywords_BitTracking = addKeywords_BitTracking;
 })();

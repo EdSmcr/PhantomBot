@@ -394,7 +394,7 @@
      */
     function launchYouTubePlayer() {
         window.open(getProtocol() + url[0] + ':' + window.location.port + '/ytplayer', 'PhantomBot YouTube Player',
-                    'menubar=no,resizeable=yes,scrollbars=yes,status=no,toolbar=no,height=700,width=900,location=no' );
+                    'menubar=no,resizeable=yes,scrollbars=yes,status=no,toolbar=no,height=850,width=900,location=no' );
     }
 
     /**
