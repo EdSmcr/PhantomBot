@@ -1800,7 +1800,7 @@
             }
 
             /**
-             * @commandpath moderation capstriggerlength [amount] - Sets the minimum amount of charaters before checking for caps
+             * @commandpath moderation capstriggerlength [amount] - Sets the minimum amount of characters before checking for caps
              */
             if (action.equalsIgnoreCase('capstriggerlength')) {
                 if (!subAction) {
@@ -1815,7 +1815,7 @@
             }
 
             /**
-             * @commandpath moderation spamlimit [amount] - Sets the amount of repeating charaters allowed in a message
+             * @commandpath moderation spamlimit [amount] - Sets the amount of repeating characters allowed in a message
              */
             if (action.equalsIgnoreCase('spamlimit')) {
                 if (!subAction) {
@@ -1860,7 +1860,7 @@
             }
 
             /**
-             * @commandpath moderation symbolstriggerlength [amount] - Sets the minimum amount of charaters before checking for symbols
+             * @commandpath moderation symbolstriggerlength [amount] - Sets the minimum amount of characters before checking for symbols
              */
             if (action.equalsIgnoreCase('symbolsTriggerLength')) {
                 if (!subAction) {

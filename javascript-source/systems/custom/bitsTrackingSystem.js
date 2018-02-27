@@ -1,5 +1,5 @@
 /**
- * bitsSystem.js
+ * bitsTrackingSystem.js
  *
  * Command handler for a bits system!
  */
