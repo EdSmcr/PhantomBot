@@ -57,11 +57,11 @@ $(function() {
                 'style': 'width: 15%;',
                 'html': 'Duration'
             })).append($('<th/>', {
-                'style': 'width: 10%;',
+                'style': 'width: 10%; text-align: right; padding-right: 16px;',
                 'html': 'Actions'
             }))).html());
-
-            if (playlist.length === 0)
+			
+			if (playlist.length === 0)
             {
                 // Remove loader.
                 $('.loader').fadeOut(6e2, () => {
@@ -69,59 +69,62 @@ $(function() {
                 });
                 // Show the page.
                 $('#main').fadeIn(5e2);
-            }
+			}
             else
-            {
-                for (let i = 0; i < playlist.length; i++) {
-                    let row = $('<tr/>');
+            {  
+				for (let i = 0; i < playlist.length; i++) {
+					let row = $('<tr/>');
 
-                    // Add position.
-                    row.append($('<td/>', {
-                        'text': i
-                    }));
+					// Add position.
+					row.append($('<td/>', {
+						'text': i,
+						'style': 'width: 5%;'
+					}));
 
-                    // Add song name.
-                    row.append($('<td/>', {
-                        'text': playlist[i].title
-                    }));
+					// Add song name.
+					row.append($('<td/>', {
+						'text': playlist[i].title,
+						'style': 'width: 70%;'
+					}));
 
-                    // Add duration.
-                    row.append($('<td/>', {
-                        'text': playlist[i].duration
-                    }));
+					// Add duration.
+					row.append($('<td/>', {
+						'text': playlist[i].duration,
+						'style': 'width: 15%;'
+					}));
 
-                    // Add buttons.
-                    row.append($('<td/>', {
-                            'html': $('<div/>', {
-                                    'class': 'btn-group btn-group-justified header-button'
-                            }).append($('<button/>', {
-                                    'type': 'button',
-                                    'class': 'btn btn-secondary btn-sm',
-                                    'data-toggle': 'tooltip',
-                                    'title': 'Play song',
-                                    'data-song': playlist[i].song,
-                            'data-song-play': 'on',
-                                    'html': $('<i/>', {
-                                            'class': 'fas fa-play'
-                                    })
-                            })).append($('<button/>', {
-                                    'type': 'button',
-                                    'class': 'btn btn-secondary btn-sm',
-                                    'data-toggle': 'tooltip',
-                                    'title': 'Delete song',
-                                    'data-song': playlist[i].song,
-                            'data-song-remove': 'on',
-                                    'html': $('<i/>', {
-                                            'class': 'fas fa-trash'
-                                    })
-                            }))
-                    }));
+					// Add buttons.
+					row.append($('<td/>', {
+						'html': $('<div/>', {
+							'class': 'btn-group btn-group-justified header-button'
+						}).append($('<button/>', {
+							'type': 'button',
+							'class': 'btn btn-secondary btn-sm',
+							'data-toggle': 'tooltip',
+							'title': 'Play song',
+							'data-song': playlist[i].song,
+							'data-song-play': 'on',
+							'html': $('<i/>', {
+								'class': 'fas fa-play'
+							})
+						})).append($('<button/>', {
+							'type': 'button',
+							'class': 'btn btn-secondary btn-sm',
+							'data-toggle': 'tooltip',
+							'title': 'Delete song',
+							'data-song': playlist[i].song,
+							'data-song-remove': 'on',
+							'html': $('<i/>', {
+								'class': 'fas fa-trash'
+							})
+						})),
+						'style': 'width: 10%;'
+					}));
 
-                    // Append the row.
-                    table.push(row[0].outerHTML);
-                }
-            }
-            
+					// Append the row.
+					table.push(row[0].outerHTML);
+				}
+			}
             // Render the data.
             if (cluster !== null) {
                 cluster.update(table);
