@@ -14,8 +14,8 @@ body{
 #chartLocation{
     border: 1px solid #eeeeee;
     display: inline-block;
-    width: 480px;
-    height: 310px;
+    width: 600px;
+    height: 480px;
 }
 
 #chartLocation table{
@@ -29,7 +29,7 @@ body{
 }
 
 #chartLocation table .title{
-    font-size: 20px;
+    font-size: 4vw;
 }
 
 #chartLocation table .count, #chartLocation table .votes{
@@ -40,8 +40,8 @@ body{
 
 #chartLocation table .bar{
     display: inline-block;
-    max-width: 398px;
-    min-width: 398px;
+    max-width: 510px;
+    min-width: 510px;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -50,7 +50,7 @@ body{
     display: inline-block;
     background-color: red;
     white-space: nowrap;
-    font-size: 18px;
+    font-size: 4vw;
 }
 
 body input[type="color"]{

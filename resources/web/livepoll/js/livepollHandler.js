@@ -3,8 +3,8 @@ let COLORS = [];
 let refreshInterval;
 let myStorage = window.localStorage;
 let settings = {
-    height: 310,
-    width: 480,
+    height: 480,
+    width: 600,
     backgroundColor: '#00ff00',
     textColor: '#ffffff'
 };

@@ -213,6 +213,17 @@
             if (action.equalsIgnoreCase('close')) {
                 closeRaffle(sender);
             }
+            
+            /**
+             * @commandpath traffle [close] - Closes a ticket raffle.
+             */
+            if (action.equalsIgnoreCase('clear')) {
+                $.inidb.RemoveFile('ticketsList');
+                $.inidb.RemoveFile('entered');
+                $.inidb.set('raffleresults', 'ticketRaffleEntries', 0);
+                entries = "";
+                entries = [];
+            }
 
             /**
              * @commandpath traffle [repick] - Picks a new winner for the ticket raffle
