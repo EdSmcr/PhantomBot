@@ -218,6 +218,9 @@
              * @commandpath traffle [close] - Closes a ticket raffle.
              */
             if (action.equalsIgnoreCase('clear')) {
+                
+                $.inidb.CloseConnection();
+                    
                 $.inidb.RemoveFile('ticketsList');
                 $.inidb.RemoveFile('entered');
                 $.inidb.set('raffleresults', 'ticketRaffleEntries', 0);
