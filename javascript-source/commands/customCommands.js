@@ -213,7 +213,7 @@
                 keyword_info["count"] = 1;
             }
             $.inidb.set('keywords', input_keyword, JSON.stringify(keyword_info));
-            
+
             message = $.replace(message, '(keywordcount ' + input_keyword + ')', keyword_info["count"]);
         }
 
@@ -228,7 +228,7 @@
         if (message.match(/\(pointname\)/g)) {
             message = $.replace(message, '(pointname)', $.pointNameMultiple);
         }
-        
+
         if (message.match(/\(points\)/g)) {
             message = $.replace(message, '(points)', $.getUserPoints(event.getSender()));
         }
@@ -402,7 +402,7 @@
             }
             message = $.replace(message, message.match(/(\(gameonly=.*\))/)[1], '');
         }
-        
+
         if (message.match(/\(useronly=.*\)/g)) {
             var user = message.match(/\(useronly=(.*)\)/)[1];
 
@@ -541,7 +541,7 @@
             if (commandToExec.length > 0) {
                 var EventBus = Packages.tv.phantombot.event.EventBus;
                 var CommandEvent = Packages.tv.phantombot.event.command.CommandEvent;
-                EventBus.instance().post(new CommandEvent(event.getSender(), commandToExec, message.replace(reCommandTag, '')));
+                EventBus.instance().post(new CommandEvent(event.getSender(), commandToExec, message.replace(reCommandTag, '').substring(1)));
                 return null;
             }
         }
@@ -1095,7 +1095,7 @@
         }
 
         /*
-         * @commandpath resetcom [command] - Resets the counter to zero, for a command that uses the (count) tag
+         * @commandpath resetcom [command] [count] - Resets the counter to zero, for a command that uses the (count) tag or optionally set to a specific value.
          */
         if (command.equalsIgnoreCase('resetcom')) {
             if (action === undefined) {
@@ -1105,8 +1105,17 @@
 
             action = action.replace('!', '').toLowerCase();
 
-            $.say($.whisperPrefix(sender) + $.lang.get('customcommands.reset.success', action));
-            $.inidb.del('commandCount', action);
+            if (args.length === 1) {
+                $.say($.whisperPrefix(sender) + $.lang.get('customcommands.reset.success', action));
+                $.inidb.del('commandCount', action);
+            } else {
+                if (isNaN(subAction)) {
+                    $.say($.whisperPrefix(sender) + $.lang.get('customcommands.reset.change.fail', subAction));
+                } else {
+                    $.inidb.set('commandCount', action, subAction);
+                    $.say($.whisperPrefix(sender) + $.lang.get('customcommands.reset.change.success', action, subAction));
+                }
+            }
             return;
         }
     });
