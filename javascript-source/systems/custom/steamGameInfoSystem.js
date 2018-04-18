@@ -34,7 +34,16 @@
                     $.inidb.setAutoCommit(false);
                     for (var key in steamGames.applist.apps)
                     {
-                        $.getSetIniDbString('steamGames', steamGames.applist.apps[key].appid , getJSONString(steamGames.applist.apps[key].appid + '', steamGames.applist.apps[key].name + '', '', ''));
+                        var entity = $.getSetIniDbString('steamGames', steamGames.applist.apps[key].appid , getJSONString(steamGames.applist.apps[key].appid + '', steamGames.applist.apps[key].name + '', '', ''));
+                       
+                        if (entity !== ''){
+                           var gameinfo = JSON.parse(entity);
+                           
+                           if (gameinfo.name !== steamGames.applist.apps[key].name)
+                           {
+                               $.setIniDbString('steamGames', steamGames.applist.apps[key].appid , getJSONString(steamGames.applist.apps[key].appid + '', steamGames.applist.apps[key].name + '', '', ''));
+                           }
+                        }
                     }
                     // Enable auto commit again and force save.
                     $.inidb.setAutoCommit(true);
@@ -125,50 +134,117 @@
                     }
                     else
                     {
-                        //HumbleBundle.com lucky search
-                        handleHumbleBundle(game);
+                        $.say($.lang.get('games.gameinfo.notfound'));
                     }
                 } 
             }
-            
             return;
         }
 
     });
     
     function handleHumbleBundle(name){
-        //HumbleBundle.com lucky search
-        var formatedName = encodeURIComponent(name);
-        //Using I'm Lucky from google to try to get the game in humblebundle.com
-        var response = $.customAPI.get("https://www.google.com/search?&q=" + formatedName + "+site%3A+www.humblebundle.com&btnI=1").content;
-        var foundURL = '',
-            foundDescription = '';
-        if (response.contains("<meta name=\"application-name\" content=\"Humble Bundle\">")){
-            if (response.contains("<link rel=\"canonical\" href=\"")&& response.contains("<meta itemprop=\"description\" content=\"")){
-                if (response.contains("<link rel=\"canonical\" href=\"")){
-                    var index = response.indexOf("<link rel=\"canonical\" href=\"") + 28;
-                    foundURL = response.substring(index,response.indexOf("\">", index)) + "/?partner=Lowco2525";
-                    foundURL = $.shortenURL.getShortURL(foundURL);
-                }
-                if (response.contains("<meta itemprop=\"description\" content=\"")){
-                    var index = response.indexOf("<meta itemprop=\"description\" content=\"") + 38;
-                    foundDescription = response.substring(index,response.indexOf("\">", index));
-                    foundDescription = foundDescription.substring(0, foundDescription.lastIndexOf('.', 300)) + '';
+        //HumbleBundle.com luckup search
+        var formatedName = name.replace(/[^a-zA-Z 0-9]/g, "").replace(/ /g, '-').toLowerCase();
+        $.consoleLn(formatedName);
+        var response = $.customAPI.get("https://www.humblebundle.com/store/api/lookup?products[]="+ formatedName +"&request=1&edit_mode=false").content;
+        if (response !== undefined){
+            var gameInfo = JSON.parse(response);
+            
+            if (gameInfo){
+                if (!isEmpty(gameInfo.result)){
+                    
+                    var foundName = '',
+                    foundURL = '',
+                    foundDescription = '';
+        
+                    foundName = gameInfo.result[0].human_name;
+                    
+                    foundDescription = gameInfo.result[0].description + '';
                     foundDescription = foundDescription.replace(/<(?:.|\n)*?>/gm, '');
+                    foundDescription = foundDescription.substring(3, foundDescription.lastIndexOf('.', 300)) + '';
                     foundDescription = foundDescription.replace("&#39;", "'");
+                    
+                    foundURL = "https://www.humblebundle.com/store/" +  gameInfo.result[0].human_url + "/?partner=Lowco2525";
+                    
+                    $.consoleLn('name: ' + foundName);                    
+                    $.consoleLn('description: ' + foundDescription);
+                    $.consoleLn('url: ' + foundURL);
+
+                    //$.say($.lang.get('games.gameinfo.onhumble', foundName, foundDescription, foundURL ));
                 }
-                $.say($.lang.get('games.gameinfo.onhumble', name, foundDescription, foundURL ));
+                else{
+                    return false;
+                }
             }
-            else
-            {
-               $.say($.lang.get('games.gameinfo.notfound')); 
+            else{
+                return false;
             }
-        }else
-        {
+        }
+        else{
             return false;
         }
+       
+        //var result = JSON.parse(response.result);
+//        if (response.result){
+//            for (var key in response.result) {
+//                
+//                $.consoleLn(key);
+//            }
+//            $.say("result not empty");
+//        }
+//        else
+//        {
+//            $.say("result empty");
+//        }
+        
+//        if (response.contains("<meta name=\"application-name\" content=\"Humble Bundle\">")){
+//            
+//            if (response.contains("<h1 data-entity-kind=\"product\" data-anchor-name=\"#human_name\" class=\"property-view human_name-view js-admin-edit\">"))
+//            {
+//                var index = response.indexOf("<h1 data-entity-kind=\"product\" data-anchor-name=\"#human_name\" class=\"property-view human_name-view js-admin-edit\">") + 114;
+//                foundName = response.substring(index,response.indexOf("\">", index));
+//            }
+//            else
+//            {
+//                foundName = "No name.";
+//                
+//            }
+//            $.consoleLn(response);
+//            if (response.contains("<link rel=\"canonical\" href=\"")&& response.contains("<meta itemprop=\"description\" content=\"")){
+//                if (response.contains("<link rel=\"canonical\" href=\"")){
+//                    var index = response.indexOf("<link rel=\"canonical\" href=\"") + 28;
+//                    foundURL = response.substring(index,response.indexOf("\">", index)) + "/?partner=Lowco2525";
+//                    foundURL = $.shortenURL.getShortURL(foundURL);
+//                }
+//                if (response.contains("<meta itemprop=\"description\" content=\"")){
+//                    var index = response.indexOf("<meta itemprop=\"description\" content=\"") + 38;
+//                    foundDescription = response.substring(index,response.indexOf("\">", index));
+//                    foundDescription = foundDescription.substring(0, foundDescription.lastIndexOf('.', 300)) + '';
+//                    foundDescription = foundDescription.replace(/<(?:.|\n)*?>/gm, '');
+//                    foundDescription = foundDescription.replace("&#39;", "'");
+//                }
+//                $.say($.lang.get('games.gameinfo.onhumble', name, foundDescription, foundURL ));
+//            }
+//            else
+//            {
+//               $.say($.lang.get('games.gameinfo.notfound')); 
+//            }
+//        }else
+//        {
+//            return false;
+//        }
         return true;
     };
+    
+    function isEmpty(obj) {
+        for(var prop in obj) {
+            if(obj.hasOwnProperty(prop))
+                return false;
+        }
+
+        return JSON.stringify(obj) === JSON.stringify({});
+    }
     
     /**
      * @function getJSONString

@@ -91,8 +91,15 @@
             poll.liveResults['question'] = question;
         }
 
+        // Remove the old files.
+        $.inidb.RemoveFile('pollPanel');
+        $.inidb.RemoveFile('pollVotes');
+
+        $.inidb.setAutoCommit(false);
         for (var i = 0; i < poll.options.length; i++) {
             optionsStr += (i + 1) + ") " + poll.options[i] + " ";
+            $.inidb.set('pollVotes', poll.options[i].replace(/\s/, '%space_option'), 0);
+            
             if (poll.liveResults.votes[poll.options[i]] == undefined){
                 poll.liveResults.votes[poll.options[i]] = 0;
             }
@@ -100,6 +107,8 @@
         
         $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
         
+        $.inidb.setAutoCommit(true);
+
         if (poll.time > 0) {
             $.say($.lang.get('pollsystem.poll.started', $.resolveRank(pollMaster), time, poll.minVotes, poll.question, optionsStr));
 
@@ -110,6 +119,9 @@
             $.say($.lang.get('pollsystem.poll.started.nottime', $.resolveRank(pollMaster), poll.minVotes, poll.question, optionsStr));
         }
 
+        $.inidb.set('pollPanel', 'title', question);
+        $.inidb.set('pollPanel', 'options', options.join('%space_option%'));
+        $.inidb.set('pollPanel', 'isActive', 'true');
         return true;
     };
 
@@ -139,6 +151,7 @@
         optionIndex--;
         poll.voters.push(sender);
         poll.votes.push(optionIndex);
+        $.inidb.incr('pollVotes', poll.options[optionIndex].replace(/\s/, '%space_option%'), 1);
 
         if (poll.liveResults.votes[poll.options[optionIndex]] == undefined){
             poll.liveResults.votes[poll.options[optionIndex]] = 1;
@@ -148,8 +161,6 @@
         }
         
         $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
-        
-        $.consoleLn('votes: ' +  JSON.stringify(poll.liveResults));
     };
 
     /**
@@ -165,6 +176,8 @@
         }
 
         clearTimeout(timeout);
+
+        $.inidb.set('pollPanel', 'isActive', 'false');
 
         if (poll.minVotes > 0 && poll.votes.length < poll.minVotes) {
             poll.result = '';
@@ -191,7 +204,7 @@
         $.inidb.set('pollresults', 'options', poll.options.join(','));
         $.inidb.set('pollresults', 'counts', poll.counts.join(','));
         $.inidb.set('pollresults', 'istie', poll.hasTie);
-        
+
         //$.inidb.del('livePoll', 'openPoll');
 
         poll.callback(poll.result);
