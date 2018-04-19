@@ -29,6 +29,7 @@ public class TwitchBitsEvent extends TwitchEvent {
      *
      * @param {String} username
      * @param {String} bits
+     * @param {String} message
      */
 
     public TwitchBitsEvent(String username, String bits, String message) {
@@ -54,9 +55,9 @@ public class TwitchBitsEvent extends TwitchEvent {
     public String getBits() {
         return this.bits;
     }
-    
-     /*
-     * Method that returns the full message.
+
+    /**
+     * Method that returns the message that was sent as part of the Bits tag.
      *
      * @return {String} message
      */
