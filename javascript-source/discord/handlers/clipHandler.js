@@ -4,8 +4,9 @@
  */
 (function() {
     var toggle = $.getSetIniDbBoolean('discordSettings', 'clipsToggle', false),
-        message = $.getSetIniDbString('discordSettings', 'clipsMessage', '(name) created a clip named: (title)'),
-        channelName = $.getSetIniDbString('discordSettings', 'clipsChannel', '');
+        message = $.getSetIniDbString('discordSettings', 'clipsMessage', '(name) created a new clip!'),
+        channelName = $.getSetIniDbString('discordSettings', 'clipsChannel', ''),
+        announce = false;
 
     /**
      * @event webPanelSocketUpdate
@@ -13,7 +14,7 @@
     $.bind('webPanelSocketUpdate', function(event) {
         if (event.getScript().equalsIgnoreCase('./discord/handlers/clipHandler.js')) {
             toggle = $.getIniDbBoolean('discordSettings', 'clipsToggle', false);
-            message = $.getIniDbString('discordSettings', 'clipsMessage', '(name) created a clip named: (title)');
+            message = $.getIniDbString('discordSettings', 'clipsMessage', '(name) created a new clip!');
             channelName = $.getIniDbString('discordSettings', 'clipsChannel', '');
         }
     });
@@ -21,13 +22,13 @@
     /*
      * @event twitchClip
      */
-    $.bind('twitchClip', function(event) {
+	$.bind('twitchClip', function(event) {
         var creator = event.getCreator(),
             url = event.getClipURL(),
             s = message;
 
         /* Even though the Core won't even query the API if this is false, we still check here. */
-        if (toggle === false) {
+        if (announce === false || toggle === false) {
             return;
         }
 
@@ -39,20 +40,23 @@
             s = $.replace(s, '(url)', url);
         }
 
-        if (s.match(/\(title\)/g)) {
-            s = $.replace(s, '(title)', event.getClipTitle());
+        if (s.match(/\(embedurl\)/g)) {
+            s = $.replace(s, '(embedurl)', url);
         }
 
-        $.discordAPI.sendMessageEmbed(channelName, new Packages.sx.blah.discord.util.EmbedBuilder()
-                    .withColor(100, 65, 164)
-                    .withThumbnail('https://raw.githubusercontent.com/PhantomBot/Miscellaneous/master/Discord-Embed-Icons/clip-embed-icon.png')
-                    .withTitle($.lang.get('discord.cliphandler.clip.embedtitle'))
-                    .appendDescription(s)
-                    .withUrl(url)
-                    .withImage(event.getThumbnailObject().getString('medium'))
-                    .withTimestamp(Date.now())
-                    .withFooterText('Twitch')
-                    .withFooterIcon($.twitchcache.getLogoLink()).build());
+        if (message.indexOf('(embedurl)') !== -1) {
+            $.discord.say(channelName, s);
+        } else {
+            $.discordAPI.sendMessageEmbed('testing', new Packages.sx.blah.discord.util.EmbedBuilder()
+                        .withColor(100, 65, 164)
+                        .withThumbnail('https://raw.githubusercontent.com/PhantomBot/Miscellaneous/master/Discord-Embed-Icons/clip-embed-icon.png')
+                        .withTitle($.lang.get('discord.cliphandler.clip.embedtitle'))
+                        .appendDescription(s)
+                        .withUrl('https://clips.twitch.tv')
+                        .withTimestamp(Date.now())
+                        .withFooterText('Twitch')
+                        .withFooterIcon($.twitchcache.getLogoLink()).build());
+        }
     });
 
     /*
@@ -130,5 +134,7 @@
         $.discord.registerCommand('./discord/handlers/clipHandler.js', 'clipschannel', 1);
         $.discord.registerCommand('./discord/handlers/clipHandler.js', 'lastclip', 0);
         $.discord.registerCommand('./discord/handlers/clipHandler.js', 'topclip', 0);
+
+        announce = true;
     });
 })();
