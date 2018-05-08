@@ -180,10 +180,7 @@ public class PanelSocketServer extends WebSocketServer {
     /**
      * Override for the WebSocketServer class which is called on start.
      */
-    @Override
-    public void onStart() {
-        com.gmt2001.Console.debug.println("Server Started");
-    }
+
 
     /**
      * Override for the WebSocketServer class which is called upon a disconnect.
@@ -881,7 +878,7 @@ public class PanelSocketServer extends WebSocketServer {
             }
         }
 
-        EventBus.instance().postAsync(new WebPanelSocketUpdateEvent(id, script, arguments, args));
+        EventBus.instance().post(new WebPanelSocketUpdateEvent(id, script, arguments, args));
         debugMsg("doWSEvent(" + id + "::" + script + ")");
 
         jsonObject.object().key("query_id").value(id).endObject();
