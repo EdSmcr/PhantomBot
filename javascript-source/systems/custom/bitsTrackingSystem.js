@@ -87,10 +87,10 @@
                             $.setIniDbString('bits', action3.toLowerCase(), intAction2);
                             $.say($.lang.get('bits.set.pass', ranked_sender, action3, intAction2));
                         } else {
-                            $.say($.lang.get('bits.set.useage', ranked_sender, action3));
+                            $.say($.lang.get('bits.set.usage', ranked_sender, action3));
                         }
                     } else {
-                        $.say($.lang.get('bits.set.useage', ranked_sender));
+                        $.say($.lang.get('bits.set.usage', ranked_sender));
                     }
                 }
 

@@ -9,7 +9,7 @@
         url: '',
         createdDate: '',
         title: '',
-        thumbnails: new JSONObject()
+        thumbnails: ''
         
     }; 
     /*
@@ -20,7 +20,7 @@
             url = event.getClipURL() + '',
             game = ($.getGame($.channelName) != '' ? $.getGame($.channelName) : "Some Game") + '',
             title = event.getClipTitle(),
-            thumbnails = getThumbnailObject(),
+            thumbnails = event.getThumbnailObject(),
             createdDate = $.systemTime();
 
         clipInfo.game = game;
