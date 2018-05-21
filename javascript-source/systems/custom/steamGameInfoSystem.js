@@ -171,7 +171,7 @@
                     $.consoleLn('description: ' + foundDescription);
                     $.consoleLn('url: ' + foundURL);
 
-                    //$.say($.lang.get('games.gameinfo.onhumble', foundName, foundDescription, foundURL ));
+                    $.say($.lang.get('games.gameinfo.onhumble', foundName, foundDescription, foundURL ));
                 }
                 else{
                     return false;
