@@ -79,19 +79,43 @@
 
     /**
      * @function loadAudioHookCommands
+     *
+     * @param {String} cmd
      */
-    function loadAudioHookCommands() {
-        if ($.bot.isModuleEnabled('./systems/audioPanelSystem.js')) {
-            var commands = $.inidb.GetKeyList('audioCommands', ''),
-                i;
+    function loadAudioHookCommands(cmd) {
+        if (cmd !== undefined) {
+            $.unregisterChatCommand(cmd);
+        } else {
+            if ($.bot.isModuleEnabled('./systems/audioPanelSystem.js')) {
+                var commands = $.inidb.GetKeyList('audioCommands', ''),
+                    i;
 
-            for (i in commands) {
-                if (!$.commandExists(commands[i])) {
-                    $.registerChatCommand('./systems/audioPanelSystem.js', commands[i], 7);
-                } else {
-                    $.log.error('Cannot add custom command audio hook, command already exists: ' + commands[i]);
+                for (i in commands) {
+                    if (!$.commandExists(commands[i])) {
+                        $.registerChatCommand('./systems/audioPanelSystem.js', commands[i], 7);
+                    }
                 }
             }
+        }
+    };
+
+    /*
+     * @function removeAudioHook
+     *
+     * @param {String} audioHookName
+     */
+    function removeAudioHook(audioHookName) {
+        if ($.inidb.exists('audio_hooks', audioHookName)) {
+            var files = $.findFiles('./config/audio-hooks/', '');
+
+            for (var i in files) {
+                var fileName = files[i].substring(0, files[i].indexOf('.'));
+                if (fileName.equalsIgnoreCase(audioHookName)) {
+                    $.deleteFile('./config/audio-hooks/' + files[i], true);
+                }
+            }
+
+            $.inidb.del('audio_hooks', audioHookName);
         }
     };
 
@@ -116,6 +140,25 @@
                 return;
             }
             updateAudioHookDB();
+            return;
+        }
+
+        /* Control Panel remove audio hook */
+        if (command.equalsIgnoreCase('panelremoveaudiohook')) {
+            if (!$.isBot(sender)) {
+                return;
+            }
+            removeAudioHook(subCommand);
+            return;
+        }
+
+        /* Control Panel reload audio commands */
+        if (command.equalsIgnoreCase('panelloadaudiohookcmds')) {
+            if (!$.isBot(sender)) {
+                return;
+            }
+            loadAudioHookCommands(subCommand);
+            return;
         }
 
         /**
@@ -274,6 +317,9 @@
      */
     $.bind('initReady', function() {
         $.registerChatCommand('./systems/audioPanelSystem.js', 'reloadaudiopanelhooks', 30);
+        $.registerChatCommand('./systems/audioPanelSystem.js', 'panelremoveaudiohook', 30);
+        $.registerChatCommand('./systems/audioPanelSystem.js', 'panelloadaudiohookcmds', 30);
+
         $.registerChatCommand('./systems/audioPanelSystem.js', 'audiohook', 1);
         $.registerChatSubcommand('audiohook', 'play', 1);
         $.registerChatSubcommand('audiohook', 'list', 1);
