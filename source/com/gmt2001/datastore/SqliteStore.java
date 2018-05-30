@@ -344,7 +344,7 @@ public class SqliteStore extends DataStore {
         try (Statement statement = connection.createStatement()) {
             statement.setQueryTimeout(10);
 
-            try (ResultSet rs = statement.executeQuery("SELECT name FROM sqlite_master WHERE type='table' AND name LIKE 'phantombot_%';")) {
+            try (ResultSet rs = statement.executeQuery("SELECT name FROM sqlite_master WHERE (type='table' OR type='view') AND name LIKE 'phantombot_%';")) {
 
                 ArrayList<String> s = new ArrayList<String>();
 
