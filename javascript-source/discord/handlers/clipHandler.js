@@ -47,12 +47,12 @@
         if (message.indexOf('(embedurl)') !== -1) {
             $.discord.say(channelName, s);
         } else {
-            $.discordAPI.sendMessageEmbed('testing', new Packages.sx.blah.discord.util.EmbedBuilder()
+            $.discordAPI.sendMessageEmbed(channelName, new Packages.sx.blah.discord.util.EmbedBuilder()
                         .withColor(100, 65, 164)
                         .withThumbnail('https://raw.githubusercontent.com/PhantomBot/Miscellaneous/master/Discord-Embed-Icons/clip-embed-icon.png')
                         .withTitle($.lang.get('discord.cliphandler.clip.embedtitle'))
                         .appendDescription(s)
-                        .withUrl('https://clips.twitch.tv')
+                        .withUrl(url)
                         .withTimestamp(Date.now())
                         .withFooterText('Twitch')
                         .withFooterIcon($.twitchcache.getLogoLink()).build());
