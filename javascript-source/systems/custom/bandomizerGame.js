@@ -1,17 +1,10 @@
 /**
  * Script  : bandomizerGame.js
- * Purpose : Configures the
+ * Purpose : 
  */
 (function() {
     var entries = [],
     status = false;
-
-    var _userInfo = function(){
-        return {
-            addedBy: '',
-            lastPicked: ''
-        };
-    };
 
     /*
      * @event command

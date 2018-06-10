@@ -29,6 +29,3 @@ $.lang.register('bandomizer.pick', 'The bot has chosen $1 as the next victim and
 $.lang.register('banalooney.usage', '$1, Usage: !banalooney <user>');
 $.lang.register('banalooney.immune', '$1, You can\'t ban $2, they are immune, for now lowcoTF ');
 $.lang.register('banalooney.success', '$1 has been timed out for 10 minutes, they will be immune for the next hour.');
-
-
-$.lang.register('stjudebonus.total', 'On behalf of The Looneybin community, Lowco will be donating $1 to St. Jude at the end of the month from subs and bits!');

@@ -4,6 +4,8 @@
  * Command handler for a bits system!
  */
 (function() {
+    var botloginSettings = {},
+    printInChat = $.getSetIniDbBoolean('donationsTrackingSettings', 'printInChat', false);
     /*
      * @event twitchBits
      */
@@ -123,23 +125,70 @@
 
     function calculateAndPrintTotal(){
         //calculate the total donated.
-            
-            var currentdate = $.getLocalTimeString('MM yyyy', $.systemTime());
-        
-            var monthly_bits = $.getSetIniDbNumber('montlybits', currentdate, 0);
-            
-            var amountFromBits = Math.floor(monthly_bits/1000.0);
-            
-            var monthly_tier1 = $.getSetIniDbNumber('monthlytier1', currentdate, 0);
-            var monthly_tier2 = $.getSetIniDbNumber('monthlytier2', currentdate, 0);
-            var monthly_tier3 = $.getSetIniDbNumber('monthlytier3', currentdate, 0);
-                        
-            var total = parseInt((amountFromBits) + (monthly_tier1) + (monthly_tier2 * 2) + (monthly_tier3 * 5));
-            
-            var message = $.lang.get('stjudebonus.total', '%' + total);
-            
-            $.say(message.replace('%','$'));
+        if (!printInChat) {
+            return;
+        }
+        var currentdate = $.getLocalTimeString('MM yyyy', $.systemTime());
+
+        var monthly_bits = $.getSetIniDbNumber('montlybits', currentdate, 0);
+
+        var amountFromBits = Math.floor(monthly_bits/1000.0);
+
+        var monthly_tier1 = $.getSetIniDbNumber('monthlytier1', currentdate, 0);
+        var monthly_tier2 = $.getSetIniDbNumber('monthlytier2', currentdate, 0);
+        var monthly_tier3 = $.getSetIniDbNumber('monthlytier3', currentdate, 0);
+
+        var total = parseInt((amountFromBits) + (monthly_tier1) + (monthly_tier2 * 2) + (monthly_tier3 * 5));
+
+        var message = $.lang.get('stjudebonus.total', '%' + total);
+
+        $.say(message.replace('%','$'));
     };
+    
+    /*
+     * @function loadKeywords
+     */
+    function checkTiltify() {
+        var header = {};
+        
+        if (botloginSettings['TiltifyAPIKey'] === undefined) {
+            return;
+        } else {
+            header['Authorization'] = 'Token token="'+ botloginSettings['TiltifyAPIKey']  +'"';
+        }
+        
+        var response = $.customAPI.readJsonFromUrl("https://tiltify.com/api/v2/campaign/?donations=true&donation_limit=5", JSON.stringify(header));
+        
+        if (response !== undefined){
+            var obj = JSON.parse(response);
+        
+            if (obj.donations){
+                for (var key in obj.donations) {
+                    if (!Object.prototype.hasOwnProperty.call(obj.donations, key)) continue;
+                    var donation = obj.donations[key];
+                    
+                    if (!$.inidb.HasKey("tiltify", '', donation.id)){
+                        //announce donation and add it to the list.
+                        $.inidb.set("tiltify", donation.id, JSON.stringify(donation));
+                        $.say( $.lang.get('tiltify.donation.message', donation.name));
+                    }
+                }
+            }
+        }
+    }
+    
+    function readBotLogin()
+    {
+        var botLoginFileData = $.readFile('./config/botlogin.txt');
+        for (var idx in botLoginFileData) {
+            if (botLoginFileData[idx].startsWith('#')) {
+                continue;
+            }
+            var parts = botLoginFileData[idx].split('=', 2);
+            botloginSettings[parts[0]] = parts[1];
+        }
+    }
+    
 	/**
      * @event initReady
      */
@@ -147,5 +196,8 @@
         if ($.bot.isModuleEnabled('./systems/custom/donationsTrackingSystem.js')) {
             $.registerChatCommand('./systems/custom/donationsTrackingSystem.js', 'stjudebonus', 7);
         }
+        
+        readBotLogin();
+        //setInterval(checkTiltify, 6e4);
     });
 })();
