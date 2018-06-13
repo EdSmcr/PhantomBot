@@ -192,14 +192,18 @@
     }
 
     function addToList(user){
-        if(entries.indexOf(user) < 0){
-            entries.push(user);
+        for (var i in entries) {
+            if (entries[i].equalsIgnoreCase(user)) {
+                return;
+            }
         }
+        entries.push(user);
     }
     function removeFromList(user){
-        var index = entries.indexOf(user);
-        if (index > -1) {
-            entries.splice(index, 1);
+        for (var i in entries) {
+            if (entries[i].equalsIgnoreCase(user)) {
+                entries.splice(i, 1);
+            }
         }
     }
 

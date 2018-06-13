@@ -26,9 +26,19 @@
         if (command.equalsIgnoreCase('candyjar')) {
             if (!action) {
                 if(!status){
-                     $.say($.lang.get('candyjar.empty'));
+                    $.say($.lang.get('candyjar.empty'));
                     return;
                 }
+                
+                if (isInList(sender)){
+                    $.say($.lang.get('candyjar.alreadytried', username));
+                    return;
+                }
+                else
+                {
+                    addToList(sender);
+                }
+                
                 var option = 0;
                 switch (true){
                     case (remainingAmount > 250):
@@ -59,6 +69,7 @@
                     $.inidb.set('candyJarSettings', 'status', status);
                     $.say($.lang.get('candyjar.fill'));
                 }
+                
                 if (action.equalsIgnoreCase('check')) {
                     if(status && remainingAmount > 0){
                         $.say($.lang.get('candyjar.check', remainingAmount));
@@ -106,14 +117,19 @@
     }
     
     function addToList(user){
-        if(entries.indexOf(user) < 0){
-            entries.push(user);
+        for (var i in entries) {
+            if (entries[i].equalsIgnoreCase(user)) {
+                return;
+            }
         }
+        entries.push(user);
     }
     
-    function findInList(user){
-        if(!entries.indexOf(user) < 0){
-            return true;
+    function isInList(user){
+        for (var i in entries) {
+            if (entries[i].equalsIgnoreCase(user)) {
+                return true;
+            }
         }
         return false;
     }
@@ -140,6 +156,5 @@
             $.registerChatSubcommand('candyjar', 'fill', 2); //Starts the game.
             $.registerChatSubcommand('candyjar', 'check', 7); //Checks if the candy jar has any more candy.
         }
-
     });
 })();
