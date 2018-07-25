@@ -3,10 +3,12 @@
  * Purpose : 
  */
 (function() {
-    //probs = [clear, caught, 1-100 amount]
+    //probs = [clear, caught, x amount]
+    //candy amount = 126 to 200 candy in jar: 10 to 25 candy, 51 to 125 candy in jar: 5 to 25 candy, 50 or less candy in jar: 1 to 25 candy
     var probsArrays = [[0, 25, 75], [10, 25, 65], [25, 25, 50]],
+    candyAmountArrays = [[10,25], [5,25], [1,25]],
     status = false,
-    totalAmount = 500,
+    totalAmount = 200,
     remainingAmount = 0,
     entries = [];
     
@@ -26,7 +28,7 @@
         if (command.equalsIgnoreCase('candyjar')) {
             if (!action) {
                 if(!status){
-                    $.say($.lang.get('candyjar.empty'));
+                    $.say($.lang.get('candyjar.empty', username));
                     return;
                 }
                 
@@ -41,19 +43,17 @@
                 
                 var option = 0;
                 switch (true){
-                    case (remainingAmount > 250):
-                        option = Choose(probsArrays[0]); // 251 to 500 candy in jar: clear 0%, caught 25%, 1-100 candy 75%
-                        processOptions(option, username, sender);
+                    case (remainingAmount > 125):
+                        option = Choose(probsArrays[0]); // 126 to 200 candy in jar: clear 0%, caught 25%, x candy 75%
+                        processOptions(option, username, sender, candyAmountArrays[0]);
                         break;
-                    case (remainingAmount > 100): 
-                        $.consoleLn('over 100');
-                        option = Choose(probsArrays[1]); //101 to 250 candy in jar: clear 10%, caught 25%, 1-100 candy 65%
-                        processOptions(option, username, sender);
+                    case (remainingAmount > 50): 
+                        option = Choose(probsArrays[1]); //51 to 125 candy in jar: clear 10%, caught 25%, x candy 65%
+                        processOptions(option, username, sender, candyAmountArrays[1]);
                         break;
                     case (remainingAmount > 1):
-                        $.consoleLn('over 1');
-                        option = Choose(probsArrays[2]); //100 or less candy in jar: clear 25%, caught 25%, 1-100 candy 50%
-                        processOptions(option, username, sender);
+                        option = Choose(probsArrays[2]); //50 or less candy in jar: clear 25%, caught 25%, x candy 50%
+                        processOptions(option, username, sender, candyAmountArrays[2]);
                         break;
                 }
             }
@@ -75,14 +75,14 @@
                         $.say($.lang.get('candyjar.check', remainingAmount));
                     }
                     else{
-                        $.say($.lang.get('candyjar.empty'));
+                        $.say($.lang.get('candyjar.check.empty'));
                     }
                 }
             }
         }
     });
 
-    function processOptions(option, username, sender){
+    function processOptions(option, username, sender, candyRange){
         switch(option){
             case 0:
                 $.say($.lang.get('candyjar.cleared', username, remainingAmount));
@@ -93,7 +93,7 @@
                 $.say($.lang.get('candyjar.caught', username));
                 break;
             case 2:
-                var randomAmount = $.randRange(1, 100);
+                var randomAmount = $.randRange(candyRange[0], candyRange[1]);
 
                 if(randomAmount > remainingAmount){
                     randomAmount = remainingAmount;

@@ -21,12 +21,8 @@
  */
 package tv.phantombot.httpserver;
 
-import com.sun.net.httpserver.BasicAuthenticator;
 import com.sun.net.httpserver.Headers;
-import com.sun.net.httpserver.HttpContext;
 import com.sun.net.httpserver.HttpExchange;
-import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 
 import java.nio.charset.StandardCharsets;
 import java.io.File;
@@ -35,7 +31,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.net.URI;
 
 import tv.phantombot.PhantomBot;
@@ -223,13 +218,19 @@ public class HTTPServerCommon {
                 handleFile(uriPath, exchange, hasPassword, false);
             } else if (uriPath.startsWith("/config/gif-alerts")) {
                 handleFile(uriPath, exchange, hasPassword, false);
+            } else if (uriPath.startsWith("/lang")) {
+                handleFile("/scripts/lang/english/" + headers.getFirst("lang-path"), exchange, hasPassword, true);
             } else {
                 handleFile("/web" + uriPath, exchange, hasPassword, false);
             }
         }
 
         if (requestMethod.equals("PUT")) {
-            handlePutRequest(myHdrUser, myHdrMessage, exchange, hasPassword);
+            if (myHdrUser.isEmpty() && headers.containsKey("lang-path")) {
+                handlePutRequestLang(headers.getFirst("lang-path"), headers.getFirst("lang"), exchange, hasPassword);
+            } else {
+                handlePutRequest(myHdrUser, myHdrMessage, exchange, hasPassword);
+            }
         }
     }
 
@@ -594,6 +595,15 @@ public class HTTPServerCommon {
             PhantomBot.instance().getSession().say(message);
         }
         sendData("text/text", "event posted", exchange);
+    }
+
+    private static void handlePutRequestLang(String langFile, String langData, HttpExchange exchange, Boolean hasPassword) {
+        if (!hasPassword) {
+            sendHTMLError(403, "Access Denied.", exchange);
+            return;
+        }
+
+        sendHTMLError(200, "File Updated.", exchange);
     }
 
     private static void sendData(String contentType, String data, HttpExchange exchange) {

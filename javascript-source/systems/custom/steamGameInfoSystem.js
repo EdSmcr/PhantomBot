@@ -8,7 +8,10 @@
             parts,
             lastTime = parseInt($.getSetIniDbNumber('steamgameinfosystem', 'last_time', 0)),
             checkTime = lastTime + parseInt(1440 * 6e4);
-
+        
+        if (!$.bot.isModuleEnabled('./systems/custom/steamGameInfoSystem.js')) {
+            return;
+        }
         
         if (lastTime > 0 && checkTime > $.systemTime()) {
             return;
@@ -95,9 +98,9 @@
                                     obj = obj[key];
                                     break;
                                 }
-                                var steamGameInfo = obj;
+                            var steamGameInfo = obj;
 
-                                if (steamGameInfo){
+                            if (steamGameInfo){
                                     if (steamGameInfo.success){
                                         if(steamGameInfo.data){
                                             var description = '';
