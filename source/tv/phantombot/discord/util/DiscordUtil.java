@@ -14,21 +14,20 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package tv.phantombot.discord;
+package tv.phantombot.discord.util;
 
 import sx.blah.discord.api.internal.json.objects.EmbedObject;
 
 import sx.blah.discord.handle.obj.Permissions;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IMessage;
-import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.handle.obj.IRole;
 
 import sx.blah.discord.util.MissingPermissionsException;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MessageBuilder;
 import sx.blah.discord.util.RequestBuffer;
+import tv.phantombot.discord.DiscordAPI;
 import sx.blah.discord.util.EmbedBuilder;
 
 import java.util.regex.Pattern;
@@ -42,6 +41,8 @@ import java.io.File;
 
 import java.awt.Color;
 
+import tv.phantombot.discord.DiscordAPI;
+
 /*
  * Has all of the methods to work with Discord4J.
  *
@@ -49,6 +50,22 @@ import java.awt.Color;
  * @author ScaniaTV
  */
 public class DiscordUtil {
+    
+    /*
+     * Method that removes the # in the channel name.
+     *
+     * @param  {String} channelName
+     * @return {String}
+     */
+    public String sanitizeChannelName(String channelName) {
+        // We have to make sure that it's at the start.
+        if (channelName.startsWith("#")) {
+            return channelName.substring(1);
+        } else {
+            return channelName;
+        }
+    }
+    
     /*
      * Method to send a message to a channel.
      *
@@ -62,11 +79,13 @@ public class DiscordUtil {
                 if (channel != null) {
                     com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [CHAT] " + message);
 
-
                     return channel.sendMessage(message);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendMessage(channel, message);
+                } else {
+                    // Throw this if the channel object is null.
+                    throw new DiscordException("Failed to send message due to the channel object being null.");
                 }
-                // Throw this if the channel object is null.
-                throw new DiscordException("Failed to send message due to the channel object being null.");
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to send a message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
                 return null;
@@ -98,10 +117,12 @@ public class DiscordUtil {
                     com.gmt2001.Console.out.println("[DISCORD] [@" + user.getName().toLowerCase() + "#" + user.getDiscriminator() + "] [DM] " + message);
 
                     user.getOrCreatePMChannel().sendMessage(message);
-                    return;
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    sendPrivateMessage(user, message);
+                } else {
+                    // Throw this if the user object is null.
+                    throw new DiscordException("Failed to send private message due to the user being null.");
                 }
-                // Throw this if the user object is null.
-                throw new DiscordException("Failed to send private message due to the user being null.");
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to send a private message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
             }
@@ -132,9 +153,12 @@ public class DiscordUtil {
                     com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [EMBED] ");
 
                     return channel.sendMessage(builder);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendMessageEmbed(channel, builder);
+                } else {
+                    // Throw this if the channel and builder object is null.
+                    throw new DiscordException("Failed to send embed message due to either the channel or builder being null.");
                 }
-                // Throw this if the channel and builder object is null.
-                throw new DiscordException("Failed to send embed message due to either the channel or builder being null.");
             } catch (MissingPermissionsException | DiscordException | IllegalArgumentException ex) {
                 com.gmt2001.Console.err.println("Failed to send an embed message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
                 return null;
@@ -170,9 +194,12 @@ public class DiscordUtil {
                     com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [EMBED] " + message);
 
                     return channel.sendMessage(builder);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendMessageEmbed(channel, color, message);
+                } else {
+                    // Throw this if the channel object is null.
+                    throw new DiscordException("Failed to send embed message due to the channel being null.");
                 }
-                // Throw this if the channel object is null.
-                throw new DiscordException("Failed to send embed message due to the channel being null.");
             } catch (MissingPermissionsException | DiscordException | IllegalArgumentException ex) {
                 com.gmt2001.Console.err.println("Failed to send an embed message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
                 return null;
@@ -216,9 +243,12 @@ public class DiscordUtil {
                             return channel.sendFile(message, new File("addons/" + fileLocation));
                         }
                     }
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendFile(channel, message, fileLocation);
+                } else {
+                    // Throw this if the channel object is null.
+                    throw new DiscordException("Failed to send file message due to the channel being null.");
                 }
-                // Throw this if the channel object is null.
-                throw new DiscordException("Failed to send file message due to the channel being null.");
             } catch (MissingPermissionsException | DiscordException | FileNotFoundException ex) {
                 com.gmt2001.Console.err.println("Failed to upload a file: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
                 return null;
@@ -256,6 +286,9 @@ public class DiscordUtil {
      * @return {IChannel}
      */
     public IChannel getChannel(String channelName) {
+        // Remove any # in the channel name.
+        channelName = sanitizeChannelName(channelName);
+        
         List<IChannel> channels = DiscordAPI.getGuild().getChannels();
 
         for (IChannel channel : channels) {
