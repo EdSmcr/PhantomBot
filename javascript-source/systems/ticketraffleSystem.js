@@ -50,7 +50,7 @@
         }
 
         if (isNaN(parseInt(max)) || isNaN(parseInt(price))) {
-            $.say($.whisperPrefix(sender) + $.lang.get('ticketrafflesystem.usage'));
+            $.say($.whisperPrefix(user) + $.lang.get('ticketrafflesystem.usage'));
             return;
         }
 
@@ -319,7 +319,7 @@
         if (command.equalsIgnoreCase('tickets') || command.equalsIgnoreCase('ticket')) {
             if (!action) {
                 if (msgToggle && raffleStatus) {
-                    $.say('@' + sender + ' ' + $.lang.get('ticketrafflesystem.ticket.usage', getTickets(sender)));
+                    $.say($.whisperPrefix(sender) + $.lang.get('ticketrafflesystem.ticket.usage', getTickets(sender)));
                 }
                 return;
             }
