@@ -430,24 +430,8 @@
      */
     function traffleClear() {
         if (confirm("Are you sure you want to clear current raffle entries?")){
-            if (confirm("This action can't be reverted, are you sure you want to do it?")){
-                if (confirm("Really?")){
-                    var response = prompt("All right, it is your head after all.\nType DELETE (in all caps) and hit OK to clear the entry list.");
-                    if (response === "DELETE"){
-                        sendCommand('traffle clear');
-                        setTimeout(function() { doQuery(); }, TIMEOUT_WAIT_TIME * 2);
-                    }
-                    else{
-                        alert("Canceled. I'm glad you changed your mind. :-)");
-                    }
-                }
-                else{
-                    alert("Canceled. I'm glad you changed your mind. :-)");
-                }
-            }
-            else{
-                alert("Canceled. I'm glad you changed your mind. :-)");
-            }
+            sendCommand('traffle reset');
+            setTimeout(function() { doQuery(); }, TIMEOUT_WAIT_TIME * 2);
         }
         else{
             alert("Canceled. I'm glad you changed your mind. :-)");

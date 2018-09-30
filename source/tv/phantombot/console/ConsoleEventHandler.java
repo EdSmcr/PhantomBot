@@ -55,6 +55,7 @@ import tv.phantombot.event.twitch.follower.TwitchFollowEvent;
 import tv.phantombot.event.twitch.host.TwitchHostedEvent;
 import tv.phantombot.event.twitch.offline.TwitchOfflineEvent;
 import tv.phantombot.event.twitch.online.TwitchOnlineEvent;
+import tv.phantombot.event.twitch.subscriber.TwitchMassSubscriptionGiftedEvent;
 import tv.phantombot.event.twitch.subscriber.TwitchPrimeSubscriberEvent;
 import tv.phantombot.event.twitch.subscriber.TwitchReSubscriberEvent;
 import tv.phantombot.event.twitch.subscriber.TwitchSubscriberEvent;
@@ -339,7 +340,19 @@ public class ConsoleEventHandler implements Listener {
             EventBus.instance().postAsync(new TwitchSubscriptionGiftEvent(PhantomBot.instance().getChannelName(), randomUser, "10", "1000"));
             return;
         }
+        
+        /**
+         * @consolecommand massgiftsubtest - Sends a fake gift subscriber events.
+         */
+        if (message.equalsIgnoreCase("massgiftsubtest")) {
+            String randomUser = PhantomBot.generateRandomString(10);
+            
+            com.gmt2001.Console.out.println("[CONSOLE] Executing massgiftsubtest (User: " + randomUser + ")");
 
+            EventBus.instance().postAsync(new TwitchMassSubscriptionGiftedEvent(randomUser, "10", "1000"));
+            return;
+        }
+        
         /**
          * @consolecommand onlinetest - Sends a fake online event.
          */
