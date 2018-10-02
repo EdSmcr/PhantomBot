@@ -7,55 +7,53 @@ body{
     padding: 20px;
 }
 
-#chartLocation, #chartLocation table{
+#chartWrapper{
     color: #ffffff;
-}
-
-#chartLocation{
-    border: 1px solid #eeeeee;
+    border: 1px solid rgba(238,238,238,0.1);
     display: inline-block;
     width: 600px;
     height: 480px;
+    padding: 10px;
 }
 
-#chartLocation table{
-    margin: 10px;
-    border-collapse: collapse;
-    height: auto;
+.chart {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
 }
 
-#chartLocation table td{
-    padding-bottom: 3px;
+.chart > div, .chart > div > div > div{
+    flex: 1 1 auto;
+}
+.chart > div > div{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
 }
 
-#chartLocation table .title{
-    font-size: 4vw;
+.title{
+    font-size: 35px;
+    padding: 0 5px;
 }
 
-#chartLocation table .count, #chartLocation table .votes{
-    display: inline-block;
-    width: 30px;
+.count, .votes{
+    font-size: 15px;
     text-align: center;
 }
 
-#chartLocation table .bar{
-    display: inline-block;
-    max-width: 510px;
-    min-width: 510px;
+.bar{
+    width: 85%;
     text-align: left;
     overflow: hidden;
     text-overflow: ellipsis;
 }
-#chartLocation table .bar span{
+.bar span{
     display: inline-block;
     background-color: red;
     white-space: nowrap;
-    font-size: 4vw;
 }
 
-body input[type="color"]{
-    padding: 2px!important;
-}
-#lblDimensions{
-    color: #ffffff;
+.optionsText{
+    font-size: 25px;
 }
