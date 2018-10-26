@@ -40,6 +40,8 @@ import java.io.FileNotFoundException;
 import java.io.File;
 
 import java.awt.Color;
+import sx.blah.discord.handle.obj.ActivityType;
+import sx.blah.discord.handle.obj.StatusType;
 
 import tv.phantombot.discord.DiscordAPI;
 
@@ -275,6 +277,17 @@ public class DiscordUtil {
      * @param  {String} fileLocation
      * @return {IMessage}
      */
+    public IMessage sendFile(IChannel channel, String fileLocation) {
+        return sendFile(channel, "", fileLocation);
+    }
+    
+    /*
+     * Method to send a file to a channel.
+     *
+     * @param  {String} channelName
+     * @param  {String} fileLocation
+     * @return {IMessage}
+     */
     public IMessage sendFile(String channelName, String fileLocation) {
         return sendFile(getChannel(channelName), "", fileLocation);
     }
@@ -292,7 +305,8 @@ public class DiscordUtil {
         List<IChannel> channels = DiscordAPI.getGuild().getChannels();
 
         for (IChannel channel : channels) {
-            if (channel.getName().equalsIgnoreCase(channelName)) {
+            if (channel.getName().equalsIgnoreCase(channelName) 
+                    || channel.getStringID().equals(channelName)) {
                 return channel;
             }
         }
@@ -361,7 +375,8 @@ public class DiscordUtil {
         List<IUser> users = DiscordAPI.getGuild().getUsersByName(userName, true);
 
         for (IUser user : users) {
-            if (user.getDisplayName(DiscordAPI.getGuild()).equalsIgnoreCase(userName) && user.getDiscriminator().equalsIgnoreCase(discriminator)) {
+            if (user.getDisplayName(DiscordAPI.getGuild()).equalsIgnoreCase(userName) 
+                    && user.getDiscriminator().equalsIgnoreCase(discriminator)) {
                 return user;
             }
         }
@@ -433,7 +448,6 @@ public class DiscordUtil {
             try {
                 if (roles != null && user != null) {
                     DiscordAPI.getGuild().editUserRoles(user, roles);
-                    return;
                 }
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to edit roles on user: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
@@ -462,7 +476,6 @@ public class DiscordUtil {
             try {
                 if (role != null && user != null) {
                     user.addRole(role);
-                    return;
                 }
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to add role on user: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
@@ -501,7 +514,6 @@ public class DiscordUtil {
             try {
                 if (role != null && user != null) {
                     user.removeRole(role);
-                    return;
                 }
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to remove role on user: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
@@ -528,7 +540,6 @@ public class DiscordUtil {
         RequestBuffer.request(() -> {
             try {
                 DiscordAPI.getGuild().createRole().changeName(roleName);
-                return;
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to create role: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
             }
@@ -545,7 +556,6 @@ public class DiscordUtil {
             try {
                 if (role != null) {
                     role.delete();
-                    return;
                 }
             } catch (MissingPermissionsException | DiscordException ex) {
                 com.gmt2001.Console.err.println("Failed to delete role: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
@@ -593,13 +603,13 @@ public class DiscordUtil {
         // So start this on a new thread to avoid that. Please note that you need to delete at least 2 messages.
 
         if (channel != null) {
-            Thread thread = new Thread(() -> {
+            Thread thread;
+            thread = new Thread(() -> {
                 RequestBuffer.request(() -> {
                     try {
                         List<IMessage> messages = channel.getMessageHistory(amount < 2 ? 2 : amount);
 
                         channel.bulkDelete(messages);
-                        return;
                     } catch (DiscordException ex) {
                         com.gmt2001.Console.err.println("Failed to bulk delete messages: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
                     }
@@ -674,7 +684,7 @@ public class DiscordUtil {
      * @param {String} game
      */
     public void setGame(String game) {
-        DiscordAPI.getShard().changePlayingText(game);
+        DiscordAPI.getShard().changePresence(StatusType.ONLINE, ActivityType.PLAYING, game);
     }
 
     /*
@@ -684,7 +694,7 @@ public class DiscordUtil {
      * @param {String} url
      */
     public void setStream(String game, String url) {
-        DiscordAPI.getShard().streaming(game, url);
+        DiscordAPI.getShard().changeStreamingPresence(StatusType.ONLINE, game, url);
     }
 
     /*
@@ -692,7 +702,7 @@ public class DiscordUtil {
      *
      */
     public void removeGame() {
-        DiscordAPI.getShard().changePlayingText(null);
+        DiscordAPI.getShard().changePresence(StatusType.ONLINE, ActivityType.PLAYING, null);
     }
 
     /*
