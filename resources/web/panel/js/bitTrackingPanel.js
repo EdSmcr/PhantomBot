@@ -27,7 +27,7 @@
 
 
     let _section = 0;
-    let _webauth = '38xVUOaiLdOp3GDfth2kR6tu3cmEXU';
+    let _webauth = '';
 
     /*
      * 
@@ -50,7 +50,7 @@
                     {
                         bitTrackingData = jsonObject.table.results;
                         if (bitTrackingData.length === 0) {
-                            html = "<i>There are no keywords presently defined</i>";
+                            html = "<i>There are no keywords currently defined</i>";
                         }
                         else if (bitTrackingData){
                             for (idx = 0; idx < bitTrackingData.length; idx++) {
