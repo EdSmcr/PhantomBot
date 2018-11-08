@@ -20,26 +20,21 @@
             now = $.systemTime(),
             time;
             
-        var isModOrCaster =  $.isModv3(event.getSender(), event.getTags()) || $.isCaster(event.getSender());
-                        $.consoleLn('isModOrCaster ' + isModOrCaster);
-
         if (command.equalsIgnoreCase('ouch')) {
-            if ($.inidb.exists('settings', 'lastOuch')) {
-                $.consoleLn('exists');
-                date = new Date(parseInt($.inidb.get('settings', 'lastOuch')));
-                time = (now - date);
-                
-                $.consoleLn('date ' + $.getTimeString(date));
-                
-                $.say($.lang.get('channelcommands.ouch', $.getTimeString(time / 1000) + ' '));
-
-                if (isModOrCaster){
-                   $.inidb.set('settings', 'lastOuch', now);
-                }
-            } else {
-                $.say($.lang.get('channelcommands.ouch', '0 seconds'));
-                if (isModOrCaster){
+            if (!action) {
+                if ($.inidb.exists('settings', 'lastOuch')) {
+                    date = new Date(parseInt($.inidb.get('settings', 'lastOuch')));
+                    time = (now - date);
+                    $.say($.lang.get('channelcommands.ouch', $.getTimeString(time / 1000) + ' '));
+                } else {
+                    $.say($.lang.get('channelcommands.ouch', '0 seconds'));
                     $.getSetIniDbString('settings', 'lastOuch', now);
+                }
+            }
+            else {
+                if (action.equalsIgnoreCase('reset')) {
+                    $.inidb.set('settings', 'lastOuch', now);
+                    $.say('Ouch time reset.');
                 }
             }
         }
@@ -51,6 +46,7 @@
     $.bind('initReady', function() {
         if ($.bot.isModuleEnabled('./systems/custom/channelCommands.js')) {
             $.registerChatCommand('./systems/custom/channelCommands.js', 'ouch', 7);
+            $.registerChatSubcommand('ouch', 'reset', 2); //resets the timer
         }
     });
 })();

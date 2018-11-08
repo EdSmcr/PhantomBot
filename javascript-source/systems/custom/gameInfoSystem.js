@@ -16,7 +16,7 @@
             var game = ($.getGame($.channelName) !== '' ? $.getGame($.channelName) : "Some Game") + '';
 
             if (game.toLowerCase() === "irl" || game.toLowerCase() === "some game"){
-                $.say($.lang.get('games.gameinfo.irl', game));
+                    $.say($.lang.get('games.gameinfo.irl', game));
             }
             else{
                 if(!handleHumbleBundle(game)){
