@@ -13,20 +13,22 @@
 -->
 
 <!DOCTYPE html>
+
 <html>
     <head>
         <title>PhantomBot</title>
+        <!-- Theme color of the page -->
         <meta name="theme-color" content="#570075">
-        <link rel="icon" href="favicon.ico" type="image/x-icon" />
-        <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-
-        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+        <!-- Favicon -->
+        <link rel="icon" href="favicon.ico" type="image/x-icon">
+        <!-- Bootstrap 3.3.7 css -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <!-- Our main styles -->
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
-        <link href='https://fonts.googleapis.com/css?family=Roboto' rel='stylesheet' type='text/css'>
-        <link href="common/css/fontawesome-all.min.css" rel="stylesheet">
+        <!-- Google font -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto">
+        <!-- Fontawesome -->
+        <link rel="stylesheet" href="common/css/fontawesome-all.min.css">
     </head>
 
     <body>
@@ -35,35 +37,43 @@
             <!-- Header logo -->
             <img id="logo" src="common/images/logo.png"/>
 
-        <div class="header">
-            <img id="logo" src="common/images/logo.png"/>
+            <!-- Patreon link -->
             <span>
                 <a target="_blank" href="https://www.patreon.com/phantombot" id="header-right">
                     <i data-toggle="tooltip" data-placement="bottom" title="Patreon" style="color: white" class="fab fa-patreon fa-lg" aria-hidden="true"></i>
                 </a>
             </span>
+
+            <!-- Discord link -->
             <span>
                 <a target="_blank" href="https://discord.gg/rkPqDuK" id="header-right">
                     <i data-toggle="tooltip" data-placement="bottom" title="Discord" style="color: white" class="fab fa-discord fa-lg" aria-hidden="true"></i>
                 </a>
             </span>
+
+            <!-- Twitter link -->
             <span>
                 <a target="_blank" href="https://twitter.com/PhantomBot" id="header-right">
                     <i data-toggle="tooltip" data-placement="bottom" title="Twitter" style="color: white" class="fab fa-twitter fa-lg" aria-hidden="true"></i>
                 </a>
             </span>
+
+            <!-- Blog link -->
             <span>
                 <a target="_blank" href="https://blog.phantombot.tv/" id="header-right">
                     <i data-toggle="tooltip" data-placement="bottom" title="Blog" style="color: white" class="fas fa-rss fa-lg" aria-hidden="true"></i>
                 </a>
             </span>
+
+            <!-- Forum link -->
             <span>
                 <a target="_blank" href="https://community.phantombot.tv" id="header-right">
                     <i data-toggle="tooltip" data-placement="bottom" title="Community Forum" style="color: white" class="fab fa-discourse fa-lg" aria-hidden="true"></i>
                 </a>
             </span>
-        </div>
+        </header>
 
+        <!-- Main content -->
         <div class="main">
             <div class="launcher launcher-panelbeta" data-toggle="tooltip" data-placement="right" title="Click to launch the beta control panel." id="betapanel-tab">
                 <span id="middle">
@@ -76,26 +86,14 @@
                 <span class="launcher-lock">
                     <i class="fas fa-lock"></i>
                 </span>
-                </a>
-                <span class="launcher-lock"><i class="fas fa-lock"></i></span>
             </div>
 
-            <div class="launcher" data-toggle="tooltip" data-placement="right" title="The username and password are found in botlogin.txt, see the paneluser and panelpassword settings.">
-                <script>
-                    var urlInfo = window.location.host.split(":");
-                    var url = urlInfo[0];
-                    var port = (typeof urlInfo[1] === 'undefined' ? '80' : urlInfo[1]);
-                    var protocol = window.location.href.indexOf("https://") == 0 ? "https" : "http";
-                    document.write('<a target="_blank" style="color: white;" href="' + protocol + '://' + urlInfo[0] + ':' + port + '/panel">');
-                </script>
+            <div class="launcher" data-toggle="tooltip" data-placement="right" title="Click to launch the control panel." id="panel-tab">
                 <span id="middle">
-                    <span id="spacer" />
                     <i id="fontawesome" class="fas fa-desktop" aria-hidden="true"></i>
-                    <span id="spacer">Launch PhantomBot Control Panel</span>
+
+                    <span>Launch PhantomBot Control Panel</span>
                 </span>
-                </a>
-                <span class="launcher-lock"><i class="fas fa-lock"></i></span>
-            </div>
 
                 <!-- Pad lock saying that this panel requires a password -->
                 <span class="launcher-lock">
@@ -114,9 +112,7 @@
                 <span class="launcher-lock">
                     <i class="fas fa-lock"></i>
                 </span>
-                </a>
             </div>
-
             <div class="launcher">
                 <script>
                     var urlInfo = window.location.host.split(":");
@@ -131,6 +127,12 @@
                     <span id="spacer">Launch PhantomBot Live poll chart</span>
                 </span>
                 </a>
+            </div>
+            <div class="launcher" data-toggle="tooltip" data-placement="right" title="Click to launch the playlist." id="playlist-tab">
+                <span id="middle">
+                    <i id="fontawesome" class="fas fa-music" aria-hidden="true"></i>
+                    <span>Launch PhantomBot YouTube Playlist Viewer</span>
+                </span>
             </div>
         </div>
 
