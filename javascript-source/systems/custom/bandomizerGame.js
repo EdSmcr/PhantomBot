@@ -5,7 +5,14 @@
 (function() {
     var entries = [],
     status = false;
-
+    
+    var _userInfo = function(){
+        return {
+            addedBy: '',
+            lastPicked: ''
+        };
+    };
+    
     /*
      * @event command
      */

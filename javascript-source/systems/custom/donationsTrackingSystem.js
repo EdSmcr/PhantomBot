@@ -104,6 +104,27 @@
         calculateAndPrintTotal();
     });
     
+    /*
+     * @event twitchMassSubscriptionGifted
+     */
+    $.bind('twitchMassSubscriptionGifted', function(event) {
+        var currentdate = $.getLocalTimeString('MM yyyy', $.systemTime());
+        var gifter = event.getUsername(),
+            amount = event.getAmount();
+
+        //Community Reward 
+        var plan = event.getPlan();
+        
+        if (plan.equals('1000')) {
+            $.inidb.incr('monthlytier1', currentdate, parseInt(amount));
+        } else if (plan.equals('2000')) {
+            $.inidb.incr('monthlytier2', currentdate, parseInt(amount));
+        } else if (plan.equals('3000')) {
+            $.inidb.incr('monthlytier3', currentdate, parseInt(amount));
+        } 
+        
+        calculateAndPrintTotal();
+    });
     /**
      * @event command
      */
