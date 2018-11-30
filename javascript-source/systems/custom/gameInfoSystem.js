@@ -77,9 +77,14 @@
                         } 
                     }
                 }
-
-                $.say($.lang.get('games.gameinfo.found', game, description, ((steamSite !== '') ? steamSite : ((officialSite !== '') ? officialSite : ''))));
-                $.inidb.set('gameInfoList', gameInfo.id, getJSONString(gameInfo.id + '', game + '', description, ((steamSite !== '') ? steamSite : ((officialSite !== '') ? officialSite : ''))));
+                
+                if(description === ''){
+                    $.say($.lang.get('games.gameinfo.notfound'));    
+                }
+                else{
+                    $.say($.lang.get('games.gameinfo.found', game, description, ((steamSite !== '') ? steamSite : ((officialSite !== '') ? officialSite : ''))));
+                    $.inidb.set('gameInfoList', gameInfo.id, getJSONString(gameInfo.id + '', game + '', description, ((steamSite !== '') ? steamSite : ((officialSite !== '') ? officialSite : ''))));                
+                }
             }
             else{
                 $.say($.lang.get('games.gameinfo.notfound'));
