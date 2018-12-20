@@ -373,9 +373,6 @@
                             $.log.error("importPlaylistFile::skipped [" + importedList[i] + "]: " + ex);
                             failCount++;
                         }
-                        if (importCount == $.youtube.max() && !$.youtube.checkapi()) {
-                            break;
-                        }
                     }
                     $.inidb.set(playlistDbPrefix + listName, 'lastkey', importCount);
 
@@ -733,9 +730,9 @@
                 } else {
                     if (defaultPlaylist.length == 0) {
                         if (this.loadPlaylistKeys() == 0) {
-                            return new YoutubeVideo('7lO1iBF0p_0', playlistDJname);
+                            return new YoutubeVideo('r9NsG7pMwNk', playlistDJname);
                         }
-                        return new YoutubeVideo('7lO1iBF0p_0', playlistDJname);
+                        return new YoutubeVideo('r9NsG7pMwNk', playlistDJname);
                     }
 
                     try {
@@ -880,11 +877,7 @@
                     ++currentRequestCount;
                 }
             }
-            if ($.bot.isModuleEnabled('./handlers/gameWispHandler.js')) {
-                return (currentRequestCount >= songRequestsMaxParallel + $.getTierData(sender, 'songrequests'));
-            } else {
-                return (currentRequestCount >= songRequestsMaxParallel);
-            }
+            return (currentRequestCount >= songRequestsMaxParallel);
         };
 
         /**

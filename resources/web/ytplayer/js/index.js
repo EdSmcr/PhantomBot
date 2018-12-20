@@ -27,18 +27,92 @@
  * You can also generate modals with jQuery, see util/helpers.js for more information.
  */
 $(function() {
-    var cluster = null;
+    var cluster = null,
+        timer = null;
+
+    /*
+     * @function Loads the player page.
+     *
+     * @param {boolean} hasPlaylistData - If a playlist is loaded.
+     */
+    const openPlayer = hasPlaylistData => {
+        $('.loader').fadeOut(6e2, () => {
+            $(this).remove();
+        });
+        // Show the page.
+        $('#main').fadeIn(5e2);
+
+        if (!hasPlaylistData && player.hasAPIKey()) {
+            toastr.error('Failed to load a playlist with songs.');
+
+            // Create a fake progress slider.
+            player.progressSlider = $('#progress-slider').slider({
+                'value': 0,
+                'min': 0,
+                'step': 0.1,
+                'tooltip': 'hide',
+                'selection': 'none'
+            });
+
+            // Error the to user.
+            helpers.getErrorModal('Playist Error', 'Failed to load a playlist with songs, please load a playlist.', () => {
+                player.dbQuery('get_playlists', 'yt_playlists_registry', (results) => {
+                    // Get the keys.
+                    results = Object.keys(results);
+                    const playlists = [];
+
+                    for (let i = 0; i < results.length; i++) {
+                        if (results[i].indexOf('ytPlaylist_') !== -1) {
+                            playlists.push(results[i].substr(results[i].indexOf('_') + 1, results[i].length));
+                        }
+                    }
+
+                    helpers.getPlaylistModal('Load Playlist', 'Playlist Name', 'Load', 'Playlist', playlists, () => {
+                        let playlist = $('#playlist-load').find(':selected').text();
+
+                        if (playlist === 'Select a playlist') {
+                            toastr.error('Please select a valid playlist.');
+                        } else {
+                            if (playlist.length > 0) {
+                                player.loadPlaylist(playlist);
+                                toastr.success('Loading playlist: ' + playlist);
+
+                                if (player.firstLoad === true) {
+                                    player.ready();
+                                }
+                            }
+                        }
+                    }).modal('toggle');
+                });
+            }).modal('toggle');;
+        }
+    };
 
     /*
      * Global function that is called once the socket is connected and that the YouTube iframe is loaded.
      */
     window.onYouTubeIframeAPIReady = () => {
-    	// Set a var for the slider.
-    	player.canSlide = true;
-    	// Set a var for the first load.
-    	player.firstLoad = true;
+        // Set a timer in case no songs load to send a error.
+        timer = setTimeout(openPlayer, 5e3, false);
 
-    	// Add a listener to load the main playlist.
+        // Set a var for the slider.
+        player.canSlide = true;
+        // Set a var for the first load.
+        player.firstLoad = true;
+
+        // Check if the player is disabled right away.
+        player.dbQuery('get_module_status', 'modules', (data) => {
+            if (data['./systems/youtubePlayer.js'] == 'false') {
+                helpers.getErrorModal('Module Disabled', 'The YouTube player module is disabled, please go and enable it.', () => {
+                    window.location.reload();
+                }).modal('toggle');
+
+                openPlayer(true);
+                clearTimeout(timer);
+            }
+        });
+
+        // Add a listener to load the main playlist.
         player.addListener('playlist', (e) => {
             let table = [],
                 playlist = e.playlist;
@@ -280,62 +354,60 @@ $(function() {
 
         // Add a listener for the play event.
         player.addListener('play', (e) => {
-        	// If this is the first load, start the player paused.
-        	if (player.firstLoad === true) {
-        		// Queue the first video
-        		player.API.cueVideoById(e.play, 0, 'medium');
-        		// Mark as not first load.
-        		player.firstLoad = false;
-        		// Remove loader.
-                $('.loader').fadeOut(6e2, () => {
-                    $(this).remove();
-                });
-                // Show the page.
-                $('#main').fadeIn(5e2);
-        		// Alert the user.
-        		toastr.info('Song queued: ' + (e.title.length > 30 ? e.title.substring(0, 30) + '...' : e.title));
-        	} else {
-        		player.API.loadVideoById(e.play, 0, 'medium');
-        		toastr.success('Now playing: ' +  (e.title.length > 30 ? e.title.substring(0, 30) + '...' : e.title));
-        	}
+            // If this is the first load, start the player paused.
+            if (player.firstLoad === true) {
+                // Queue the first video
+                player.API.cueVideoById(e.play, 0, 'medium');
+                // Mark as not first load.
+                player.firstLoad = false;
+                // Clear timer
+                clearTimeout(timer);
+                // Remove loader.
+                openPlayer(true);
+                // Alert the user.
+                toastr.info('Song queued: ' + (e.title.length > 30 ? e.title.substring(0, 30) + '...' : e.title));
+            } else {
+                player.API.loadVideoById(e.play, 0, 'medium');
+                toastr.success('Now playing: ' +  (e.title.length > 30 ? e.title.substring(0, 30) + '...' : e.title));
+            }
 
-        	// Update the value under the slider.
-        	$('#progress-slider-value').html(e.duration);
+            // Update the value under the slider.
+            $('#progress-slider-value').html(e.duration);
 
-        	// Always destroy the old slider.
-        	if (player.progressSlider !== undefined) {
-        		player.progressSlider.slider('destroy');
-        	}
+            // Always destroy the old slider.
+            if (player.progressSlider !== undefined) {
+                player.progressSlider.slider('destroy');
+            }
 
-        	// Add progress slider event.
-        	player.progressSlider = $('#progress-slider').slider({
-        		'value': 0,
-        		'min': 0,
-        		'step': 0.1,
-        		'tooltip': 'hide',
-        		'selection': 'none'
-    		}).on('slide', (e) => {
-       			player.API.seekTo(e.value, true);
-       		}).on('slideStart', () => {
-       			player.canSlide = false;
-    		}).on('slideStop', () => {
-    			player.canSlide = true;
-    		});
+            // Add progress slider event.
+            player.progressSlider = $('#progress-slider').slider({
+                'value': 0,
+                'min': 0,
+                'step': 0.1,
+                'tooltip': 'hide',
+                'selection': 'none'
+            }).on('slide', (e) => {
+                player.API.seekTo(e.value, true);
+            }).on('slideStart', () => {
+                player.canSlide = false;
+            }).on('slideStop', () => {
+                player.canSlide = true;
+            });
 
-    		// Update title information.
-    		$('#video-title').html(e.title);
-    		$('#video-url').html('<a href="https://youtu.be/' + e.play + '" target="_blank">https://youtu.be/' + e.play + '</a>');
-    		$('#user-requester').html(e.requester);
+            // Update title information.
+            $('#video-title').html(e.title);
+            $('#video-url').html('<a href="https://youtu.be/' + e.play + '" target="_blank">https://youtu.be/' + e.play + '</a>');
+            $('#user-requester').html(e.requester);
 
-        	// Request the songlist to remove played songs.
-        	player.requestRequestList('songlist');
+            // Request the songlist to remove played songs.
+            player.requestRequestList('songlist');
 
-    		// Save this info for other use.
-    		player.temp = {
-    			song: e.play,
-    			title: e.title,
-    			user: e.requester
-    		};
+            // Save this info for other use.
+            player.temp = {
+                song: e.play,
+                title: e.title,
+                user: e.requester
+            };
         });
 
 		// Pause listener.
@@ -367,25 +439,29 @@ $(function() {
                             player.progressSlider.slider('setValue', player.API.getCurrentTime());
                         }
                     }, 5e2);
-        		},
-        		'onStateChange': (e) => {
-        			// Make sure the button shows pause.
-        			if (e.data === 1) {
-        				$('#play-pause-button').attr('class', 'fas fa-pause');
-        			} else if (e.data === 2) {
-        				$('#play-pause-button').attr('class', 'fas fa-play');
-        			}
+                },
+                'onStateChange': (e) => {
+                    // Make sure the button shows pause.
+                    if (e.data === 1) {
+                        $('#play-pause-button').attr('class', 'fas fa-pause');
+                    } else if (e.data === 2) {
+                        $('#play-pause-button').attr('class', 'fas fa-play');
+                    }
 
-        			player.updateState(e.data);
-        		}
-        	},
-        	playerVars: {
-            	iv_load_policy: 3,
-            	controls: 0,
-            	showinfo: 0,
-            	showsearch: 0,
-            	autoplay: 1
-        	}
+                    player.updateState(e.data);
+                },
+                'onError': (e) => {
+                    player.sendError(e.data);
+                }
+            },
+            playerVars: {
+                iv_load_policy: 3,
+                controls: 0,
+                showinfo: 0,
+                showsearch: 0,
+                autoplay: 1,
+                rel: 0
+            }
         });
     };
 });

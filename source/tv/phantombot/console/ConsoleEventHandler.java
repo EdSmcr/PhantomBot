@@ -46,8 +46,6 @@ import tv.phantombot.discord.DiscordAPI;
 import tv.phantombot.event.EventBus;
 import tv.phantombot.event.Listener;
 import tv.phantombot.event.console.ConsoleInputEvent;
-import tv.phantombot.event.gamewisp.GameWispAnniversaryEvent;
-import tv.phantombot.event.gamewisp.GameWispSubscribeEvent;
 import tv.phantombot.event.irc.channel.IrcChannelJoinEvent;
 import tv.phantombot.event.twitch.bits.TwitchBitsEvent;
 import tv.phantombot.event.twitch.clip.TwitchClipEvent;
@@ -101,7 +99,7 @@ public class ConsoleEventHandler implements Listener {
         // Split arguments of the message string.
         String[] argument = null;
         // Set the datastore.
-        DataStore dataStore = DataStore.instance();
+        DataStore dataStore = PhantomBot.instance().getDataStore();
 
         // If the message is null, or empty ignore everything below.
         if (message == null || message.isEmpty()) {
@@ -116,6 +114,21 @@ public class ConsoleEventHandler implements Listener {
             argument = arguments.split(" ");
         }
 
+        /**
+         * @consolecommand checkytquota - This command checks the quota points used by YouTube.
+         */
+        if (message.equalsIgnoreCase("checkytquota")) {
+            String ytQuotaDate = dataStore.GetString("youtubePlayer", "", "quotaDate");
+            String ytQuotaPoints = dataStore.GetString("youtubePlayer", "", "quotaPoints");
+
+            if (ytQuotaDate == null || ytQuotaPoints == null) {
+                com.gmt2001.Console.out.println("No YouTube Quota Data Found.");
+            } else {
+                com.gmt2001.Console.out.println("YouTube Quota Date (US/Pacific): " + ytQuotaDate + " Points Used: " + ytQuotaPoints);
+            }
+            return;
+        }
+            
         /**
          * @consolecommand exportpoints - This command exports points and time to a CSV file.
          */
@@ -405,24 +418,6 @@ public class ConsoleEventHandler implements Listener {
         }
 
         /**
-         * @consolecommand gamewispsubscribertest - Sends a fake gamewisp subscriber event.
-         */
-        if (message.equalsIgnoreCase("gamewispsubscribertest")) {
-            com.gmt2001.Console.out.println("[CONSOLE] Executing gamewispsubscribertest");
-            EventBus.instance().postAsync(new GameWispSubscribeEvent(PhantomBot.instance().getBotName(), 1));
-            return;
-        }
-
-        /**
-         * @consolecommand gamewispresubscribertest - Sends a fake gamewisp re-subscriber event.
-         */
-        if (message.equalsIgnoreCase("gamewispresubscribertest")) {
-            com.gmt2001.Console.out.println("[CONSOLE] Executing gamewispresubscribertest");
-            EventBus.instance().postAsync(new GameWispAnniversaryEvent(PhantomBot.instance().getBotName(), 2));
-            return;
-        }
-
-        /**
          * @consolecommand bitstest - Sends a fake bits event.
          */
         if (message.equalsIgnoreCase("bitstest")) {
@@ -566,30 +561,6 @@ public class ConsoleEventHandler implements Listener {
         }
 
         /**
-         * @consolecommand gamewispsetup - Sets up GameWisp.
-         */
-        if (message.equalsIgnoreCase("gamewispsetup")) {
-            try {
-                System.out.println("");
-                System.out.println("PhantomBot GameWisp setup.");
-                System.out.println("");
-
-                System.out.print("Please enter your GameWisp OAuth key: ");
-                String gameWispOAuth = System.console().readLine().trim();
-                PhantomBot.instance().getProperties().setProperty("gamewispauth", gameWispOAuth);
-
-                System.out.print("Please enter your GameWisp refresh key: ");
-                String gameWispRefresh = System.console().readLine().trim();
-                PhantomBot.instance().getProperties().setProperty("gamewisprefresh", gameWispRefresh);
-
-                System.out.print("PhantomBot GameWisp setup done, PhantomBot will exit.");
-                changed = true;
-            } catch (NullPointerException ex) {
-                com.gmt2001.Console.err.printStackTrace(ex);
-            }
-        }
-
-        /**
          * @consolecommand streamlabssetup - Sets up StreamLabs.
          */
         if (message.equalsIgnoreCase("streamlabssetup")) {
@@ -684,6 +655,24 @@ public class ConsoleEventHandler implements Listener {
                 PhantomBot.instance().getProperties().setProperty("twitter_secret_token", twitterSecretToken);
 
                 System.out.println("PhantomBot Twitter setup done, PhantomBot will exit.");
+                changed = true;
+            } catch (NullPointerException ex) {
+                com.gmt2001.Console.err.printStackTrace(ex);
+            }
+        }
+
+        /**
+         * @consolecommand ytsetup - Sets up YouTube API Key
+         */
+        if (message.equalsIgnoreCase("ytsetup")) {
+            try {
+                System.out.println("");
+                System.out.println("PhantomBot YouTube API Key Setup");
+                System.out.println("");
+                System.out.println("Please enter the YouTube API key that you have acquired: ");
+                String youtubeKey = System.console().readLine().trim();
+                PhantomBot.instance().getProperties().setProperty("youtubekey", youtubeKey);
+                System.out.println("PhantomBot YouTube API key setup done, PhantomBot will exit.");
                 changed = true;
             } catch (NullPointerException ex) {
                 com.gmt2001.Console.err.printStackTrace(ex);

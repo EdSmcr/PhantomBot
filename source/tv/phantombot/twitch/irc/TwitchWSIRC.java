@@ -216,7 +216,7 @@ public class TwitchWSIRC extends WebSocketClient {
                 }
             } else {
                 // Convert the message into a string.
-                message = StandardCharsets.UTF_8.decode(frame.getPayloadData()).toString();
+                message = StandardCharsets.UTF_8.decode(frame.getPayloadData()).toString().trim();
             }
 
             // Try parsing the message.
