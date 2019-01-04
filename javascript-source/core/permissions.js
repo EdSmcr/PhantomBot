@@ -686,7 +686,7 @@
 
         if (!isUpdatingUsers) {
             for (i in users) {
-                if (users[i][0].equals(username.toLowerCase())) {
+                if (users[i] !== undefined && users[i][0].equals(username.toLowerCase())) {
                     users.splice(i, 1);
                     restoreSubscriberStatus(username.toLowerCase());
 
@@ -1008,7 +1008,7 @@
         // Load the moderators cache. This needs to load after the privmsg check.
         setTimeout(loadModeratorsCache, 7e3);
 
-        // Clean up data for Twitch bots. 
+        // Clean up data for Twitch bots.
         cleanTwitchBots();
     });
 
