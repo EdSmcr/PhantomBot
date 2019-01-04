@@ -254,7 +254,7 @@ public class ConsoleEventHandler implements Listener {
         if (message.equalsIgnoreCase("backupdb")) {
             com.gmt2001.Console.out.println("[CONSOLE] Executing backupdb");
             SimpleDateFormat datefmt = new SimpleDateFormat("ddMMyyyy.hhmmss");
-            datefmt.setTimeZone(TimeZone.getTimeZone(PhantomBot.timeZone));
+            datefmt.setTimeZone(TimeZone.getTimeZone(PhantomBot.getTimeZone()));
             String timestamp = datefmt.format(new Date());
 
             dataStore.backupSQLite3("phantombot.manual.backup." + timestamp + ".db");
@@ -516,7 +516,7 @@ public class ConsoleEventHandler implements Listener {
         if (message.equalsIgnoreCase("exit")) {
             com.gmt2001.Console.out.println("[CONSOLE] Executing exit");
 
-            System.exit(0);
+            PhantomBot.exitOK();
             return;
         }
 
@@ -710,7 +710,7 @@ public class ConsoleEventHandler implements Listener {
                 com.gmt2001.Console.out.println("");
                 com.gmt2001.Console.out.println("Changes have been saved, now exiting PhantomBot.");
                 com.gmt2001.Console.out.println("");
-                System.exit(0);
+                PhantomBot.exitOK();
             } catch (IOException ex) {
                 com.gmt2001.Console.err.printStackTrace(ex);
             }
