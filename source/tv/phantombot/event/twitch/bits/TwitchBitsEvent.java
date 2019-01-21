@@ -24,7 +24,7 @@ public class TwitchBitsEvent extends TwitchEvent {
     private final String bits;
     private final String message;
 
-    /*
+    /**
      * Class constructor.
      *
      * @param {String} username
@@ -38,7 +38,7 @@ public class TwitchBitsEvent extends TwitchEvent {
         this.message = message;
     }
 
-    /*
+    /**
      * Method that returns the username who cheered.
      *
      * @return {String} username
@@ -47,7 +47,7 @@ public class TwitchBitsEvent extends TwitchEvent {
         return this.username;
     }
 
-    /*
+    /**
      * Method that returns the amount of bit the user cheered.
      *
      * @return {String} bits
@@ -56,7 +56,7 @@ public class TwitchBitsEvent extends TwitchEvent {
         return this.bits;
     }
 
-    /**
+    /***
      * Method that returns the message that was sent as part of the Bits tag.
      *
      * @return {String} message
