@@ -367,7 +367,7 @@ public class ConsoleEventHandler implements Listener {
 
             com.gmt2001.Console.out.println("[CONSOLE] Executing giftsubtest (User: " + randomUser + ")");
 
-            EventBus.instance().postAsync(new TwitchSubscriptionGiftEvent(PhantomBot.instance().getChannelName(), randomUser, "10", "1000"));
+            EventBus.instance().postAsync(new TwitchSubscriptionGiftEvent(PhantomBot.instance().getChannelName(), randomUser, "10", "1000", "45"));
             return;
         }
         
@@ -398,7 +398,7 @@ public class ConsoleEventHandler implements Listener {
             return;
         }
 
-            EventBus.instance().postAsync(new TwitchMassSubscriptionGiftedEvent(randomUser, "10", "1000"));
+            EventBus.instance().postAsync(new TwitchMassSubscriptionGiftedEvent(randomUser, "10", "1000", "35"));
             return;
         }
         

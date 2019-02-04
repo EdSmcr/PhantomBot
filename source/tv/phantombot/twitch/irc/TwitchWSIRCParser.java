@@ -126,9 +126,19 @@ public class TwitchWSIRCParser implements Runnable {
                     }
                 } else {
                     if (tags.get("login").equalsIgnoreCase(ANONYMOUS_GIFTER_TWITCH_USER)) {
-                        scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                        if (tags.containsKey("msg-param-sender-count")) {
+                            scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
+                        }
+                        else{
+                            scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                        }
                     } else {
-                        scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                        if (tags.containsKey("msg-param-sender-count")) {
+                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
+                        }
+                        else{
+                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                        }
                     }
                 }
             } catch (InterruptedException ex) {
@@ -514,9 +524,19 @@ public class TwitchWSIRCParser implements Runnable {
             
                 // Send event for this.
                 if (tags.get("login").equalsIgnoreCase(ANONYMOUS_GIFTER_TWITCH_USER)) {
-                    scriptEventManager.onEvent(new TwitchMassAnonymousSubscriptionGiftedEvent(tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
+                    if (tags.containsKey("msg-param-sender-count")) {
+                        scriptEventManager.onEvent(new TwitchMassAnonymousSubscriptionGiftedEvent(tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
+                    }
+                    else{
+                        scriptEventManager.onEvent(new TwitchMassAnonymousSubscriptionGiftedEvent(tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
+                    }
                 } else {
-                    scriptEventManager.onEvent(new TwitchMassSubscriptionGiftedEvent(tags.get("login"), tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
+                    if (tags.containsKey("msg-param-sender-count")) {
+                        scriptEventManager.onEvent(new TwitchMassSubscriptionGiftedEvent(tags.get("login"), tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
+                    }
+                    else{
+                        scriptEventManager.onEvent(new TwitchMassSubscriptionGiftedEvent(tags.get("login"), tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
+                    }
                 }
             } else if (tags.get("msg-id").equalsIgnoreCase("anonsubmysterygift")) {
                 // Not in use by Twitch as of right now, 2019-01-03, leaving code there though.

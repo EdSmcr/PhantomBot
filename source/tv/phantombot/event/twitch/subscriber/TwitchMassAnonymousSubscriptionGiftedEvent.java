@@ -26,6 +26,7 @@ import tv.phantombot.event.twitch.TwitchEvent;
 public class TwitchMassAnonymousSubscriptionGiftedEvent extends TwitchEvent {
     private final String amount;
     private final String plan;
+    private final String total;
     
     /**
      * Class constructor.
@@ -33,9 +34,24 @@ public class TwitchMassAnonymousSubscriptionGiftedEvent extends TwitchEvent {
      * @param amount
      * @param plan 
      */
-    public TwitchMassAnonymousSubscriptionGiftedEvent(String amount, String plan) {
+    public TwitchMassAnonymousSubscriptionGiftedEvent(String amount, String plan)
+    {
         this.amount = amount;
         this.plan = plan;
+        this.total = "-1";
+    }
+    
+    /**
+     * Class constructor.
+     * 
+     * @param amount
+     * @param plan 
+     * @param total
+     */
+    public TwitchMassAnonymousSubscriptionGiftedEvent(String amount, String plan, String total) {
+        this.amount = amount;
+        this.plan = plan;
+        this.total = total;
     }
     
     /**
@@ -63,5 +79,15 @@ public class TwitchMassAnonymousSubscriptionGiftedEvent extends TwitchEvent {
      */
     public String getPlan() {
         return plan;
+    }
+    
+    /**
+     * Method that returns the total quantity of gifted subs
+     *
+     * @return {String} total
+     */
+    
+    public String getTotal() {
+        return this.total;
     }
 }

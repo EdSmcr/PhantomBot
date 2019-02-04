@@ -52,12 +52,28 @@
             }
             var gameInfo = obj;
             if (gameInfo){
-                var description = '';
+                var description = '',
+                    lastIndex = -1;
+                
                 if(gameInfo.summary){
                     description = gameInfo.summary;
                 }
-
-                description = description.substring(0, description.lastIndexOf('.', 300)).replace(/<(?:.|\n)*?>/gm, '');
+                
+                lastIndex = description.lastIndexOf('.', 300);
+                if (lastIndex === -1){
+                    lastIndex = description.lastIndexOf('!', 300);
+                }
+                else if (lastIndex === -1){
+                    lastIndex = description.lastIndexOf('?', 300);
+                }
+                else if (lastIndex === -1){
+                    lastIndex = description.lastIndexOf(',', 300);
+                }
+                else {
+                    lastIndex = 150;
+                }
+                
+                description = description.substring(0, lastIndex).replace(/<(?:.|\n)*?>/gm, '');
 
                 var officialSite = '', steamSite = '';
                 if(gameInfo.websites)
@@ -105,13 +121,29 @@
                 if (!isEmpty(gameInfo.result)){
                     var foundName = '',
                     foundURL = '',
-                    foundDescription = '';
+                    foundDescription = '',
+                    lastIndex = -1;
 
                     foundName = gameInfo.result[0].human_name;
 
                     foundDescription = gameInfo.result[0].description + '';
+                    
+                    lastIndex = foundDescription.lastIndexOf('.', 300);
+                    if (lastIndex === -1){
+                        lastIndex = foundDescription.lastIndexOf('!', 300);
+                    }
+                    else if (lastIndex === -1){
+                        lastIndex = foundDescription.lastIndexOf('?', 300);
+                    }
+                    else if (lastIndex === -1){
+                        lastIndex = foundDescription.lastIndexOf(',', 300);
+                    }
+                    else {
+                        lastIndex = 150;
+                    }
+                    
                     foundDescription = foundDescription.replace(/<(?:.|\n)*?>/gm, '');
-                    foundDescription = foundDescription.substring(0, foundDescription.lastIndexOf('.', 300)) + '';
+                    foundDescription = foundDescription.substring(0, lastIndex) + '';
                     foundDescription = foundDescription.replace("&#39;", "'");
                     
                     if (botloginSettings['HumblePartnerTag'] === undefined) {
