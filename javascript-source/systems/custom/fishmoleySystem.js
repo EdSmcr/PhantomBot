@@ -72,7 +72,7 @@
             return;
         }
         
-        var myPattern = new RegExp('(\\w*'+randomword+'\\w*)','gi');
+        var myPattern = new RegExp('(\\b('+randomword+')\\b)','gi');
         var matches = message.match(myPattern);
 
         if (matches === null)

@@ -37,7 +37,7 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
         this.recipient = recipient;
         this.months = null;
         this.plan = plan;
-        this.total =  "-1";
+        this.total = "-1";
     }
 
     /**
@@ -53,10 +53,10 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
         this.recipient = recipient;
         this.months = months;
         this.plan = plan;
-        this.total =  "-1";
+        this.total = "-1";
     }
 
-        /**
+    /**
      * Class constructor.
      *
      * @param {String} username
@@ -70,7 +70,7 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
         this.recipient = recipient;
         this.months = months;
         this.plan = plan;
-        this.total =  total;
+        this.total = total;
     }
     
     /**
@@ -109,13 +109,12 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
         return this.plan;
     }
     
-        /**
-     * Method that returns the total quantity of gifted subs
-     *
-     * @return {String} total
+    /**
+     * Method that returns the total quantity of gifted subscriptions.
+     * 
+     * @return {String} plan
      */
-    
-    public String getTotal() {
+    public String getTotal(){
         return this.total;
     }
 }

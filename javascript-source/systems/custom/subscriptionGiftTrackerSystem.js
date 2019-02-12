@@ -27,16 +27,9 @@
      */
     $.bind('twitchSubscriptionGift', function(event) {
         var gifter = event.getUsername(),
-            recipient = event.getRecipient(),
-            months = event.getMonths(),
-            tier = event.getPlan(),
             total = event.getTotal();
             
-        if (total == -1){
-            
-        }
-        
-        $.getSetIniDbNumber('bits', gifter.toLowerCase(), 0);
+        storeSubsGifts(gifter, total, 1);
     });
   
     /*
@@ -45,10 +38,9 @@
     $.bind('twitchMassSubscriptionGifted', function(event) {
         var gifter = event.getUsername(),
             amount = event.getAmount(),
-            tier = event.getPlan(),
             total = event.getTotal();
 
-        
+        storeSubsGifts(gifter, total, amount);
     });
 
     /*
@@ -56,12 +48,9 @@
      */
     $.bind('twitchAnonymousSubscriptionGift', function(event) {
         var gifter = event.getUsername(),
-            recipient = event.getRecipient(),
-            months = event.getMonths(),
-            tier = event.getPlan(),
             total = event.getTotal();
 
-        
+        storeSubsGifts(gifter, total, 1);
     });
 
     /*
@@ -70,10 +59,9 @@
     $.bind('twitchMassAnonymousSubscriptionGifted', function(event) {
         var gifter = event.getUsername(),
             amount = event.getAmount(),
-            tier = event.getPlan(),
             total = event.getTotal();
-
         
+        storeSubsGifts(gifter, total, amount);
     });
 
 
@@ -91,6 +79,23 @@
         
     });
 
+    /*
+     * 
+     * @param {type} gifter
+     * @param {type} total
+     * @param {type} amount
+     * @returns {undefined}
+     */
+    function storeSubsGifts(gifter, total, amount){
+        if (total == -1){
+            $.inidb.incr('subsGifts', gifter, amount);
+        }
+        else
+        {
+            $.getSetIniDbNumber('subsGifts', gifter, total);
+        }
+    }
+    
     /**
      * @event initReady
      */

@@ -127,17 +127,17 @@ public class TwitchWSIRCParser implements Runnable {
                 } else {
                     if (tags.get("login").equalsIgnoreCase(ANONYMOUS_GIFTER_TWITCH_USER)) {
                         if (tags.containsKey("msg-param-sender-count")) {
-                            scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
+                            scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-cumulative-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
                         }
                         else{
-                            scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                            scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-cumulative-months"), tags.get("msg-param-sub-plan")));
                         }
                     } else {
                         if (tags.containsKey("msg-param-sender-count")) {
-                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
+                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-cumulative-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
                         }
                         else{
-                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-cumulative-months"), tags.get("msg-param-sub-plan")));
                         }
                     }
                 }
