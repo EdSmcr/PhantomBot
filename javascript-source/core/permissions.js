@@ -903,7 +903,7 @@
         }
 
         /**
-         * @commandpath ignoreremove - List the bots from the ignorebots.txt
+         * @commandpath ignorelist - List the bots from the ignorebots.txt
          */
         if (command.equalsIgnoreCase('ignorelist')) {
             var tmp = Object.keys(botList);
@@ -915,14 +915,14 @@
         }
 
         /**
-         * @commandpath ignoreadd - Add a bot to the ignorebots.txt
+         * @commandpath ignoreadd [username] - Add a bot to the ignorebots.txt
          */
         if (command.equalsIgnoreCase('ignoreadd')) {
             if (!actionValue) {
                 $.say($.whisperPrefix(sender) + $.lang.get('ignoreadd.usage'));
             } else {
                 actionValue = actionValue.toLowerCase();
-                actionValue = actionValue.trim();
+                actionValue = $.user.sanitize(actionValue.trim());
                 if (!isTwitchBot(actionValue)) {
                     addTwitchBot(actionValue);
                     saveBotList();
@@ -934,14 +934,14 @@
         }
 
         /**
-         * @commandpath ignoreremove - Remove a bot from the ignorebots.txt
+         * @commandpath ignoreremove [username] - Remove a bot from the ignorebots.txt
          */
         if (command.equalsIgnoreCase('ignoreremove')) {
             if (!actionValue) {
                 $.say($.whisperPrefix(sender) + $.lang.get('ignoreremove.usage'));
             } else {
                 actionValue = actionValue.toLowerCase();
-                actionValue = actionValue.trim();
+                actionValue = $.user.sanitize(actionValue.trim());
                 if (isTwitchBot(actionValue)) {
                     removeTwitchBot(actionValue);
                     saveBotList();
