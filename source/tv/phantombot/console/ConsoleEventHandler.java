@@ -378,13 +378,16 @@ public class ConsoleEventHandler implements Listener {
             String randomUser = PhantomBot.generateRandomString(10);
             
             com.gmt2001.Console.out.println("[CONSOLE] Executing massgiftsubtest (User: " + randomUser + ")");
+            EventBus.instance().postAsync(new TwitchMassSubscriptionGiftedEvent(randomUser, "10", "1000"));
+            return;   
+        }
          /* 
          * @consolecommand massanongiftsubtest - Test a mass anonymous gift subscription.
          */
         if (message.equalsIgnoreCase("massanonsubgifttest")) {
-            String userName = PhantomBot.generateRandomString(8);
-            com.gmt2001.Console.out.println("Testing Mass Anonymous Gift Sub (Username = " + userName + ")");
-            EventBus.instance().postAsync(new TwitchMassAnonymousSubscriptionGiftedEvent("10", "1000"));
+            String randomUser = PhantomBot.generateRandomString(8);
+            com.gmt2001.Console.out.println("Testing Mass Anonymous Gift Sub (Username = " + randomUser + ")");
+            EventBus.instance().postAsync(new TwitchMassAnonymousSubscriptionGiftedEvent("10", "1000", "35"));
             return;
         }
 
@@ -392,13 +395,9 @@ public class ConsoleEventHandler implements Listener {
          * @consolecommand anonsubgifttest - Test an anonymous gift subscription
          */
         if (message.equalsIgnoreCase("anonsubgifttest")) {
-            String userName = PhantomBot.generateRandomString(8);
-            com.gmt2001.Console.out.println("Testing Anonymous Gift Sub (Username = " + userName + ")");
-            EventBus.instance().postAsync(new TwitchAnonymousSubscriptionGiftEvent(userName, "1", "1000"));
-            return;
-        }
-
-            EventBus.instance().postAsync(new TwitchMassSubscriptionGiftedEvent(randomUser, "10", "1000", "35"));
+            String randomUser = PhantomBot.generateRandomString(8);
+            com.gmt2001.Console.out.println("Testing Anonymous Gift Sub (Username = " + randomUser + ")");
+            EventBus.instance().postAsync(new TwitchAnonymousSubscriptionGiftEvent(randomUser, "1", "1000"));
             return;
         }
         

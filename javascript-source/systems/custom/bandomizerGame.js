@@ -178,6 +178,51 @@
                 banALooney(username, action);
             }
         }
+        if (command.equalsIgnoreCase('snap')) {
+            if (status){
+                var minTime = 2,
+                maxTime = 15;   
+                var i = 1;
+                var selected = [];
+                
+                if (entries.length === 0) {
+                    $.say($.lang.get('bandomizer.404'));
+                    return;
+                }
+                            
+                $.say($.lang.get('bandomizer.snap.starting'));
+                
+                
+                var loopCount = 5;
+                if (entries.length < 5){
+                    loopCount = entries.length;
+                }
+                
+                (function myLoop (i) {          
+                   setTimeout(function () {   
+                        var randomTimeInMinutes = Math.floor(Math.random() * (maxTime - minTime + 1) + minTime);
+                        var username = $.randElement(entries);
+                        
+                        $.consoleLn(username + " selected");
+                        
+                        if (!isInList(selected, username)){
+                            selected.push(username);
+                            $.say($.lang.get('bandomizer.snap.pick', username, randomTimeInMinutes));
+                            timeoutUserFor(username, randomTimeInMinutes * 60, username + ' was randomly choose by the Bandomizer');
+                        
+                            if (--i) myLoop(i);      
+                        }
+                        else{
+                            myLoop(i);
+                        }
+                   }, 2000);
+                })(loopCount);
+            }
+            else
+            {
+                $.say($.lang.get('bandomizer.notrunning.mods'));
+            }
+        }
     });
 
     function banALooney(requester, user){
@@ -206,6 +251,7 @@
         }
         entries.push(user);
     }
+    
     function removeFromList(user){
         for (var i in entries) {
             if (entries[i].equalsIgnoreCase(user)) {
@@ -213,7 +259,11 @@
             }
         }
     }
-
+    
+    function isInList(list, user){
+        return list.indexOf(user) > -1;
+    }
+    
     function pickUser(time)
     {
         if (entries.length === 0) {
@@ -222,26 +272,10 @@
         }
         
         var username = $.randElement(entries);
-        //var userinfo = JSON.parse($.inidb.get('bandomizerList', username ));
 
-//        if (userinfo.lastPicked !== '' && lessThanOneHour(parseInt(userinfo.lastPicked)))
-//        {
-//            var index = _entries.indexOf(username);
-//            if (index > -1) {
-//                _entries.splice(index, 1);
-//            }
-//            pickUser(_entries, time);
-//        }
-//        else
-//        {
             $.say($.lang.get('bandomizer.pick', username, time));
             timeoutUserFor(username, time * 60, username + ' was randomly choose by the Bandomizer');
-            
-            ///Update the user info in the DB
-//            userinfo.lastPicked = $.systemTime();
-//            var info =  JSON.stringify(userinfo);
-//            $.inidb.set('bandomizerList', username, info);
-        //}
+
     };
     
     function overOneHour(time){
@@ -276,6 +310,7 @@
         if ($.bot.isModuleEnabled('./systems/custom/bandomizerGame.js')) {
             $.registerChatCommand('./systems/custom/bandomizerGame.js', 'bandomizer', 7); //Checks if you are in the list.
             $.registerChatCommand('./systems/custom/bandomizerGame.js', 'banalooney', 2); //Times out a viewer and gives him one hour immunity.
+            $.registerChatCommand('./systems/custom/bandomizerGame.js', 'snap', 2); //Times out 5 viewers and gives him one hour immunity.
             $.registerChatSubcommand('bandomizer', 'start', 2); //Starts the game.
             $.registerChatSubcommand('bandomizer', 'end', 2); //Ends the game.
             $.registerChatSubcommand('bandomizer', 'pick', 2); //Randomly picks an user and gives him a random timeout.

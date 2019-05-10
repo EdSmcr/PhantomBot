@@ -24,7 +24,7 @@ public class TwitchPrimeSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} subscriber
+     * @param subscriber
      */
     public TwitchPrimeSubscriberEvent(String subscriber) {
         this.subscriber = subscriber;

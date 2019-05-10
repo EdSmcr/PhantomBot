@@ -125,6 +125,52 @@
         
         calculateAndPrintTotal();
     });
+
+    /*
+     * @event twitchAnonymousSubscriptionGift
+     */
+    $.bind('twitchAnonymousSubscriptionGift', function(event) {
+         var currentdate = $.getLocalTimeString('MM yyyy', $.systemTime());
+        var gifter = event.getUsername(),
+            amount = event.getAmount();
+
+        //Community Reward 
+        var plan = event.getPlan();
+        
+        if (plan.equals('1000')) {
+            $.inidb.incr('monthlytier1', currentdate, 1);
+        } else if (plan.equals('2000')) {
+            $.inidb.incr('monthlytier2', currentdate, 1);
+        } else if (plan.equals('3000')) {
+            $.inidb.incr('monthlytier3', currentdate, 1);
+        } 
+        
+        calculateAndPrintTotal();
+    });
+
+    /*
+     * @event twitchMassAnonymousSubscriptionGifted
+     */
+    $.bind('twitchMassAnonymousSubscriptionGifted', function(event) {
+         var currentdate = $.getLocalTimeString('MM yyyy', $.systemTime());
+        var gifter = event.getUsername(),
+            amount = event.getAmount();
+
+        //Community Reward 
+        var plan = event.getPlan();
+        
+        if (plan.equals('1000')) {
+            $.inidb.incr('monthlytier1', currentdate, parseInt(amount));
+        } else if (plan.equals('2000')) {
+            $.inidb.incr('monthlytier2', currentdate, parseInt(amount));
+        } else if (plan.equals('3000')) {
+            $.inidb.incr('monthlytier3', currentdate, parseInt(amount));
+        } 
+        
+        calculateAndPrintTotal();
+    });
+
+    
     /**
      * @event command
      */
@@ -171,23 +217,31 @@
      */
     function checkTiltify() {
         var header = {};
+        var campaignId = "";
+         
         
         if (botloginSettings['TiltifyAPIKey'] === undefined) {
             return;
         } else {
-            header['Authorization'] = 'Token token="'+ botloginSettings['TiltifyAPIKey']  +'"';
+            header['Authorization'] = 'Bearer '+ botloginSettings['TiltifyAPIKey'];
+        }
+
+        if (botloginSettings['TiltifyCampaignId'] === undefined) {
+            return;
+        } else {
+            campaignId = botloginSettings['TiltifyCampaignId'];
         }
         
-        var response = $.customAPI.readJsonFromUrl("https://tiltify.com/api/v2/campaign/?donations=true&donation_limit=5", JSON.stringify(header));
+        var response = $.customAPI.readJsonFromUrl("https://tiltify.com/api/v3/campaigns/"+ campaignId +"/donations?count=5", JSON.stringify(header));
         
         if (response !== undefined){
+            
             var obj = JSON.parse(response);
         
-            if (obj.donations){
-                for (var key in obj.donations) {
-                    if (!Object.prototype.hasOwnProperty.call(obj.donations, key)) continue;
-                    var donation = obj.donations[key];
-                    
+            if (obj.data){
+                for (var key in obj.data) {
+                    if (!Object.prototype.hasOwnProperty.call(obj.data, key)) continue;
+                    var donation = obj.data[key];
                     if (!$.inidb.HasKey("tiltify", '', donation.id)){
                         //announce donation and add it to the list.
                         $.inidb.set("tiltify", donation.id, JSON.stringify(donation));
@@ -214,11 +268,10 @@
      * @event initReady
      */
     $.bind('initReady', function() {
-        if ($.bot.isModuleEnabled('./systems/custom/donationsTrackingSystem.js')) {
+         if ($.bot.isModuleEnabled('./systems/custom/donationsTrackingSystem.js')) {
             $.registerChatCommand('./systems/custom/donationsTrackingSystem.js', 'stjudebonus', 7);
+            setInterval(checkTiltify, 6e4);
         }
-        
         readBotLogin();
-        //setInterval(checkTiltify, 6e4);
     });
 })();

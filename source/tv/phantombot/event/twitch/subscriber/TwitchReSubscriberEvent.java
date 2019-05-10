@@ -26,8 +26,8 @@ public class TwitchReSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} resubscriber
-     * @param {String} months
+     * @param resubscriber
+     * @param months
      */
     public TwitchReSubscriberEvent(String resubscriber, String months) {
         this.resubscriber = resubscriber;
@@ -38,9 +38,9 @@ public class TwitchReSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} resubscriber
-     * @param {String} months
-     * @param {String} plan
+     * @param resubscriber
+     * @param months
+     * @param plan
      */
     public TwitchReSubscriberEvent(String resubscriber, String months, String plan) {
         this.resubscriber = resubscriber;

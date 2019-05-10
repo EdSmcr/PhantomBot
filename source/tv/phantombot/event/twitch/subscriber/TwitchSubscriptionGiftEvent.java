@@ -28,9 +28,9 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} username
-     * @param {String} recipient
-     * @param {String} plan
+     * @param username
+     * @param recipient
+     * @param plan
      */
     public TwitchSubscriptionGiftEvent(String username, String recipient, String plan) {
         this.username = username;
@@ -43,10 +43,10 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} username
-     * @param {String} recipient
-     * @param {String} months
-     * @param {String} plan
+     * @param username
+     * @param recipient
+     * @param months
+     * @param plan
      */
     public TwitchSubscriptionGiftEvent(String username, String recipient, String months, String plan) {
         this.username = username;
@@ -59,11 +59,11 @@ public class TwitchSubscriptionGiftEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} username
-     * @param {String} recipient
-     * @param {String} months
-     * @param {String} plan
-     * @param {String} total
+     * @param username
+     * @param recipient
+     * @param months
+     * @param plan
+     * @param total
      */
     public TwitchSubscriptionGiftEvent(String username, String recipient, String months, String plan, String total) {
         this.username = username;

@@ -28,7 +28,8 @@
     $.bind('twitchSubscriptionGift', function(event) {
         var gifter = event.getUsername(),
             total = event.getTotal();
-            
+        $.consoleLn('twitchSubscriptionGift called.');
+        
         storeSubsGifts(gifter, total, 1);
     });
   
@@ -39,6 +40,7 @@
         var gifter = event.getUsername(),
             amount = event.getAmount(),
             total = event.getTotal();
+        $.consoleLn('twitchMassSubscriptionGifted called.');
 
         storeSubsGifts(gifter, total, amount);
     });
@@ -49,7 +51,8 @@
     $.bind('twitchAnonymousSubscriptionGift', function(event) {
         var gifter = event.getUsername(),
             total = event.getTotal();
-
+        $.consoleLn('twitchAnonymousSubscriptionGift called.');
+        
         storeSubsGifts(gifter, total, 1);
     });
 
@@ -60,6 +63,7 @@
         var gifter = event.getUsername(),
             amount = event.getAmount(),
             total = event.getTotal();
+        $.consoleLn('twitchMassAnonymousSubscriptionGifted called.');
         
         storeSubsGifts(gifter, total, amount);
     });

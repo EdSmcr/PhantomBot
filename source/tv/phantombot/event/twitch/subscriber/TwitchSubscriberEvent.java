@@ -25,7 +25,7 @@ public class TwitchSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} subscriber
+     * @param subscriber
      */
     public TwitchSubscriberEvent(String subscriber) {
         this.subscriber = subscriber;
@@ -35,8 +35,8 @@ public class TwitchSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param {String} subscriber
-     * @param {String} plan
+     * @param subscriber
+     * @param plan
      */
     public TwitchSubscriberEvent(String subscriber, String plan) {
         this.subscriber = subscriber;
@@ -53,7 +53,7 @@ public class TwitchSubscriberEvent extends TwitchEvent {
     }
 
     /**
-     * Method that returns the subcription plan. (1000, 2000, 3000 and Prime)
+     * Method that returns the subscription plan. (1000, 2000, 3000 and Prime)
      *
      * @return {String} plan
      */
