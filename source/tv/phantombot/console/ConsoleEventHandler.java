@@ -387,7 +387,7 @@ public class ConsoleEventHandler implements Listener {
         if (message.equalsIgnoreCase("massanonsubgifttest")) {
             String randomUser = PhantomBot.generateRandomString(8);
             com.gmt2001.Console.out.println("Testing Mass Anonymous Gift Sub (Username = " + randomUser + ")");
-            EventBus.instance().postAsync(new TwitchMassAnonymousSubscriptionGiftedEvent("10", "1000", "35"));
+            EventBus.instance().postAsync(new TwitchMassAnonymousSubscriptionGiftedEvent("10", "1000"));
             return;
         }
 
