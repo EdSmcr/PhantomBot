@@ -39,6 +39,7 @@
             liveResults: {'votes':{}}
         },
         timeout;
+    var objOBS = [];
 
 
     /** 
@@ -91,6 +92,8 @@
             return false
         }
 
+        objOBS = [];
+
         poll.pollRunning = true;
         poll.pollMaster = pollMaster;
         poll.time = (parseInt(time) * 1000);
@@ -120,6 +123,11 @@
             if (poll.liveResults.votes[poll.options[i]] == undefined){
                 poll.liveResults.votes[poll.options[i]] = 0;
             }
+            $.inidb.set('pollVotes', poll.options[i].replace(/\s/, '%space_option%'), 0);
+            objOBS.push({
+                'label': poll.options[i],
+                'votes': 0
+            });
         }
         
         $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
@@ -135,6 +143,11 @@
         } else {
             $.say($.lang.get('pollsystem.poll.started.nottime', $.resolveRank(pollMaster), poll.minVotes, poll.question, optionsStr));
         }
+
+        $.panelsocketserver.sendToAll(JSON.stringify({
+            'start_poll': 'true',
+            'data': JSON.stringify(objOBS)
+        }));
 
         $.inidb.set('pollPanel', 'title', question);
         $.inidb.set('pollPanel', 'options', options.join('%space_option%'));
@@ -168,6 +181,14 @@
         optionIndex--;
         poll.voters.push(sender);
         poll.votes.push(optionIndex);
+        for (var i = 0; i < objOBS.length; i++) {
+            if (objOBS[i].label == poll.options[optionIndex])
+                objOBS[i].votes++;
+        }
+        $.panelsocketserver.sendToAll(JSON.stringify({
+            'new_vote': 'true',
+            'data': JSON.stringify(objOBS)
+        }));
         $.inidb.incr('pollVotes', poll.options[optionIndex].replace(/\s/, '%space_option%'), 1);
 
         if (poll.liveResults.votes[poll.options[optionIndex]] == undefined){
@@ -195,7 +216,9 @@
         clearTimeout(timeout);
 
         $.inidb.set('pollPanel', 'isActive', 'false');
-
+        $.panelsocketserver.sendToAll(JSON.stringify({
+            'end_poll': 'true'
+        }));
         if (poll.minVotes > 0 && poll.votes.length < poll.minVotes) {
             poll.result = '';
             poll.pollMaster = '';

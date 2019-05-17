@@ -48,10 +48,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
+import sx.blah.discord.handle.impl.events.guild.role.RoleCreateEvent;
+import sx.blah.discord.handle.impl.events.guild.role.RoleDeleteEvent;
+import sx.blah.discord.handle.impl.events.guild.role.RoleUpdateEvent;
 
 import tv.phantombot.discord.util.DiscordUtil;
 
 import tv.phantombot.PhantomBot;
+import tv.phantombot.event.discord.ready.DiscordReadyEvent;
+import tv.phantombot.event.discord.role.DiscordRoleCreatedEvent;
+import tv.phantombot.event.discord.role.DiscordRoleDeletedEvent;
+import tv.phantombot.event.discord.role.DiscordRoleUpdatedEvent;
 
 
 /**
@@ -224,6 +231,8 @@ public class DiscordAPI extends DiscordUtil {
                     }
                 }
             }, 0, 1, TimeUnit.MINUTES);
+            
+            EventBus.instance().postAsync(new DiscordReadyEvent());
         }
 
         @EventSubscriber
@@ -257,13 +266,28 @@ public class DiscordAPI extends DiscordUtil {
         }
         
         @EventSubscriber
+        public void onDiscordRoleCreateEvent(RoleCreateEvent event) {
+            EventBus.instance().post(new DiscordRoleCreatedEvent(event.getRole()));
+        }
+        
+        @EventSubscriber
+        public void onDiscordRoleUpdateEvent(RoleUpdateEvent event) { 
+            EventBus.instance().post(new DiscordRoleUpdatedEvent(event.getRole()));
+        }
+        
+        @EventSubscriber
+        public void onDiscordRoleDeleteEvent(RoleDeleteEvent event) {
+            EventBus.instance().post(new DiscordRoleDeletedEvent(event.getRole()));
+        }
+        
+        @EventSubscriber
         public void onDiscordMessageReactionAddEvent(ReactionAddEvent event) {
-            EventBus.instance().postAsync(new DiscordMessageReactionEvent(event, DiscordMessageReactionEvent.ReactionType.ADD));
+            EventBus.instance().post(new DiscordMessageReactionEvent(event, DiscordMessageReactionEvent.ReactionType.ADD));
         }
         
         @EventSubscriber
         public void onDiscordMessageReactionRemoveEvent(ReactionRemoveEvent event) {
-            EventBus.instance().postAsync(new DiscordMessageReactionEvent(event, DiscordMessageReactionEvent.ReactionType.REMOVE));
+            EventBus.instance().post(new DiscordMessageReactionEvent(event, DiscordMessageReactionEvent.ReactionType.REMOVE));
         }
     }
 }
