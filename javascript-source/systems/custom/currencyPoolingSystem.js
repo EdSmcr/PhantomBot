@@ -1,6 +1,8 @@
 /**
  * Script  : customCommands.js
- * Purpose : 
+ * Purpose : I was wondering if we could develop a community currency pooling feature for the bot. 
+ * Basically there would be a goal, and users to enter a command to contribute their candy towards the pool. 
+ * The bot would say thanks x for contributing y candy for <cause name>. z candy left to reach our goal!
  */
 (function() {
 
@@ -20,33 +22,33 @@
             now = $.systemTime(),
             time;
             
-        if (command.equalsIgnoreCase('ouch')) {
-            if (!action) {
-                if ($.inidb.exists('settings', 'lastOuch')) {
-                    date = new Date(parseInt($.inidb.get('settings', 'lastOuch')));
-                    time = (now - date);
-                    $.say($.lang.get('channelcommands.ouch', $.getTimeString(time / 1000) + ' '));
-                } else {
-                    $.say($.lang.get('channelcommands.ouch', '0 seconds'));
-                    $.getSetIniDbString('settings', 'lastOuch', now);
-                }
-            }
-            else {
-                if (action.equalsIgnoreCase('reset')) {
-                    $.inidb.set('settings', 'lastOuch', now);
-                    $.say('Ouch time reset.');
-                }
-            }
-        }
+//        if (command.equalsIgnoreCase('ouch')) {
+//            if (!action) {
+//                if ($.inidb.exists('settings', 'lastOuch')) {
+//                    date = new Date(parseInt($.inidb.get('settings', 'lastOuch')));
+//                    time = (now - date);
+//                    $.say($.lang.get('channelcommands.ouch', $.getTimeString(time / 1000) + ' '));
+//                } else {
+//                    $.say($.lang.get('channelcommands.ouch', '0 seconds'));
+//                    $.getSetIniDbString('settings', 'lastOuch', now);
+//                }
+//            }
+//            else {
+//                if (action.equalsIgnoreCase('reset')) {
+//                    $.inidb.set('settings', 'lastOuch', now);
+//                    $.say('Ouch time reset.');
+//                }
+//            }
+//        }
     });
 
     /*
      * @event initReady
      */
     $.bind('initReady', function() {
-        if ($.bot.isModuleEnabled('./systems/custom/channelCommands.js')) {
-            $.registerChatCommand('./systems/custom/channelCommands.js', 'ouch', 7);
-            $.registerChatSubcommand('ouch', 'reset', 2); //resets the timer
-        }
+//        if ($.bot.isModuleEnabled('./systems/custom/currencyPoolingSystem.js')) {
+//            $.registerChatCommand('./systems/custom/currencyPoolingSystem.js', 'contribute', 7);
+//            $.registerChatSubcommand('contribute', 'reset', 2); //resets.
+//        }
     });
 })();

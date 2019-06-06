@@ -16,59 +16,72 @@
  */
 
 /**
- * subscriptionGiftTrackerSystem.js
+ * streamDaysTracker.js
  *
  * 
  */
 (function() {
+    var daysCount = 1
+    timeout = (6e4 * 5); // 5 minutes.
     
-     /*
-     * @event twitchSubscriptionGift
-     */
-    $.bind('twitchSubscriptionGift', function(event) {
-        var gifter = event.getUsername(),
-            total = event.getTotal();
-        $.consoleLn('twitchSubscriptionGift called.');
-        
-        storeSubsGifts(gifter, total, 1);
-    });
-  
+    var _streamInfo = function(){
+        return {
+            lastDayAdded: ''
+        };
+    };
+    
     /*
-     * @event twitchSubscriptionGift
+     * @event twitchOnline
      */
-    $.bind('twitchMassSubscriptionGifted', function(event) {
-        var gifter = event.getUsername(),
-            amount = event.getAmount(),
-            total = event.getTotal();
-        $.consoleLn('twitchMassSubscriptionGifted called.');
+//    $.bind('twitchOnline', function() {
+//        var currentdate = $.getLocalTimeString('dd MM yyyy', $.systemTime());
+//        daysCount = $.getSetIniDbNumber('streamDaysTracker', 'daysCount', 1) + 1;
+//        var streaminfo = new _streamInfo();
+//        streaminfo.lastDayAdded = '';
+//        var info =  JSON.stringify(streaminfo);
+//        $.inidb.set('streamDaysTracker', 'settings', info);
+//        
+//        
+//        streaminfo = JSON.parse($.inidb.get('streamDaysTracker', 'settings' ));
+//        
+//        $.consoleLn("Lowco has streamed for " + daysCount + " days.");
+//    });
+    
+    /**
+    * @event twitchOffline
+    */
+   $.bind('twitchOffline', function(event) {
+           // Make sure the channel is really off-line before deleting and posting the data. Wait a minute and do another check.
+           setTimeout(function() {
+                   if (!$.isOnline($.channelName)) {
+                       $.consoleLn("Channel is off-line");
+                   }
+           }, 6e4);
+   });
 
-        storeSubsGifts(gifter, total, amount);
-    });
-
-    /*
-     * @event twitchAnonymousSubscriptionGift
-     */
-    $.bind('twitchAnonymousSubscriptionGift', function(event) {
-        var gifter = event.getUsername(),
-            total = event.getTotal();
-        $.consoleLn('twitchAnonymousSubscriptionGift called.');
-        
-        storeSubsGifts(gifter, total, 1);
-    });
-
-    /*
-     * @event twitchMassAnonymousSubscriptionGifted
-     */
-    $.bind('twitchMassAnonymousSubscriptionGifted', function(event) {
-        var gifter = event.getUsername(),
-            amount = event.getAmount(),
-            total = event.getTotal();
-        $.consoleLn('twitchMassAnonymousSubscriptionGifted called.');
-        
-        storeSubsGifts(gifter, total, amount);
-    });
+   /**
+    * @event twitchOnline
+    */
+   $.bind('twitchOnline', function(event) {
+           // Wait a minute for Twitch to generate a real thumbnail and make sure again that we are online.
+           setTimeout(function() {
+                   if ($.isOnline($.channelName)) {
+                        var currentdate = $.getLocalTimeString('dd MM yyyy', $.systemTime());
+                        daysCount = $.getSetIniDbNumber('streamDaysTracker', 'daysCount', 1) + 1;
+                        var streaminfo = new _streamInfo();
+                        streaminfo.lastDayAdded = '';
+                        var info =  JSON.stringify(streaminfo);
+                        $.inidb.set('streamDaysTracker', 'settings', info);
 
 
+                        streaminfo = JSON.parse($.inidb.get('streamDaysTracker', 'settings' ));
+
+                        $.consoleLn("Lowco has streamed for " + daysCount + " days.");
+                   }
+           }, 6e4);
+   });
+    
+    
     /*
      * @event command
      */
@@ -83,27 +96,13 @@
         
     });
 
-    /*
-     * 
-     * @param {type} gifter
-     * @param {type} total
-     * @param {type} amount
-     * @returns {undefined}
-     */
-    function storeSubsGifts(gifter, total, amount){
-        if (total == -1){
-            $.inidb.incr('subsGifts', gifter, amount);
-        }
-        else
-        {
-            $.getSetIniDbNumber('subsGifts', gifter, total);
-        }
-    }
-    
     /**
      * @event initReady
      */
     $.bind('initReady', function() {
-
+        if ($.bot.isModuleEnabled('./systems/custom/streamDaysTracker.js')) {
+            $.registerChatCommand('./systems/custom/streamDaysTracker.js', 'days', 7);
+            
+        }
     });
 })();
