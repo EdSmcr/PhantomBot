@@ -94,7 +94,7 @@ public class ConsoleEventHandler implements Listener {
     @Handler
     public void onConsoleInput(ConsoleInputEvent event) {
         // The message said in the console.
-        String message = event.getMessage().replaceAll("!", "").trim();
+        String message = event.getMessage();
         // If settings were changed.
         boolean changed = false;
         // Arguments of the message string.
@@ -108,6 +108,8 @@ public class ConsoleEventHandler implements Listener {
         if (message == null || message.isEmpty()) {
             return;
         }
+        
+        message = message.replaceAll("!", "").trim();
 
         // Check for arguments in the message string.
         if (message.contains(" ")) {
