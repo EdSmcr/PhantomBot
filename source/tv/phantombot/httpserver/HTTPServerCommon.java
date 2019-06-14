@@ -245,7 +245,7 @@ public class HTTPServerCommon {
         JSONStringer jsonObject = new JSONStringer();
         String[] keyValue;
         String   dbTable = null;
-        String   dbSection = "";
+        String   dbSection = null;
         Boolean  dbExists;
 
         if (!hasPassword) {
@@ -281,6 +281,8 @@ public class HTTPServerCommon {
             } else if (keyValue[0].equals("section")) {
                 if (keyValue.length > 1 && keyValue[1].length() > 0) {
                     dbSection = keyValue[1];
+                } else {
+                    dbSection = "";
                 }
             } else {
                 // All other commands need the table.
