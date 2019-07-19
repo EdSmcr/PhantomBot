@@ -200,6 +200,8 @@ public class HTTPServerCommon {
                 handleFile("/web/obs/poll-chart/index.html", exchange, hasPassword, false);
             } else if (uriPath.equals("/obs/hype-meter")) {
                 handleFile("/web/obs/hype-meter/index.html", exchange, hasPassword, false);
+            } else if (uriPath.equals("/obs/tug-of-war")) {
+                handleFile("/web/obs/tug-of-war/index.html", exchange, hasPassword, false);
             } else if (uriPath.startsWith("/config/audio-hooks")) {
                 handleFile(uriPath, exchange, hasPassword, false);
             } else if (uriPath.startsWith("/config/gif-alerts")) {

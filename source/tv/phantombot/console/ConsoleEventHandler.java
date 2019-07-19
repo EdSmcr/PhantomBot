@@ -458,7 +458,7 @@ public class ConsoleEventHandler implements Listener {
 
             com.gmt2001.Console.out.println("[CONSOLE] Executing bitstest");
 
-            EventBus.instance().postAsync(new TwitchBitsEvent(PhantomBot.instance().getBotName(), "100", sendMessage));
+            EventBus.instance().postAsync(new TwitchBitsEvent(PhantomBot.instance().getBotName(), argument[0], argument[1]));
             return;
         }
 

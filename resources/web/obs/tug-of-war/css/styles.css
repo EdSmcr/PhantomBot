@@ -1,0 +1,50 @@
+.container {
+    height: auto;
+    width: auto;
+    position: fixed;
+}
+
+.meter-container{
+    position: relative;
+    display: block;
+    height: 50px;
+    margin: 0 auto;
+    width: 800px;
+    overflow: hidden;
+}
+
+.red, .blue{
+    width: 296.5px;
+}
+
+.hilts, .red, .blue{
+    position: absolute;
+}
+
+.hilts {
+    width: 800px;
+}
+
+.red{
+    left: 0;
+}
+
+.blue{
+    right: 0;
+}
+
+.blue.beam{
+    display: none;
+    right: 242px;
+}
+.red.beam{
+    display: none;
+    left: 242px;
+}
+
+.blue.halo{
+    display: none;
+}
+.red.halo{
+    display: none;
+}
