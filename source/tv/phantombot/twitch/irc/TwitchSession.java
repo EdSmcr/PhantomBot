@@ -17,10 +17,9 @@
 package tv.phantombot.twitch.irc;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.channels.NotYetConnectedException;
+import java.util.concurrent.locks.ReentrantLock;
 import tv.phantombot.PhantomBot;
-import tv.phantombot.twitch.irc.TwitchWSIRC;
 
 import tv.phantombot.twitch.irc.chat.utils.MessageQueue;
 
@@ -30,7 +29,11 @@ public class TwitchSession extends MessageQueue {
     private final String channelName;
     private final String oAuth;
     private TwitchWSIRC twitchWSIRC;
-    private long lastReconnect = 0;
+    private final ReentrantLock lock = new ReentrantLock();
+    private final ReentrantLock lock2 = new ReentrantLock();
+    private static final long MAX_BACKOFF = 300000L;
+    private long lastReconnect;
+    private long nextBackoff = 1000L;
 
     /**
      * Method that return this instance.
@@ -44,6 +47,10 @@ public class TwitchSession extends MessageQueue {
         if (instance == null) {
             instance = new TwitchSession(channelName, botName, oAuth);
         }
+        return instance;
+    }
+    
+    private static TwitchSession instance() {
         return instance;
     }
 
@@ -131,34 +138,46 @@ public class TwitchSession extends MessageQueue {
     /**
      * Method that handles reconnecting with Twitch.
      */
-    @SuppressWarnings("SleepWhileInLoop")
     public void reconnect() {
         // Do not try to send messages anymore.
         this.setAllowSendMessages(false);
-        // Variable that will break the reconnect loop.
-        boolean reconnected = false;
-
-        while (!reconnected && !PhantomBot.instance().isExiting()) {
-            if (lastReconnect + 10000 <= System.currentTimeMillis()) {
-                lastReconnect = System.currentTimeMillis();
-                try {
-                    // Close the connection and destroy the class.
-                    this.twitchWSIRC.close();
-                    // Create a new connection.
-                    this.twitchWSIRC = new TwitchWSIRC(new URI("wss://irc-ws.chat.twitch.tv"), channelName, botName, oAuth, this);
-                    // Check if we are reconnected.
-                    reconnected = this.twitchWSIRC.connectWSS(true);
-                    // If we are connected, allow us the send messages again.
-                    this.setAllowSendMessages(reconnected);
-                } catch (URISyntaxException ex) {
-                    com.gmt2001.Console.err.println("Error when reconnecting to Twitch [" + ex.getClass().getSimpleName() + "]: " + ex.getMessage());
-                }
-            }
-            // Sleep for 5 seconds.
+        if (lock.isLocked() || PhantomBot.instance().isExiting()) {
+            return;
+        }
+        
+        lock.lock();
+        try {
+            new Thread(() -> {
+                TwitchSession.instance().doReconnect();
+            }).start();
+        } finally {
+            lock.unlock();
+        }
+    }
+    
+    public void doReconnect() {
+        if (lock2.tryLock()) {
             try {
-                Thread.sleep(5000);
+                long now = System.currentTimeMillis();
+
+                if (lastReconnect + (MAX_BACKOFF * 2) < now) {
+                    nextBackoff = 1000L;
+                } else {
+                    com.gmt2001.Console.out.println("Delaying next connection attempt to prevent spam, " + nextBackoff + " seconds...");
+                    Thread.sleep(nextBackoff);
+                }
+                
+                lastReconnect = now;
+                nextBackoff = Math.min(MAX_BACKOFF, nextBackoff * 2L);
+                
+                this.twitchWSIRC.reconnectBlocking();
+
+                // Should be connected now.
+                this.setAllowSendMessages(true);
             } catch (InterruptedException ex) {
-                com.gmt2001.Console.debug.println("Sleep failed during reconnect [InterruptedException]: " + ex.getMessage());
+                com.gmt2001.Console.err.printStackTrace(ex);
+            } finally {
+                lock2.unlock();
             }
         }
     }
