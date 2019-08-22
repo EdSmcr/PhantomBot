@@ -149,7 +149,7 @@ public class MySQLStore extends DataStore {
             try (Statement statement = connection.createStatement()) {
                 statement.setQueryTimeout(10);
 
-                statement.executeUpdate("CREATE TABLE phantombot_" + fName + " (section LONGTEXT, variable varchar(255) NOT NULL, value LONGTEXT, PRIMARY KEY (variable(191)));");
+                statement.executeUpdate("CREATE TABLE phantombot_" + fName + " (section LONGTEXT, variable varchar(255) NOT NULL, value LONGTEXT, PRIMARY KEY (section(30), variable(150)));");
             } catch (SQLException ex) {
                 com.gmt2001.Console.err.printStackTrace(ex);
             }
@@ -888,6 +888,35 @@ public class MySQLStore extends DataStore {
                     statement.executeUpdate();
                 }
             }
+        } catch (SQLException ex) {
+            com.gmt2001.Console.err.printStackTrace(ex);
+        }
+    }
+
+    @Override
+    public void IncreaseBatchString(String fName, String section, String[] keys, String value) {
+        fName = validateFname(fName);
+
+        AddFile(fName);
+
+        try {
+            Statement statement = connection.createStatement();
+            statement.addBatch("UPDATE phantombot_" + fName + " SET value = CAST(value AS INTEGER) + " + value + " WHERE section = '" + section + "' AND variable IN ('" + String.join("', '", keys) + "');");
+
+            String s = "INSERT IGNORE INTO phantombot_" + fName + " (section, variable, value) VALUES ";
+
+            boolean first = true;
+            for (String k : keys) {
+                if (!first) {
+                    s += ",";
+                }
+
+                first = false;
+                s += "('" + section + "', '" + k + "', " + value + ")";
+            }
+
+            statement.addBatch(s + ";");
+            statement.executeBatch();
         } catch (SQLException ex) {
             com.gmt2001.Console.err.printStackTrace(ex);
         }
