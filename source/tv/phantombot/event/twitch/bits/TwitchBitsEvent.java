@@ -31,7 +31,6 @@ public class TwitchBitsEvent extends TwitchEvent {
      * @param {String} bits
      * @param {String} message
      */
-
     public TwitchBitsEvent(String username, String bits, String message) {
         this.username = username;
         this.bits = bits;

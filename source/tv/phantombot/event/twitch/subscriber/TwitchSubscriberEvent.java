@@ -26,7 +26,7 @@ public class TwitchSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param subscriber
+     * @param {String} subscriber
      */
     public TwitchSubscriberEvent(String subscriber) {
         this.subscriber = subscriber;
@@ -37,8 +37,8 @@ public class TwitchSubscriberEvent extends TwitchEvent {
     /**
      * Class constructor.
      *
-     * @param subscriber
-     * @param plan
+     * @param {String} subscriber
+     * @param {String} plan
      */
     public TwitchSubscriberEvent(String subscriber, String plan) {
         this.subscriber = subscriber;

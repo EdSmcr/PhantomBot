@@ -26,7 +26,6 @@ import tv.phantombot.event.twitch.TwitchEvent;
 public class TwitchMassAnonymousSubscriptionGiftedEvent extends TwitchEvent {
     private final String amount;
     private final String plan;
-
     
     /**
      * Class constructor.
@@ -34,8 +33,7 @@ public class TwitchMassAnonymousSubscriptionGiftedEvent extends TwitchEvent {
      * @param amount
      * @param plan 
      */
-    public TwitchMassAnonymousSubscriptionGiftedEvent(String amount, String plan)
-    {
+    public TwitchMassAnonymousSubscriptionGiftedEvent(String amount, String plan) {
         this.amount = amount;
         this.plan = plan;
     }

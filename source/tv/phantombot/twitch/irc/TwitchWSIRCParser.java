@@ -131,7 +131,7 @@ public class TwitchWSIRCParser implements Runnable {
         while (true) {
             try {
                 Map<String, String> tags = giftedSubscriptionEvents.take();
-                com.gmt2001.Console.debug.println("ED --- run() called.");
+
                 if (bulkSubscriberGifters.containsKey(tags.get("login"))) {
                     SubscriberBulkGifter gifter = bulkSubscriberGifters.get(tags.get("login"));
                     if (gifter.getCurrentSubscriptionGifted() < gifter.getSubscritpionsGifted()) {
@@ -143,12 +143,7 @@ public class TwitchWSIRCParser implements Runnable {
                     if (tags.get("login").equalsIgnoreCase(ANONYMOUS_GIFTER_TWITCH_USER)) {
                         scriptEventManager.onEvent(new TwitchAnonymousSubscriptionGiftEvent(tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
                     } else {
-                        if (tags.containsKey("msg-param-sender-count")) {
-                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
-                        }
-                        else{
-                            scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
-                        }
+                        scriptEventManager.onEvent(new TwitchSubscriptionGiftEvent(tags.get("login"), tags.get("msg-param-recipient-user-name"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
                     }
                 }
             } catch (InterruptedException ex) {
@@ -513,9 +508,8 @@ public class TwitchWSIRCParser implements Runnable {
      */
     private void onUserNotice(String message, String username, Map<String, String> tags) {
         if (tags.containsKey("msg-id")) {
-            com.gmt2001.Console.debug.println("ED --- USERNOTICE event from IRC: " + message);
             if (tags.get("msg-id").equalsIgnoreCase("resub")) {
-                scriptEventManager.onEvent(new TwitchReSubscriberEvent(tags.get("login"), tags.get("msg-param-months"), tags.get("msg-param-sub-plan")));
+                scriptEventManager.onEvent(new TwitchReSubscriberEvent(tags.get("login"), tags.get("msg-param-cumulative-months"), tags.get("msg-param-sub-plan")));
             } else if (tags.get("msg-id").equalsIgnoreCase("sub")) {
                 if (tags.get("msg-param-sub-plan").equalsIgnoreCase("Prime")) {
                     scriptEventManager.onEvent(new TwitchPrimeSubscriberEvent(tags.get("login"), tags.get("msg-param-cumulative-months")));
@@ -538,12 +532,7 @@ public class TwitchWSIRCParser implements Runnable {
                 if (tags.get("login").equalsIgnoreCase(ANONYMOUS_GIFTER_TWITCH_USER)) {
                     scriptEventManager.onEvent(new TwitchMassAnonymousSubscriptionGiftedEvent(tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
                 } else {
-                    if (tags.containsKey("msg-param-sender-count")) {
-                        scriptEventManager.onEvent(new TwitchMassSubscriptionGiftedEvent(tags.get("login"), tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan"), tags.get("msg-param-sender-count")));
-                    }
-                    else{
-                        scriptEventManager.onEvent(new TwitchMassSubscriptionGiftedEvent(tags.get("login"), tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
-                    }
+                    scriptEventManager.onEvent(new TwitchMassSubscriptionGiftedEvent(tags.get("login"), tags.get("msg-param-mass-gift-count"), tags.get("msg-param-sub-plan")));
                 }
             } else if (tags.get("msg-id").equalsIgnoreCase("anonsubmysterygift")) {
                 // Not in use by Twitch as of right now, 2019-01-03, leaving code there though.
