@@ -15,7 +15,7 @@
         tierRight: 1,
         maxLeft: 1500000,
         maxRight: 1500000,
-        tiers: [1, 2, 3, 5, 9, 14, 19, 22, 25]
+        tiers: [1, 2, 3, 3.333333333, 3.333333333, 3.333333333, 3.333333333, 3.333333333, 3.333333333]
     };
 
     var _LeftTiersAndPoints = [],
@@ -64,7 +64,7 @@
                         'new_tugOfWar2_event': 'true',
                         'data': JSON.stringify(_objOBS)
                     }));
-                }, 5000);
+                }, 10000);
     }
 
     /*
@@ -99,7 +99,7 @@
         var localDate = $.getCurLocalTimeString('dd-MM-yyyy hh:mm');
 
         var username = $.username.resolve(donationUsername);
-        $.consoleLn(JSON.stringify({user: String(username), amount: String(donationAmount), message: String(donationMsg), currency: 'donation'}));
+        //$.consoleLn(JSON.stringify({user: String(username), amount: String(donationAmount), message: String(donationMsg), currency: 'donation'}));
         $.inidb.set('communityAdHistory', localDate, JSON.stringify({user: String(username), amount: String(donationAmount), message: String(donationMsg), currency: 'donation'}));
         handleDonation(donationMsg, donationAmount);
     });
@@ -156,7 +156,7 @@
         var i;
         var cumulatedPoints = 0;
         for (i in _options.tiers) {
-            cumulatedPoints = cumulatedPoints + parseInt(_options.maxLeft * (parseInt(_options.tiers[i]) / 100));
+            cumulatedPoints = cumulatedPoints + parseInt(_options.maxLeft * (parseFloat(_options.tiers[i]) / 100));
             _LeftTiersAndPoints.push(
                     cumulatedPoints
                     );
@@ -164,7 +164,7 @@
                     cumulatedPoints
                     );
         }
-        $.consoleLn(_LeftTiersAndPoints.toString());
+        $.consoleLn('_LeftTiersAndPoints ' + _LeftTiersAndPoints.toString());
     }
 
     function calculateCurrentLeftTier() {
@@ -207,8 +207,8 @@
     }
 
     function calculateTierPercentage() {
-        $.consoleLn('ctp _pointsLeft ' + _pointsLeft);
-        $.consoleLn('ctp _pointsRight ' + _pointsRight);
+        //$.consoleLn('ctp _pointsLeft ' + _pointsLeft);
+        //$.consoleLn('ctp _pointsRight ' + _pointsRight);
         var curTier = 0; 
        
         var leftpercentage = 0,
@@ -271,6 +271,12 @@
             rightpercentage = (pointsDifference * 100) / _TierPointSteps[curTier - 1];
         }
 
+        if (leftpercentage > 100){
+            leftpercentage = 100;
+        }
+        if (rightpercentage > 100){
+            rightpercentage = 100;
+        }
         _objOBS[0].leftpercentage = leftpercentage;
         _objOBS[0].rightpercentage = rightpercentage;
         _objOBS[0].lefttier = calculateCurrentLeftTier();
@@ -281,9 +287,10 @@
         var i;
         for (i in _options.tiers) {
             _TierPointSteps.push(
-                    parseInt(_options.maxLeft * (parseInt(_options.tiers[i]) / 100))
+                    parseInt(_options.maxLeft * (parseFloat(_options.tiers[i]) / 100))
                     );
         }
+        $.consoleLn('_TierPointSteps ' + _TierPointSteps.toString());
     }
     /*
      * @event command

@@ -92,6 +92,16 @@ img {
     -webkit-text-stroke: 1px black;
 }
 
+.tag-image {
+    position: absolute;
+    top: 0;
+    right: -45px;
+    z-index: 100;
+    width: 370px;
+    height: auto;
+    transform: rotate(25deg);
+}
+
 .slide-in-elliptic-top-fwd {
     -webkit-animation: slide-in-elliptic-top-fwd 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;
     animation: slide-in-elliptic-top-fwd 0.7s cubic-bezier(0.250, 0.460, 0.450, 0.940) both;

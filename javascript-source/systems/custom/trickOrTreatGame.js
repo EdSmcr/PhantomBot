@@ -1,5 +1,5 @@
 /**
- * Script  : bandomizerGame.js
+ * Script  : trickortreatGame.js
  * Purpose : 
  */
 (function() {
