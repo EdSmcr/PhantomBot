@@ -18,7 +18,7 @@
             'hype': 0
         });
         $.panelsocketserver.sendToAll(JSON.stringify({
-            'new_vote': 'true',
+            'hypeMeterSystem_new_vote': 'true',
             'data': JSON.stringify(objOBS)
         }));
 
@@ -50,7 +50,7 @@
                     objOBS[0].hype = hypeCount;
 
                     $.panelsocketserver.sendToAll(JSON.stringify({
-                        'new_vote': 'true',
+                        'hypeMeterSystem_new_vote': 'true',
                         'data': JSON.stringify(objOBS)
                     }));
                 }, 1000);
@@ -116,7 +116,7 @@
         objOBS[0].hype = hypeCount;
 
         $.panelsocketserver.sendToAll(JSON.stringify({
-            'new_vote': 'true',
+            'hypeMeterSystem_new_vote': 'true',
             'data': JSON.stringify(objOBS)
         }));
 

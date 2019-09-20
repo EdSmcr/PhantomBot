@@ -54,12 +54,9 @@
                 function () {
                     _pointsLeft = $.getIniDbNumber('communityAdSet', 'pointsLeft', 0);
                     _pointsRight = $.getIniDbNumber('communityAdSet', 'pointsRight', 0);
-                    $.consoleLn('interval _pointsLeft ' + _pointsLeft);
-                    $.consoleLn('interval _pointsRight ' + _pointsRight);
                     
                     calculateTierPercentage();  
 
-                    $.consoleLn(JSON.stringify(_objOBS));
                     $.panelsocketserver.sendToAll(JSON.stringify({
                         'new_tugOfWar2_event': 'true',
                         'data': JSON.stringify(_objOBS)
@@ -122,7 +119,7 @@
         
         _pointsLeft = $.getIniDbNumber('communityAdSet', 'pointsLeft', 0);
         _pointsRight = $.getIniDbNumber('communityAdSet', 'pointsRight', 0);
-        $.consoleLn(message + ' , ' + handleMessage(message, _options.voteRight));
+
         //handle leftSide
         if (handleMessage(message, _options.voteLeft)) {
             _pointsLeft = _pointsLeft + bits;
@@ -148,8 +145,6 @@
             'data': JSON.stringify(_objOBS)
         }));
 
-
-        $.consoleLn(JSON.stringify(_objOBS));
     }
 
     function calculateTiers() {
@@ -164,7 +159,6 @@
                     cumulatedPoints
                     );
         }
-        $.consoleLn('_LeftTiersAndPoints ' + _LeftTiersAndPoints.toString());
     }
 
     function calculateCurrentLeftTier() {
@@ -290,7 +284,6 @@
                     parseInt(_options.maxLeft * (parseFloat(_options.tiers[i]) / 100))
                     );
         }
-        $.consoleLn('_TierPointSteps ' + _TierPointSteps.toString());
     }
     /*
      * @event command
@@ -307,7 +300,6 @@
         if (command.equalsIgnoreCase('givevault')) {
             if (argString) {
                 if (action) {
-                    $.consoleLn(action);
                     if (!$.isMod(sender))
                     {
                         if (parseInt(action) > $.getUserPoints(sender)) {
@@ -325,7 +317,6 @@
         if (command.equalsIgnoreCase('givepsycho')) {
             if (argString) {
                 if (action){
-                    $.consoleLn(action);
                     if (!$.isMod(sender))
                     {
                         if (parseInt(action) > $.getUserPoints(sender)) {
@@ -341,8 +332,6 @@
         }
         
         if (command.equalsIgnoreCase('tugofwarreset')) {
-            $.consoleLn('tugofwarreset2 RESET PLEASE');
-            
             $.inidb.set('communityAdSet', 'pointsLeft', 0);
             $.inidb.set('communityAdSet', 'pointsRight', 0);
         }
