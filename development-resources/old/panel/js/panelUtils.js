@@ -126,7 +126,7 @@ connection.onmessage = function(e) {
 
     if (e.data.indexOf('audio_') !== -1) $.audioOnMessage(e);
     if (e.data.indexOf('help_') !== -1) $.helpOnMessage(e);
-};
+}
 
 /**
  * @function newPanelAlert
@@ -455,10 +455,6 @@ function performCurrentPanelRefresh() {
              $.discordDoQuery();
              break;
          case 19 :
-             newPanelAlert('Refreshing Data', 'success', 1000);
-             $.bitTrackingDoRefresh();
-             break;
-         case 20 : 
              newPanelAlert('Refreshing Data', 'success', 1000);
              $.audioDoQuery();
              break;

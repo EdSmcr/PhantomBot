@@ -59,7 +59,7 @@
         if (s.match(/\(amount\)/g)) {
             s = $.replace(s, '(amount)', bits);
         }
-
+ 
         if (s.match(/\(message\)/g)) {
             s = $.replace(s, '(message)', ircMessage);
             if (emoteRegexStr.length() > 0) {
@@ -68,15 +68,14 @@
                 s = s.replace(emoteRegex, '');
             }
         }
-        
+
         if (bits >= minimum) {
             $.say(s);
         }
 
         $.writeToFile(username + ' ', './addons/bitsHandler/latestCheer.txt', false);
-        $.writeToFile(username + ': ' + bits, './addons/bitsHandler/latestCheer&Bits.txt', false);
+        $.writeToFile(username + ': ' + bits + ' ', './addons/bitsHandler/latestCheer&Bits.txt', false);
     });
- 
 
     /*
      * @event command
@@ -88,14 +87,15 @@
             argsString = event.getArguments(),
             action = args[0];
 
-            /*
-             * @commandpath bitstoggle - Toggles the bits announcements.
-             */
-            if (command.equalsIgnoreCase('bitstoggle')) {
-                    toggle = !toggle;
-                    $.setIniDbBoolean('bitsSettings', 'toggle', toggle);
-                    $.say($.whisperPrefix(sender) + (toggle ? $.lang.get('bitshandler.toggle.on') : $.lang.get('bitshandler.toggle.off')));
-            }
+        /*
+         * @commandpath bitstoggle - Toggles the bits announcements.
+         */
+        if (command.equalsIgnoreCase('bitstoggle')) {
+            toggle = !toggle;
+            $.setIniDbBoolean('bitsSettings', 'toggle', toggle);
+            $.say($.whisperPrefix(sender) + (toggle ? $.lang.get('bitshandler.toggle.on') : $.lang.get('bitshandler.toggle.off')))
+        }
+
 
         /*
          * @commandpath bitsmessage - Sets a message for when someone cheers bits.

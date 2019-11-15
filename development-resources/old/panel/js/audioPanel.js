@@ -394,7 +394,7 @@
      */
     function launchYouTubePlayer() {
         window.open(getProtocol() + url[0] + ':' + window.location.port + '/ytplayer', 'PhantomBot YouTube Player',
-                    'menubar=no,resizeable=yes,scrollbars=yes,status=no,toolbar=no,height=850,width=900,location=no' );
+                    'menubar=no,resizeable=yes,scrollbars=yes,status=no,toolbar=no,height=700,width=900,location=no' );
     }
 
     /**
@@ -425,7 +425,7 @@
     // Query the DB every 30 seconds for updates.
     setInterval(function() {
         var active = $('#tabs').tabs('option', 'active');
-        if (active == 20 && isConnected && !isInputFocus()) {
+        if (active == 19 && isConnected && !isInputFocus()) {
             newPanelAlert('Refreshing Audio Data', 'success', 1000);
             doQuery();
         }

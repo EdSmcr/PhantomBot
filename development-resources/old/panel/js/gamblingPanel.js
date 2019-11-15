@@ -424,20 +424,7 @@
         sendCommand('traffle close');
         setTimeout(function() { doQuery(); }, TIMEOUT_WAIT_TIME * 2);
     }
-    
-    /**
-     * @function traffleClear
-     */
-    function traffleClear() {
-        if (confirm("Are you sure you want to clear current raffle entries?")){
-            sendCommand('traffle reset');
-            setTimeout(function() { doQuery(); }, TIMEOUT_WAIT_TIME * 2);
-        }
-        else{
-            alert("Canceled. I'm glad you changed your mind. :-)");
-        }
-    }
-    
+
     /**
      * @function traffleOpen
      */
@@ -510,7 +497,6 @@
     $.traffleRepick = traffleRepick;
     $.traffleOpen = traffleOpen;
     $.traffleClose = traffleClose;
-    $.traffleClear = traffleClear;
     $.toggleTRaffleMsg = toggleTRaffleMsg;
     $.updateTRaffleSettings = updateTRaffleSettings;
     $.setEligibility = setEligibility;

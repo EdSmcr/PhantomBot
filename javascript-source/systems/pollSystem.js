@@ -36,13 +36,11 @@
             result: '',
             hasTie: 0,
             counts: [],
-            liveResults: {'votes':{}}
         },
         timeout;
     var objOBS = [];
 
-
-    /** 
+    /**
      * @function hasKey
      * @param {Array} list
      * @param {*} value
@@ -105,11 +103,6 @@
         poll.voters = [];
         poll.counts = [];
         poll.hasTie = 0;
-        poll.liveResults = {'votes': {}};
-
-        if (poll.liveResults['question']==undefined){
-            poll.liveResults['question'] = question;
-        }
 
         // Remove the old files.
         $.inidb.RemoveFile('pollPanel');
@@ -124,9 +117,6 @@
                 'votes': 0
             });
         }
-        
-        $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
-        
         $.inidb.setAutoCommit(true);
 
         if (poll.time > 0) {
@@ -230,9 +220,6 @@
         $.inidb.set('pollresults', 'options', poll.options.join(','));
         $.inidb.set('pollresults', 'counts', poll.counts.join(','));
         $.inidb.set('pollresults', 'istie', poll.hasTie);
-
-        //$.inidb.del('livePoll', 'openPoll');
-
         poll.callback(poll.result);
     };
 

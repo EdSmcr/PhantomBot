@@ -245,7 +245,7 @@
             if (action.equalsIgnoreCase('close')) {
                 closeRaffle(sender);
             }
-            
+
             /**
              * @commandpath traffle draw - Picks a winner for the ticket raffle
              */
