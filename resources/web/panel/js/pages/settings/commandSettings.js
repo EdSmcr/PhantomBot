@@ -51,7 +51,7 @@ $(function() {
             globalTime = $('#global-cooldown');
 
         switch (false) {
-            case helpers.handleInputNumber(globalTime, 5):
+            case helpers.handleInputNumber(globalTime, 0):
                 break;
             default:
                 socket.updateDBValues('update_cmd_settings', {
