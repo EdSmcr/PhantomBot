@@ -51,7 +51,7 @@
                         option = Choose(probsArrays[1]); //51 to 125 candy in jar: clear 10%, caught 25%, x candy 65%
                         processOptions(option, username, sender, candyAmountArrays[1]);
                         break;
-                    case (remainingAmount > 1):
+                    case (remainingAmount > 0):
                         option = Choose(probsArrays[2]); //50 or less candy in jar: clear 25%, caught 25%, x candy 50%
                         processOptions(option, username, sender, candyAmountArrays[2]);
                         break;
