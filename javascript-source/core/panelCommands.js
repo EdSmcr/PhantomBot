@@ -193,6 +193,7 @@
                 return;
             }
             $.inidb.RemoveFile("highlights");
+            $.inidb.ReloadFile("highlights");
             return;
         }
 
@@ -486,6 +487,17 @@
                 return;
             }
             $.reloadLogs();
+            return;
+        }
+        
+        /*
+         * Reloads the bit tracking variables.
+         */
+        if (command.equalsIgnoreCase('bitTrackingreloadtable')) {
+            if (!$.isBot(sender)) {
+                return;
+            }
+            $.loadBitTrackingTable();
             return;
         }
     });

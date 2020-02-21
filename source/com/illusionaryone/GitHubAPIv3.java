@@ -41,15 +41,11 @@ import org.json.JSONObject;
  */
 public class GitHubAPIv3 {
 
-    private static GitHubAPIv3 instance;
+    private static final GitHubAPIv3 instance = new GitHubAPIv3();
     private static final String sAPIURL = "https://api.github.com/repos/PhantomBot/PhantomBot";
     private static final int iHTTPTimeout = 2 * 1000;
 
-    public static synchronized GitHubAPIv3 instance() {
-        if (instance == null) {
-            instance = new GitHubAPIv3();
-        }
-        
+    public static GitHubAPIv3 instance() {
         return instance;
     }
 
@@ -75,7 +71,7 @@ public class GitHubAPIv3 {
      */
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_url", url);
@@ -86,7 +82,7 @@ public class GitHubAPIv3 {
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private static JSONObject readJsonFromUrl(String urlAddress, boolean isArray) throws JSONException {
+    private static JSONObject readJsonFromUrl(String urlAddress, boolean isArray) {
         JSONObject jsonResult = new JSONObject("{}");
         InputStream inputStream = null;
         URL urlRaw;
@@ -133,7 +129,6 @@ public class GitHubAPIv3 {
         } catch (IOException ex) {
             fillJSONObject(jsonResult, false, "GET", urlAddress, 0, "IOException", ex.getMessage(), "");
             com.gmt2001.Console.err.println("GitHubv3API::readJsonFromUrl::Exception: " + ex.getMessage());
-            com.gmt2001.Console.err.printStackTrace(ex);
         } catch (Exception ex) {
             fillJSONObject(jsonResult, false, "GET", urlAddress, 0, "Exception", ex.getMessage(), "");
             com.gmt2001.Console.err.println("GitHubv3API::readJsonFromUrl::Exception: " + ex.getMessage());
@@ -155,7 +150,7 @@ public class GitHubAPIv3 {
      *
      * @return  JSONObject  JSONObject from GitHub
      */
-    public JSONObject GetReleases() throws JSONException {
+    public JSONObject GetReleases() {
         return readJsonFromUrl(sAPIURL + "/releases", true);
     }
 
@@ -164,7 +159,7 @@ public class GitHubAPIv3 {
      *
      * @return  String  null if no new version detected else the version and URL to download the release
      */
-    public String[] CheckNewRelease() throws JSONException {
+    public String[] CheckNewRelease() {
         JSONObject jsonObject = GetReleases();
         JSONArray jsonArray = jsonObject.getJSONArray("array");
         if (!jsonArray.getJSONObject(0).has("tag_name")) {

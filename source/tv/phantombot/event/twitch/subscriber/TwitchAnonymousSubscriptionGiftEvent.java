@@ -81,7 +81,7 @@ public class TwitchAnonymousSubscriptionGiftEvent extends TwitchEvent {
     }
 
     /**
-     * Method that returns the subcription plan. (1000, 2000, 3000 and Prime)
+     * Method that returns the subscription plan. (1000, 2000, 3000 and Prime)
      *
      * @return {String} plan
      */

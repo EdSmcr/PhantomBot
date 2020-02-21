@@ -47,7 +47,7 @@ import tv.phantombot.PhantomBot;
  */
 public class YouTubeAPIv3 {
 
-    private static YouTubeAPIv3 instance;
+    private static final YouTubeAPIv3 instance = new YouTubeAPIv3();
     private String apikey = "";
 
     private enum request_type {
@@ -55,11 +55,7 @@ public class YouTubeAPIv3 {
         GET, POST, PUT, DELETE
     };
 
-    public static synchronized YouTubeAPIv3 instance() {
-        if (instance == null) {
-            instance = new YouTubeAPIv3();
-        }
-        
+    public static YouTubeAPIv3 instance() {
         return instance;
     }
 
@@ -85,7 +81,7 @@ public class YouTubeAPIv3 {
      */
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_url", url);
@@ -98,7 +94,7 @@ public class YouTubeAPIv3 {
     @SuppressWarnings( {
         "null", "SleepWhileInLoop", "UseSpecificCatch"
     })
-    private JSONObject GetData(request_type type, String urlAddress) throws JSONException {
+    private JSONObject GetData(request_type type, String urlAddress) {
         JSONObject jsonResult = new JSONObject("{}");
         InputStream inputStream = null;
         URL urlRaw;
@@ -172,7 +168,7 @@ public class YouTubeAPIv3 {
         this.apikey = apikey;
     }
 
-    public String[] SearchForVideo(String q) throws JSONException {
+    public String[] SearchForVideo(String q) {
         com.gmt2001.Console.debug.println("Query = [" + q + "]");
 
         if (q.contains("v=") | q.contains("?v=")) {
@@ -252,7 +248,7 @@ public class YouTubeAPIv3 {
         return new String[] { "", "", "" };
     }
 
-    public int[] GetVideoLength(String id) throws JSONException {
+    public int[] GetVideoLength(String id) {
         com.gmt2001.Console.debug.println("Query = [" + id + "]");
 
         JSONObject j = GetData(request_type.GET, "https://www.googleapis.com/youtube/v3/videos?id=" + id + "&key=" + apikey + "&part=contentDetails");
@@ -302,7 +298,7 @@ public class YouTubeAPIv3 {
         return new int[] { 0, 0, 0 };
     }
 
-    public int[] GetVideoInfo(String id) throws JSONException {
+    public int[] GetVideoInfo(String id) {
         int licenseRetval = 0;
         int embedRetval = 0;
 

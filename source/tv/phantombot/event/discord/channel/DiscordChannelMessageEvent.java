@@ -17,9 +17,9 @@
 
 package tv.phantombot.event.discord.channel;
 
-import discord4j.core.object.entity.Channel;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.User;
+import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IUser;
 
 public class DiscordChannelMessageEvent extends DiscordChannelEvent {
     private final boolean isAdmin;
@@ -32,7 +32,7 @@ public class DiscordChannelMessageEvent extends DiscordChannelEvent {
      * @param {IMessage} message
      * @param {boolean}  isAdmin
      */
-    public DiscordChannelMessageEvent(User user, Channel channel, Message message, boolean isAdmin) {
+    public DiscordChannelMessageEvent(IUser user, IChannel channel, IMessage message, boolean isAdmin) {
         super(user, channel, message);
         
         this.isAdmin = isAdmin;

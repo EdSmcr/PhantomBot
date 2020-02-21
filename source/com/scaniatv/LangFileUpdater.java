@@ -43,7 +43,6 @@ import org.apache.commons.io.filefilter.TrueFileFilter;
 
 import org.json.JSONObject;
 import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONStringer;
 import tv.phantombot.PhantomBot;
 import tv.phantombot.script.Script;
@@ -51,6 +50,7 @@ import tv.phantombot.script.Script;
 import tv.phantombot.script.ScriptManager;
 
 public final class LangFileUpdater {
+    private static final LangFileUpdater INSTANCE = new LangFileUpdater();
     private static final String CUSTOM_LANG_ROOT = "./scripts/lang/custom/";
     private static final String DEFAULT_LANG_ROOT = "./scripts/lang/english/";
     
@@ -67,7 +67,7 @@ public final class LangFileUpdater {
      * @param langFile
      * @return 
      */
-    public static String getCustomLang(String langFile) throws JSONException {
+    public static String getCustomLang(String langFile) {
         String stringArray;
         
         stringArray = convertLangMapToJSONArray(
@@ -86,7 +86,7 @@ public final class LangFileUpdater {
      * @param stringArray 
      * @param langFile 
      */
-    public static void updateCustomLang(String stringArray, String langFile) throws JSONException {
+    public static void updateCustomLang(String stringArray, String langFile) {
         final StringBuilder sb = new StringBuilder();
         final JSONArray array = new JSONArray(stringArray);
         
@@ -247,7 +247,7 @@ public final class LangFileUpdater {
      * @param map
      * @return 
      */
-    private static String convertLangMapToJSONArray(HashMap<String, String> map) throws JSONException {
+    private static String convertLangMapToJSONArray(HashMap<String, String> map) {
         final JSONStringer jsonArray = new JSONStringer();
         
         // Make a new array.
@@ -256,11 +256,7 @@ public final class LangFileUpdater {
         map.forEach((String key, String value) -> {
             final JSONObject obj = new JSONObject();
             
-            try {
-                jsonArray.object().key("id").value(key).key("response").value(value).endObject();
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
-            }
+            jsonArray.object().key("id").value(key).key("response").value(value).endObject();
         });
         
         // Close the array.

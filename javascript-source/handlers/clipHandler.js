@@ -51,8 +51,9 @@
         if (s.match(/\(url\)/g)) {
             s = $.replace(s, '(url)', url);
         }
-
-        $.say(s);
+        
+        //Removed because we don't want to display this message.
+        //$.say(s);
     });
 
     /*

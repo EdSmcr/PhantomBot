@@ -18,7 +18,6 @@
 package tv.phantombot.scripts.core;
 
 import java.util.Map;
-import org.json.JSONException;
 
 import tv.phantombot.cache.UsernameCache;
 import tv.phantombot.PhantomBot;
@@ -341,36 +340,32 @@ public final class User {
      */
     private void build(boolean full) {
         if (!isBuilt(full)) {
-            try {
-                // This can query the API or our database.
-                JSONObject user = UsernameCache.instance().getUserData(getUsername());
-                
-                // Make sure we got data.
-                if (user.has("_id")) {
-                    // Set the display name.
-                    setDisplayName(user.getString("display_name"));
-                    // Set the ID. Twitch can sometimes return a string/int.
-                    setID(user.get("_id").toString());
-                    // Set the type of user.
-                    setType(user.getString("type"));
-                    // Set when the user was created at.
-                    setCreatedAt(user.getString("created_at"));
-                    // Set the user's logo.
-                    setLogo(user.getString("logo"));
-                } else {
-                    com.gmt2001.Console.err.println("Failed to get data for user: " + getUsername());
+            // This can query the API or our database.
+            JSONObject user = UsernameCache.instance().getUserData(getUsername());
+            
+            // Make sure we got data.
+            if (user.has("_id")) {  
+                // Set the display name.
+                setDisplayName(user.getString("display_name"));
+                // Set the ID. Twitch can sometimes return a string/int.
+                setID(user.get("_id").toString());
+                // Set the type of user.
+                setType(user.getString("type"));
+                // Set when the user was created at.
+                setCreatedAt(user.getString("created_at"));
+                // Set the user's logo.
+                setLogo(user.getString("logo"));
+            } else {
+                com.gmt2001.Console.err.println("Failed to get data for user: " + getUsername());
+            }
+            
+            if (groupID == -1) {
+                String strID = PhantomBot.instance().getDataStore().get("group", getUsername());
+                if (strID != null) {
+                    int id = Integer.parseInt(strID);
+                    updateUserStatus(id);
+                    setGroupID(id);
                 }
-                
-                if (groupID == -1) {
-                    String strID = PhantomBot.instance().getDataStore().get("group", getUsername());
-                    if (strID != null) {
-                        int id = Integer.parseInt(strID);
-                        updateUserStatus(id);
-                        setGroupID(id);
-                    }
-                }
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
             }
         }
     }

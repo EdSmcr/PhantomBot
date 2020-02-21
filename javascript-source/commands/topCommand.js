@@ -111,7 +111,38 @@
             $.say($.lang.get('top5.default', amountTime, 'time', top.join(', ')));
             return;
         }
+        
+        /*
+         * @commandpath topbits - Display the top people with the most bits
+         */
+        if (command.equalsIgnoreCase('topbits')) {
+            var temp = getTop5('bits'),
+                top = [],
+                i;
 
+            for (i in temp) {
+                top.push((parseInt(i) + 1) + '. ' + $.resolveRank(temp[i].username) + ' ' + temp[i].value + ' bits');
+            }
+
+            $.say($.lang.get('top5.default', 5, 'bit givers', top.join(', ')));
+            return;
+        }
+/*
+         * @commandpath topbits - Display the top people with the most bits
+         */
+        if (command.equalsIgnoreCase('topgifts')) {
+            var temp = getTop5('subsGifts'),
+                top = [],
+                i;
+
+            for (i in temp) {
+                top.push((parseInt(i) + 1) + '. ' + $.resolveRank(temp[i].username) + ': ' + temp[i].value);
+            }
+
+            $.say($.lang.get('top5.default', 5, 'subscription givers', top.join(', ')));
+            return;
+        }
+        
         /*
          * @commandpath topamount - Set how many people who will show up in the !top points list
          */
@@ -167,9 +198,11 @@
     $.bind('initReady', function() {
         $.registerChatCommand('./commands/topCommand.js', 'top', 7);
         $.registerChatCommand('./commands/topCommand.js', 'toptime', 7);
+        $.registerChatCommand('./commands/topCommand.js', 'topbits', 7);
+        $.registerChatCommand('./commands/topCommand.js', 'topgifts', 7);
         $.registerChatCommand('./commands/topCommand.js', 'topamount', 1);
         $.registerChatCommand('./commands/topCommand.js', 'toptimeamount', 1);
         $.registerChatCommand('./commands/topCommand.js', 'reloadtop', 1);
-        $.registerChatCommand('./commands/topCommand.js', 'reloadtopbots', 1);
+        $.registerChatCommand('./commands/topCommand.js', 'reloadtopbots', 1);        
     });
 })();

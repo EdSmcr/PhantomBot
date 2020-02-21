@@ -43,7 +43,7 @@ import org.json.JSONObject;
  */
 public class TwitchAlertsAPIv1 {
 
-    private static TwitchAlertsAPIv1 instance;
+    private static final TwitchAlertsAPIv1 instance = new TwitchAlertsAPIv1();
     private static final String sAPIURL = "https://www.streamlabs.com/api/v1.0";
     private static final int iHTTPTimeout = 2 * 1000;
     private String sAccessToken = "";
@@ -51,10 +51,6 @@ public class TwitchAlertsAPIv1 {
     private String sCurrencyCode = "";
 
     public static TwitchAlertsAPIv1 instance() {
-        if (instance == null) {
-            instance = new TwitchAlertsAPIv1();
-        }
-        
         return instance;
     }
 
@@ -80,7 +76,7 @@ public class TwitchAlertsAPIv1 {
      */
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_url", url);
@@ -91,12 +87,12 @@ public class TwitchAlertsAPIv1 {
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private static JSONObject readJsonFromUrl(String urlAddress) throws JSONException {
+    private static JSONObject readJsonFromUrl(String urlAddress) {
         return readJsonFromUrl(urlAddress, "");
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private static JSONObject readJsonFromUrl(String urlAddress, String postString) throws JSONException {
+    private static JSONObject readJsonFromUrl(String urlAddress, String postString) {
         JSONObject jsonResult = new JSONObject("{}");
         InputStream inputStream = null;
         URL urlRaw;
@@ -197,7 +193,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return donationsObject
      */
-    public JSONObject GetDonations() throws JSONException {
+    public JSONObject GetDonations() {
         return readJsonFromUrl(sAPIURL + "/donations?access_token=" + this.sAccessToken + "&limit=" + this.iDonationPullLimit + "&currency=" + this.sCurrencyCode);
     }
 
@@ -209,7 +205,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return pointsObject
      */
-    public JSONObject GetPointsAPI(String userName, String channelName) throws JSONException {
+    public JSONObject GetPointsAPI(String userName, String channelName) {
         return readJsonFromUrl(sAPIURL + "/points?access_token=" + this.sAccessToken + "&username=" + userName + "&channel=" + channelName);
     }
 
@@ -221,7 +217,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return pointsObject
      */
-    public JSONObject SetPointsAPI(String userName, int points) throws JSONException {
+    public JSONObject SetPointsAPI(String userName, int points) {
         return readJsonFromUrl(sAPIURL + "/points/user_point_edit", "access_token=" + this.sAccessToken + "&username=" + userName + "&points=" + points);
     }
 
@@ -233,7 +229,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return pointsToAddObject
      */
-    public JSONObject AddToAllPointsAPI(String channelName, int points) throws JSONException {
+    public JSONObject AddToAllPointsAPI(String channelName, int points) {
         return readJsonFromUrl(sAPIURL + "/points/add_to_all", "access_token=" + this.sAccessToken + "&channel=" + channelName + "&value=" + points);
     }
 
@@ -245,7 +241,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return points (-1 on error)
      */
-    public int GetPoints(String userName, String channelName) throws JSONException {
+    public int GetPoints(String userName, String channelName) {
         JSONObject jsonObject = GetPointsAPI(userName, channelName);
 
         if (jsonObject.has("points")) {
@@ -262,7 +258,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return newPoints
      */
-    public int SetPoints(String userName, int points) throws JSONException {
+    public int SetPoints(String userName, int points) {
         JSONObject jsonObject = SetPointsAPI(userName, points);
 
         if (jsonObject.has("points")) {
@@ -279,7 +275,7 @@ public class TwitchAlertsAPIv1 {
      *
      * @return boolean
      */
-    public boolean AddToAllPoints(String channelName, int points) throws JSONException {
+    public boolean AddToAllPoints(String channelName, int points) {
         JSONObject jsonObject = AddToAllPointsAPI(channelName, points);
 
         if (jsonObject.has("message")) {

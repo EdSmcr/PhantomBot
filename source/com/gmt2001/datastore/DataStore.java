@@ -16,29 +16,50 @@
  */
 package com.gmt2001.datastore;
 
+import java.sql.Connection;
+
 /**
  *
  * @author gmt2001
  */
-public abstract class DataStore {
+public class DataStore {
+
+    private static final DataStore instance = new DataStore();
 
     public static DataStore instance() {
-        return null;
+        return instance;
     }
 
-    protected DataStore(String configStr) {
+    protected DataStore() {
+    }
+
+    public void SaveChangedNow() {
     }
 
     public void SaveAll(boolean force) {
     }
 
-    public abstract String[] GetFileList();
+    public void ReloadFile(String fName) {
+    }
 
-    public abstract String[] GetCategoryList(String fName);
+    public void LoadConfig(String configStr) {
+    }
 
-    public abstract String[] GetKeyList(String fName, String section);
+    public String[] GetFileList() {
+        return new String[] { };
+    }
 
-    public abstract KeyValue[] GetKeyValueList(String fName, String section);
+    public String[] GetCategoryList(String fName) {
+        return new String[] { };
+    }
+
+    public String[] GetKeyList(String fName, String section) {
+        return new String[] { };
+    }
+
+    public KeyValue[] GetKeyValueList(String fName, String section) {
+        return new KeyValue[] { };
+    }
 
     public String[] GetKeysByOrder(String fName) {
         return this.GetKeysByOrder(fName, "", "DESC", String.valueOf(Integer.MAX_VALUE), "0");
@@ -53,7 +74,7 @@ public abstract class DataStore {
     }
 
     public String[] GetKeysByOrder(String fName, String section, String order, String limit, String offset) {
-        return new String[]{};
+        return new String[] { };
     }
 
     public String[] GetKeysByNumberOrder(String fName) {
@@ -69,7 +90,7 @@ public abstract class DataStore {
     }
 
     public String[] GetKeysByNumberOrder(String fName, String section, String order, String limit, String offset) {
-        return new String[]{};
+        return new String[] { };
     }
 
     public String[] GetKeysByOrderValue(String fName) {
@@ -85,7 +106,7 @@ public abstract class DataStore {
     }
 
     public String[] GetKeysByOrderValue(String fName, String section, String order, String limit, String offset) {
-        return new String[]{};
+        return new String[] { };
     }
 
     public String[] GetKeysByNumberOrderValue(String fName) {
@@ -101,7 +122,7 @@ public abstract class DataStore {
     }
 
     public String[] GetKeysByNumberOrderValue(String fName, String section, String order, String limit, String offset) {
-        return new String[]{};
+        return new String[] { };
     }
 
     public String GetKeyByValue(String fName, String section, String value) {
@@ -109,11 +130,11 @@ public abstract class DataStore {
     }
 
     public String[] GetKeysByLikeValues(String fName, String section, String search) {
-        return new String[]{};
+        return new String[] { };
     }
 
     public String[] GetKeysByLikeKeys(String fName, String section, String search) {
-        return new String[]{};
+        return new String[] { };
     }
 
     public String[] GetKeysByLikeKeysOrder(String fName, String search) {
@@ -129,31 +150,21 @@ public abstract class DataStore {
     }
 
     public String[] GetKeysByLikeKeysOrder(String fName, String section, String search, String order, String limit, String offset) {
-        return new String[]{};
+        return new String[] { };
     }
 
-    public abstract String GetString(String fName, String section, String key);
+    public String GetString(String fName, String section, String key) {
+        return "";
+    }
 
-    public abstract void SetString(String fName, String section, String key, String value);
+    public void SetString(String fName, String section, String key, String value) {
+    }
 
     public void InsertString(String fName, String section, String key, String value) {
         SetString(fName, section, key, value);
     }
 
     public void IncreaseBatchString(String fName, String section, String[] keys, String value) {
-        int amount;
-
-        try {
-            amount = Integer.parseInt(value);
-        } catch (NumberFormatException ex) {
-            amount = 0;
-        }
-
-        for (String key : keys) {
-            int ival = GetInteger(fName, section, key);
-            ival += amount;
-            SetInteger(fName, section, key, ival);
-        }
     }
 
     public void SetBatchString(String fName, String section, String[] key, String[] value) {
@@ -175,7 +186,7 @@ public abstract class DataStore {
 
         try {
             return Long.parseLong(sval);
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             return 0;
         }
     }
@@ -191,7 +202,7 @@ public abstract class DataStore {
 
         try {
             return Integer.parseInt(sval);
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             return 0;
         }
     }
@@ -207,7 +218,7 @@ public abstract class DataStore {
 
         try {
             return Float.parseFloat(sval);
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             return 0.0f;
         }
     }
@@ -223,7 +234,7 @@ public abstract class DataStore {
 
         try {
             return Double.parseDouble(sval);
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             return 0.0;
         }
     }
@@ -250,17 +261,24 @@ public abstract class DataStore {
         SetInteger(fName, section, key, ival);
     }
 
-    public abstract void RemoveKey(String fName, String section, String key);
+    public void RemoveKey(String fName, String section, String key) {
+    }
 
-    public abstract void RemoveSection(String fName, String section);
+    public void RemoveSection(String fName, String section) {
+    }
 
-    public abstract void AddFile(String fName);
+    public void AddFile(String fName) {
+    }
 
-    public abstract void RemoveFile(String fName);
+    public void RemoveFile(String fName) {
+    }
 
-    public abstract void RenameFile(String fNameSource, String fNameDest);
+    public void RenameFile(String fNameSource, String fNameDest) {
+    }
 
-    public abstract boolean FileExists(String fName);
+    public boolean FileExists(String fName) {
+        return false;
+    }
 
     public boolean HasKey(String fName, String section, String key) {
         return GetString(fName, section, key) != null;
@@ -340,21 +358,16 @@ public abstract class DataStore {
     public void DropIndexes() {
     }
 
-    public boolean CanConnect() {
-        return true;
+    public Connection CreateConnection(String db, String user, String pass) {
+        return null;
     }
 
-    public boolean CanConnect(String db, String user, String pass) {
-        return true;
+    public void CloseConnection() {
     }
 
-    public boolean canBackup() {
-        return false;
+    public void setAutoCommit(boolean mode) {
     }
 
-    public void backupDB(String filename) {
-    }
-
-    public void dispose() {
+    public void backupSQLite3(String filename) {
     }
 }

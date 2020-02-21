@@ -16,10 +16,11 @@
  */
 package tv.phantombot.script;
 
+import com.google.common.collect.Lists;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.mozilla.javascript.*;
@@ -30,7 +31,7 @@ public class Script {
 
     public static final NativeObject global = new NativeObject();
     @SuppressWarnings("rawtypes")
-    private final List<ScriptDestroyable> destroyables = new ArrayList<>();
+    private final List<ScriptDestroyable> destroyables = Lists.newArrayList();
     private static final NativeObject vars = new NativeObject();
     private final File file;
     private long lastModified;

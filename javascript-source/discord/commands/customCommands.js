@@ -407,7 +407,7 @@
         }
 
         /**
-         * @discordcommandpath channelcom [command] [channel / --global / --list] - Makes a command only work in that channel, separate the channels with commas (no spaces) for multiple, use --global as the channel to make the command global again.
+         * @discordcommandpath channelcom [command] [channel / --global / --list] - Makes a command only work in that channel, spectate  the channels with a comma and space for multiple, use --global as the channel to make the command global again.
          */
         if (command.equalsIgnoreCase('channelcom')) {
             if (action === undefined || subAction === undefined) {
@@ -424,12 +424,13 @@
             }
 
             if (subAction.equalsIgnoreCase('--global') || subAction.equalsIgnoreCase('-g')) {
+                $.discord.clearChannelCommands(action);
+                $.discord.setCommandChannel(event.getArgs()[0], '_default_global_', false);
                 $.inidb.del('discordChannelcom', action);
-                $.discord.updateCommandChannel(action);
                 $.discord.say(channel, $.discord.userPrefix(mention) + $.lang.get('discord.customcommands.channelcom.global', action));
                 return;
             } else if (subAction.equalsIgnoreCase('--list') || subAction.equalsIgnoreCase('-l')) {
-                var keys = ($.inidb.exists('discordChannelcom', action) ? $.inidb.get('discordChannelcom', action).split(',') : []),
+                var keys = ($.inidb.exists('discordChannelcom', action) ? $.inidb.get('discordChannelcom', action).split(', ') : []),
                     key = [],
                     i;
 
@@ -445,17 +446,10 @@
                 return;
             }
 
-            var keys = subAction.split(','),
-                key = [],
-                i;
-
-            for (i in keys) {
-                key.push('#' + keys[i]);
-            }
-
             $.inidb.set('discordChannelcom', action, subAction);
-            $.discord.updateCommandChannel(action);
-            $.discord.say(channel, $.discord.userPrefix(mention) + $.lang.get('discord.customcommands.channelcom.success', action, key.join(', ')));
+            $.discord.clearChannelCommands(action);
+            $.discord.setCommandChannel(action, subAction, false);
+            $.discord.say(channel, $.discord.userPrefix(mention) + $.lang.get('discord.customcommands.channelcom.success', action, subAction));
         }
 
         /**
@@ -596,12 +590,19 @@
                     }
 
                     if (event.getArgs()[2].length() === 0) {
+                        $.discord.clearChannelCommands(event.getArgs()[0]);
+                        $.discord.setCommandChannel(event.getArgs()[0], '_default_global_', false);
                         $.inidb.del('discordChannelcom', event.getArgs()[0]);
                     } else {
-                        $.inidb.set('discordChannelcom', event.getArgs()[0], event.getArgs()[2].replace(/#/g, '').toLowerCase());
-                    }
+                        $.discord.clearChannelCommands(event.getArgs()[0]);
+                        var keys = event.getArgs()[2].split(', '),
+                            i;
 
-                    $.discord.updateCommandChannel(event.getArgs()[0]);
+                        for (i in keys) {
+                            $.discord.setCommandChannel(event.getArgs()[0], keys[i], false);
+                        }
+                        $.inidb.set('discordChannelcom', event.getArgs()[0], event.getArgs()[2]);
+                    }
                 }
             } else {
                 $.discord.unregisterCommand(event.getArgs()[0]);

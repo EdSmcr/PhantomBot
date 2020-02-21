@@ -17,7 +17,8 @@
 
 package tv.phantombot.event.discord.role;
 
-import discord4j.core.object.entity.Role;
+import sx.blah.discord.handle.obj.IRole;
+import sx.blah.discord.handle.obj.IUser;
 
 import tv.phantombot.event.discord.DiscordEvent;
 
@@ -27,14 +28,14 @@ import tv.phantombot.event.discord.DiscordEvent;
  * @author ScaniaTV
  */
 public abstract class DiscordRoleEvent extends DiscordEvent {
-    private final Role role;
+    private final IRole role;
     
     /**
      * Abstract constructor
      * 
      * @param role
      */
-    protected DiscordRoleEvent(Role role) {
+    protected DiscordRoleEvent(IRole role) {
         super();
         
         this.role = role;
@@ -46,7 +47,7 @@ public abstract class DiscordRoleEvent extends DiscordEvent {
      * @return 
      */
     public String getRoleID() {
-        return role.getId().asString();
+        return role.getStringID();
     }
     
     /**
@@ -54,7 +55,7 @@ public abstract class DiscordRoleEvent extends DiscordEvent {
      * 
      * @return 
      */
-    public Role getDiscordRole() {
+    public IRole getDiscordRole() {
         return role;
     }
 }

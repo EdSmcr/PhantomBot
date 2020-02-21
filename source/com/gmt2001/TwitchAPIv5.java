@@ -34,7 +34,6 @@ import org.json.JSONStringer;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.zip.GZIPInputStream;
-import org.json.JSONException;
 
 /**
  * Communicates with Twitch Kraken server using the version 5 API
@@ -65,17 +64,17 @@ public class TwitchAPIv5 {
         Thread.setDefaultUncaughtExceptionHandler(com.gmt2001.UncaughtExceptionHandler.instance());
     }
 
-    private JSONObject GetData(request_type type, String url, boolean isJson) throws JSONException {
+    private JSONObject GetData(request_type type, String url, boolean isJson) {
         return GetData(type, url, "", isJson);
     }
 
-    private JSONObject GetData(request_type type, String url, String post, boolean isJson) throws JSONException {
+    private JSONObject GetData(request_type type, String url, String post, boolean isJson) {
         return GetData(type, url, post, "", isJson);
     }
 
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type, String post,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_post", post);
@@ -87,7 +86,7 @@ public class TwitchAPIv5 {
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private JSONObject GetData(request_type type, String url, String post, String oauth, boolean isJson) throws JSONException {
+    private JSONObject GetData(request_type type, String url, String post, String oauth, boolean isJson) {
         JSONObject j = new JSONObject("{}");
         InputStream i = null;
         String content = "";
@@ -219,7 +218,7 @@ public class TwitchAPIv5 {
      * @param channel
      * @return
      */
-    public JSONObject GetChannel(String channel) throws JSONException {
+    public JSONObject GetChannel(String channel) {
         return GetData(request_type.GET, base_url + "/channels/" + getIDFromChannel(channel), false);
     }
 
@@ -232,7 +231,7 @@ public class TwitchAPIv5 {
      * @param delay -1 to not update
      * @return
      */
-    public JSONObject UpdateChannel(String channel, String status, String game, int delay) throws JSONException {
+    public JSONObject UpdateChannel(String channel, String status, String game, int delay) {
         return UpdateChannel(channel, this.oauth, status, game, delay);
     }
 
@@ -245,7 +244,7 @@ public class TwitchAPIv5 {
      * @param game
      * @return
      */
-    public JSONObject UpdateChannel(String channel, String oauth, String status, String game) throws JSONException {
+    public JSONObject UpdateChannel(String channel, String oauth, String status, String game) {
         return UpdateChannel(channel, oauth, status, game, -1);
     }
 
@@ -257,7 +256,7 @@ public class TwitchAPIv5 {
      * @param game
      * @return
      */
-    public JSONObject UpdateChannel(String channel, String status, String game) throws JSONException {
+    public JSONObject UpdateChannel(String channel, String status, String game) {
         return UpdateChannel(channel, this.oauth, status, game, -1);
     }
 
@@ -271,7 +270,7 @@ public class TwitchAPIv5 {
      * @param delay -1 to not update
      * @return
      */
-    public JSONObject UpdateChannel(String channel, String oauth, String status, String game, int delay) throws JSONException {
+    public JSONObject UpdateChannel(String channel, String oauth, String status, String game, int delay) {
         JSONObject j = new JSONObject("{}");
         JSONObject c = new JSONObject("{}");
 
@@ -324,7 +323,7 @@ public class TwitchAPIv5 {
     /*
      * Updates the channel communities.
      */
-    public JSONObject UpdateCommunities(String channel, String[] communities) throws JSONException {
+    public JSONObject UpdateCommunities(String channel, String[] communities) {
         JSONObject j = new JSONObject("{}");
         List<String> c = new ArrayList<String>();
 
@@ -348,7 +347,7 @@ public class TwitchAPIv5 {
     /*
      * Searches for a game.
      */
-    public JSONObject SearchGame(String game) throws JSONException {
+    public JSONObject SearchGame(String game) {
         try {
             String url = base_url + "/search/games?q=" + URLEncoder.encode(game, "UTF-8") + "&type=suggest";
             return GetData(request_type.GET, url, false);
@@ -363,7 +362,7 @@ public class TwitchAPIv5 {
     /*
      * Gets a communities id.
      */
-    public JSONObject GetCommunityID(String name) throws JSONException {
+    public JSONObject GetCommunityID(String name) {
         return GetData(request_type.GET, base_url + "/communities?name=" + name, false);
     }
 
@@ -376,7 +375,7 @@ public class TwitchAPIv5 {
      * @param ascending
      * @return
      */
-    public JSONObject GetChannelFollows(String channel, int limit, int offset, boolean ascending) throws JSONException {
+    public JSONObject GetChannelFollows(String channel, int limit, int offset, boolean ascending) {
         limit = Math.max(0, Math.min(limit, 100));
         offset = Math.max(0, offset);
         String dir = ascending ? "asc" : "desc";
@@ -392,7 +391,7 @@ public class TwitchAPIv5 {
      * @param ascending
      * @return
      */
-    public JSONObject GetChannelSubscriptions(String channel, int limit, int offset, boolean ascending) throws JSONException {
+    public JSONObject GetChannelSubscriptions(String channel, int limit, int offset, boolean ascending) {
         return GetChannelSubscriptions(channel, limit, offset, ascending, this.oauth);
     }
 
@@ -406,7 +405,7 @@ public class TwitchAPIv5 {
      * @param oauth
      * @return
      */
-    public JSONObject GetChannelSubscriptions(String channel, int limit, int offset, boolean ascending, String oauth) throws JSONException {
+    public JSONObject GetChannelSubscriptions(String channel, int limit, int offset, boolean ascending, String oauth) {
         limit = Math.max(0, Math.min(limit, 100));
         offset = Math.max(0, offset);
         String dir = ascending ? "asc" : "desc";
@@ -419,7 +418,7 @@ public class TwitchAPIv5 {
      * @param channel
      * @return
      */
-    public JSONObject GetStream(String channel) throws JSONException {
+    public JSONObject GetStream(String channel) {
         return GetData(request_type.GET, base_url + "/streams/" + getIDFromChannel(channel), false);
     }
 
@@ -429,7 +428,7 @@ public class TwitchAPIv5 {
      * @param channels
      * @return
      */
-    public JSONObject GetStreams(String channels) throws JSONException {
+    public JSONObject GetStreams(String channels) {
         return GetData(request_type.GET, base_url + "/streams?channel=" + channels, false);
     }
 
@@ -439,7 +438,7 @@ public class TwitchAPIv5 {
      * @param channel
      * @return
      */
-    public JSONObject GetCommunities(String channel) throws JSONException {
+    public JSONObject GetCommunities(String channel) {
         return GetData(request_type.GET, base_url + "/channels/" + getIDFromChannel(channel) + "/communities", false);
     }
 
@@ -449,7 +448,7 @@ public class TwitchAPIv5 {
      * @param user
      * @return
      */
-    public JSONObject GetUser(String user) throws JSONException {
+    public JSONObject GetUser(String user) {
         return GetData(request_type.GET, base_url + "/users?login=" + user, false);
     }
 
@@ -459,7 +458,7 @@ public class TwitchAPIv5 {
      * @param user
      * @return
      */
-    public JSONObject GetUserByID(String userID) throws JSONException {
+    public JSONObject GetUserByID(String userID) {
         return GetData(request_type.GET, base_url + "/users/" + userID, false);
     }
 
@@ -470,7 +469,7 @@ public class TwitchAPIv5 {
      * @param length (30, 60, 90, 120, 150, 180)
      * @return jsonObj.getInt("_http") == 422 if length is invalid or the channel is currently ineligible to run a commercial due to restrictions listed in the method description
      */
-    public JSONObject RunCommercial(String channel, int length) throws JSONException {
+    public JSONObject RunCommercial(String channel, int length) {
         return RunCommercial(channel, length, this.oauth);
     }
 
@@ -482,7 +481,7 @@ public class TwitchAPIv5 {
      * @param oauth
      * @return jsonObj.getInt("_http") == 422 if length is invalid or the channel is currently ineligible to run a commercial due to restrictions listed in the method description
      */
-    public JSONObject RunCommercial(String channel, int length, String oauth) throws JSONException {
+    public JSONObject RunCommercial(String channel, int length, String oauth) {
         JSONObject j = new JSONObject("{}");
         j.put("length", length);
         return GetData(request_type.POST, base_url + "/channels/" + getIDFromChannel(channel) + "/commercial", j.toString(), oauth, true);
@@ -494,7 +493,7 @@ public class TwitchAPIv5 {
      * @param channel
      * @return
      */
-    public JSONObject GetChatUsers(String channel) throws JSONException {
+    public JSONObject GetChatUsers(String channel) {
         return GetData(request_type.GET, "https://tmi.twitch.tv/group/user/" + channel + "/chatters", false);
     }
 
@@ -505,7 +504,7 @@ public class TwitchAPIv5 {
      * @param channel
      * @return
      */
-    public JSONObject GetUserFollowsChannel(String user, String channel) throws JSONException {
+    public JSONObject GetUserFollowsChannel(String user, String channel) {
         return GetData(request_type.GET, base_url + "/users/" + getIDFromChannel(user) + "/follows/channels/" + getIDFromChannel(channel), false);
     }
 
@@ -514,7 +513,7 @@ public class TwitchAPIv5 {
      *
      * @return
      */
-    public JSONObject GetEmotes() throws JSONException {
+    public JSONObject GetEmotes() {
         return GetData(request_type.GET, base_url + "/chat/emoticons", false);
     }
 
@@ -523,7 +522,7 @@ public class TwitchAPIv5 {
      *
      * @return
      */
-    public JSONObject GetCheerEmotes() throws JSONException {
+    public JSONObject GetCheerEmotes() {
         return GetData(request_type.GET, base_url + "/bits/actions", false);
     }
 
@@ -532,7 +531,7 @@ public class TwitchAPIv5 {
      *
      * @return
      */
-    public String GetCheerEmotesRegex() throws JSONException {
+    public String GetCheerEmotesRegex() {
         String[] emoteList;
         JSONObject jsonInput;
         JSONArray jsonArray;
@@ -558,7 +557,7 @@ public class TwitchAPIv5 {
      * @param   type  The type of data: current, highlights, archives
      * @return  String  List of Twitch VOD URLs (as a JSON String) or empty String in failure.
      */
-    public String GetChannelVODs(String channel, String type) throws JSONException {
+    public String GetChannelVODs(String channel, String type) {
         JSONStringer jsonOutput = new JSONStringer();
         JSONObject   jsonInput;
         JSONArray    jsonArray;
@@ -642,7 +641,7 @@ public class TwitchAPIv5 {
      * @param   channel
      * @return  String   date-time representation (2015-05-09T00:08:04Z)
      */
-    public String getChannelCreatedDate(String channel) throws JSONException {
+    public String getChannelCreatedDate(String channel) {
         JSONObject jsonInput = GetData(request_type.GET, base_url + "/channels/" + getIDFromChannel(channel), false);
         if (jsonInput.has("created_at")) {
             return jsonInput.getString("created_at");
@@ -656,7 +655,7 @@ public class TwitchAPIv5 {
      * @param channelName
      * @return 
      */
-    public JSONObject getChannelTeams(String channelName) throws JSONException {
+    public JSONObject getChannelTeams(String channelName) {
         return GetData(request_type.GET, base_url + "/channels/" + getIDFromChannel(channelName) + "/teams", false);
     }
     
@@ -666,7 +665,7 @@ public class TwitchAPIv5 {
      * @param teamName
      * @return 
      */
-    public JSONObject getTeam(String teamName) throws JSONException {
+    public JSONObject getTeam(String teamName) {
         return GetData(request_type.GET, base_url + "/teams/" + teamName, false);
     }
 
@@ -676,7 +675,7 @@ public class TwitchAPIv5 {
       * @param  channel
       * @return boolean  true if verified
       */
-    public boolean getBotVerified(String channel) throws JSONException {
+    public boolean getBotVerified(String channel) {
         JSONObject jsonInput = GetData(request_type.GET, base_url + "/users/" + getIDFromChannel(channel) + "/chat", false);
         if (jsonInput.has("is_verified_bot")) {
             return jsonInput.getBoolean("is_verified_bot");
@@ -690,7 +689,7 @@ public class TwitchAPIv5 {
      * @param channel
      * @return JSONObject  clips object.
      */
-    public JSONObject getClipsToday(String channel) throws JSONException {
+    public JSONObject getClipsToday(String channel) {
         /* Yes, the v5 endpoint for this does use the Channel Name and not the ID. */
         return GetData(request_type.GET, base_url + "/clips/top?channel=" + channel + "&limit=100&period=day", false);
     }
@@ -706,8 +705,9 @@ public class TwitchAPIv5 {
      * @param   DataStore   Copy of database object for writing
      * @return  int         How many objects were inserted into the database
      */
-    private int PopulateFollowedTable(JSONArray followsArray, DataStore dataStore) throws JSONException {
+    private int PopulateFollowedTable(JSONArray followsArray, DataStore dataStore) {
         int insertCtr = 0;
+        dataStore.setAutoCommit(false);
         for (int idx = 0; idx < followsArray.length(); idx++) {
             if (followsArray.getJSONObject(idx).has("user")) {
                 if (followsArray.getJSONObject(idx).getJSONObject("user").has("name")) {
@@ -718,6 +718,7 @@ public class TwitchAPIv5 {
                 }
             }
         }
+        dataStore.setAutoCommit(true);
         return insertCtr;
     }
 
@@ -730,7 +731,7 @@ public class TwitchAPIv5 {
      * @param   int         Total number of followers reported from Twitch API
      */
     @SuppressWarnings("SleepWhileInLoop")
-    private void FixFollowedTableWorker(String channel, DataStore dataStore, int followerCount) throws JSONException {
+    private void FixFollowedTableWorker(String channel, DataStore dataStore, int followerCount) {
         int insertCtr = 0;
         JSONObject jsonInput;
         String baseLink = base_url + "/channels/" + getIDFromChannel(channel) + "/follows";
@@ -777,7 +778,7 @@ public class TwitchAPIv5 {
      * @param   dataStore   Copy of database object
      * @param   force     Force the run even if the number of followers is too high
      */
-    public void FixFollowedTable(String channel, DataStore dataStore, Boolean force) throws JSONException {
+    public void FixFollowedTable(String channel, DataStore dataStore, Boolean force) {
 
         /* Determine number of followers to determine if this should not execute unless forced. */
         JSONObject jsonInput = GetData(request_type.GET, base_url + "/channels/" + getIDFromChannel(channel) + "/follows?limit=1", false);
@@ -815,11 +816,7 @@ public class TwitchAPIv5 {
 
         @Override
         public void run() {
-            try {
-                FixFollowedTableWorker(channel, dataStore, followerCount);
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
-            }
+            FixFollowedTableWorker(channel, dataStore, followerCount);
         }
     }
 
@@ -827,7 +824,7 @@ public class TwitchAPIv5 {
      * Tests the Twitch API to ensure that authentication is good.
      * @return
      */
-    public boolean TestAPI() throws JSONException {
+    public boolean TestAPI() {
         JSONObject jsonObject = GetData(request_type.GET, base_url, false);
         if (jsonObject.has("identified")) {
             return jsonObject.getBoolean("identified");
@@ -841,7 +838,7 @@ public class TwitchAPIv5 {
      * @param   userOauth      Oauth to check with.
      * @return  String      The name of the user or null to indicate that there was an error.
      */
-    public String GetUserFromOauth(String userOauth) throws JSONException {
+    public String GetUserFromOauth(String userOauth) {
         JSONObject jsonInput = GetData(request_type.GET, base_url, "", userOauth, false);
         if (jsonInput.has("token")) {
             if (jsonInput.getJSONObject("token").has("user_name")) {

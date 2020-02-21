@@ -105,7 +105,7 @@ public class TwitchValidate {
      */
     private void generateJSONObject(JSONObject obj, boolean isSuccess, 
             String requestType, String data, String url, int responseCode, 
-            String exception, String exceptionMessage) throws JSONException {
+            String exception, String exceptionMessage) {
         
         obj.put("_success", isSuccess);
         obj.put("_type", requestType);
@@ -123,7 +123,7 @@ public class TwitchValidate {
      * @param data
      * @return 
      */
-    private JSONObject handleRequest(RequestType type, String oAuthToken) throws JSONException {
+    private JSONObject handleRequest(RequestType type, String oAuthToken) {
         JSONObject returnObject = new JSONObject();
         InputStream inStream = null;
         int responseCode = 0;
@@ -221,19 +221,15 @@ public class TwitchValidate {
 
         @Override
         public void run() {
-            try {
-                JSONObject requestObj = handleRequest(RequestType.GET, oAuthToken);
-                if (requestObj.has("message")) {
-                    if (requestObj.getString("message").equals("invalid access token")) {
-                        com.gmt2001.Console.err.println("Twitch reports your " + type + " OAUTH token as invalid. It may have expired, " +
-                                "been disabled, or the Twitch API is experiencing issues.");
-                        return;
-                    }
+            JSONObject requestObj = handleRequest(RequestType.GET, oAuthToken);
+            if (requestObj.has("message")) {
+                if (requestObj.getString("message").equals("invalid access token")) {
+                    com.gmt2001.Console.err.println("Twitch reports your " + type + " OAUTH token as invalid. It may have expired, " +
+                                                    "been disabled, or the Twitch API is experiencing issues.");
+                    return;
                 }
-                com.gmt2001.Console.out.println("Validated Twitch " + type + " OAUTH Token.");
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
             }
+            com.gmt2001.Console.out.println("Validated Twitch " + type + " OAUTH Token.");
         }
     }
 }

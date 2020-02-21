@@ -20,10 +20,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.Collection;
@@ -36,36 +34,26 @@ import javax.swing.Timer;
 import org.apache.commons.io.FileUtils;
 
 /**
- * @deprecated @author gmt2001
+ *
+ * @author gmt2001
  */
-@Deprecated
 public class IniStore extends DataStore implements ActionListener {
 
-    private final HashMap<String, IniFile> files = new HashMap<>();
-    private final HashMap<String, Date> changed = new HashMap<>();
+    private final HashMap<String, IniFile> files = new HashMap<String, IniFile>();
+    private final HashMap<String, Date> changed = new HashMap<String, Date>();
     private final Date nextSave = new Date(0);
     private final Timer t;
     private final Timer t2;
     private static final long saveinterval = 5 * 60 * 1000;
-    private static IniStore instance;
+    private static final IniStore instance = new IniStore();
     private String inifolder = "";
 
     public static IniStore instance() {
-        return instance("");
-    }
-
-    public static synchronized IniStore instance(String configStr) {
-        if (instance == null) {
-            instance = new IniStore(configStr);
-        }
-
         return instance;
     }
 
-    private IniStore(String configStr) {
-        super(configStr);
-
-        inifolder = LoadConfigReal(configStr);
+    private IniStore() {
+        inifolder = LoadConfigReal("");
 
         t = new Timer((int) saveinterval, this);
         t2 = new Timer(1, this);
@@ -102,20 +90,20 @@ public class IniStore extends DataStore implements ActionListener {
 
         if (!files.containsKey(fName) || force) {
             try {
-                String data = FileUtils.readFileToString(new File("./" + inifolder + "/" + fName + ".ini"), Charset.defaultCharset());
+                String data = FileUtils.readFileToString(new File("./" + inifolder + "/" + fName + ".ini"));
                 String[] lines = data.replaceAll("\\r", "").split("\\n");
 
                 IniFile f = new IniFile();
 
                 String section = "";
 
-                f.data.put(section, new HashMap<>());
+                f.data.put(section, new HashMap<String, String>());
 
                 for (String line : lines) {
                     if (!line.trim().startsWith(";")) {
                         if (line.trim().startsWith("[") && line.trim().endsWith("]")) {
                             section = line.trim().substring(1, line.trim().length() - 1);
-                            f.data.put(section, new HashMap<>());
+                            f.data.put(section, new HashMap<String, String>());
                         } else if (!line.trim().isEmpty()) {
                             String[] spl = line.split("=", 2);
                             f.data.get(section).put(spl[0], spl[1]);
@@ -165,7 +153,7 @@ public class IniStore extends DataStore implements ActionListener {
             }
 
             Files.write(Paths.get("./" + inifolder + "/" + fName + ".ini"), wdata.getBytes(StandardCharsets.UTF_8),
-                    StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
+                        StandardOpenOption.CREATE, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING);
 
             changed.remove(fName);
         } catch (IOException ex) {
@@ -181,7 +169,7 @@ public class IniStore extends DataStore implements ActionListener {
 
     private static class IniFile {
 
-        protected HashMap<String, HashMap<String, String>> data = new HashMap<>();
+        protected HashMap<String, HashMap<String, String>> data = new HashMap<String, HashMap<String, String>>();
     }
 
     @Override
@@ -191,9 +179,16 @@ public class IniStore extends DataStore implements ActionListener {
         }
 
         IniFile f = new IniFile();
-        f.data.put("", new HashMap<>());
+        f.data.put("", new HashMap<String, String>());
 
         files.put(fName, f);
+    }
+
+    @Override
+    public void SaveChangedNow() {
+        nextSave.setTime(new Date().getTime() - 1);
+
+        SaveAll(false);
     }
 
     @Override
@@ -235,8 +230,16 @@ public class IniStore extends DataStore implements ActionListener {
         }
     }
 
-    public static boolean hasDatabase(String configStr) {
-        return Files.exists(Paths.get(LoadConfigReal(configStr)), LinkOption.NOFOLLOW_LINKS);
+    @Override
+    public void ReloadFile(String fName) {
+        fName = validatefName(fName);
+
+        LoadFile(fName, true);
+    }
+
+    @Override
+    public void LoadConfig(String configStr) {
+        inifolder = LoadConfigReal(configStr);
     }
 
     private static String LoadConfigReal(String configStr) {
@@ -269,7 +272,8 @@ public class IniStore extends DataStore implements ActionListener {
             return s;
         }
 
-        return new String[]{};
+        return new String[] {
+               };
     }
 
     @Override
@@ -277,7 +281,8 @@ public class IniStore extends DataStore implements ActionListener {
         fName = validatefName(fName);
 
         if (!LoadFile(fName, false)) {
-            return new String[]{};
+            return new String[] {
+                   };
         }
 
         Set<String> o = files.get(fName).data.keySet();
@@ -299,7 +304,8 @@ public class IniStore extends DataStore implements ActionListener {
         fName = validatefName(fName);
 
         if (!LoadFile(fName, false)) {
-            return new String[]{};
+            return new String[] {
+                   };
         }
 
         section = validateSection(section);
@@ -323,7 +329,7 @@ public class IniStore extends DataStore implements ActionListener {
         fName = validatefName(fName);
 
         if (!LoadFile(fName, false)) {
-            return new KeyValue[]{};
+            return new KeyValue[] {};
         }
 
         section = validateSection(section);
@@ -439,7 +445,7 @@ public class IniStore extends DataStore implements ActionListener {
         section = validateSection(section);
 
         if (!files.get(fName).data.containsKey(section)) {
-            files.get(fName).data.put(section, new HashMap<>());
+            files.get(fName).data.put(section, new HashMap<String, String>());
         }
 
         for (int idx = 0; idx < keys.length; idx++) {
@@ -462,7 +468,7 @@ public class IniStore extends DataStore implements ActionListener {
         key = validateKey(key);
 
         if (!files.get(fName).data.containsKey(section)) {
-            files.get(fName).data.put(section, new HashMap<>());
+            files.get(fName).data.put(section, new HashMap<String, String>());
         }
 
         files.get(fName).data.get(section).put(key, value);

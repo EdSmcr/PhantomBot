@@ -14,23 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tv.phantombot.script;
 
-import com.gmt2001.Reflect;
+import net.engio.mbassy.listener.Handler;
+
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map.Entry;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import net.engio.mbassy.listener.Handler;
+
 import org.apache.commons.lang3.text.WordUtils;
-import tv.phantombot.event.Event;
+import org.reflections.Reflections;
+
 import tv.phantombot.event.Listener;
+import tv.phantombot.event.Event;
 
 public class ScriptEventManager implements Listener {
-
     private static final ScriptEventManager instance = new ScriptEventManager();
-    private final ConcurrentHashMap<String, ScriptEventHandler> events = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, EventHandler> events = new ConcurrentHashMap<String, EventHandler>();
     private final List<String> classes = new ArrayList<String>();
     private boolean isKilled = false;
 
@@ -49,15 +52,12 @@ public class ScriptEventManager implements Listener {
     private ScriptEventManager() {
         Thread.setDefaultUncaughtExceptionHandler(com.gmt2001.UncaughtExceptionHandler.instance());
 
-        registerClasses();
-    }
+        Reflections reflections = new Reflections("tv.phantombot.event");
+        Set<Class<? extends Event>> classes = reflections.getSubTypesOf(Event.class);
 
-    private void registerClasses() {
-        Reflect.instance().loadPackageRecursive(Event.class.getName().substring(0, Event.class.getName().lastIndexOf('.')));
-        Reflect.instance().getSubTypesOf(Event.class).stream().filter((c) -> (!this.classes.contains(c.getName().substring(0, c.getName().lastIndexOf('.'))))).forEachOrdered((c) -> {
-            this.classes.add(c.getName().substring(0, c.getName().lastIndexOf('.')));
-            com.gmt2001.Console.debug.println("Registered event package " + c.getName().substring(0, c.getName().lastIndexOf('.')));
-        });
+        for (Class<? extends Event> c : classes) {
+            this.classes.add(c.getName().substring(0, c.getName().lastIndexOf(".")));
+        }
     }
 
     /**
@@ -70,9 +70,9 @@ public class ScriptEventManager implements Listener {
         if (!isKilled) {
             try {
                 String eventName = event.getClass().getSimpleName();
-                ScriptEventHandler e = events.get(eventName);
+                EventHandler e = events.get(eventName);
 
-                e.handle(event);
+                e.handler.handle(event);
 
                 com.gmt2001.Console.debug.println("Dispatched event " + eventName);
             } catch (Exception ex) {
@@ -85,7 +85,7 @@ public class ScriptEventManager implements Listener {
     /**
      * Method to see if an event exists, this is used from init.js.
      *
-     * @param {String} eventName
+     * @param  {String} eventName
      * @return {Boolean}
      */
     public boolean hasEvent(String eventName) {
@@ -99,11 +99,7 @@ public class ScriptEventManager implements Listener {
      * @param {ScriptEventHandler} handler
      */
     public void register(String eventName, ScriptEventHandler handler) {
-        register(eventName, handler, true);
-    }
-
-    private void register(String eventName, ScriptEventHandler handler, boolean recurse) {
-        eventName = WordUtils.capitalize(eventName) + "Event";
+        eventName = (WordUtils.capitalize(eventName) + "Event");
         Class<? extends Event> event = null;
 
         for (String c : classes) {
@@ -116,10 +112,7 @@ public class ScriptEventManager implements Listener {
         }
 
         if (event != null) {
-            events.put(event.getSimpleName(), handler);
-        } else if (recurse) {
-            registerClasses();
-            register(eventName, handler, false);
+            events.put(event.getSimpleName(), new EventHandler(event, handler));
         } else {
             com.gmt2001.Console.err.println("Event class not found for: " + eventName);
         }
@@ -131,11 +124,16 @@ public class ScriptEventManager implements Listener {
      * @param {ScriptEventHandler} handler
      */
     public void unregister(ScriptEventHandler handler) {
-        Set<Entry<String, ScriptEventHandler>> entries = events.entrySet();
+        Set<Entry<String, EventHandler>> entries = events.entrySet();
+        EventHandler entry;
 
-        entries.stream().filter((e) -> (e.getValue() == handler)).forEachOrdered((e) -> {
-            events.remove(e.getKey());
-        });
+        for (Entry<String, EventHandler> e : entries) {
+            entry = e.getValue();
+
+            if (entry.handler == handler) {
+                events.remove(e.getKey());
+            }
+        }
     }
 
     /**
@@ -143,5 +141,18 @@ public class ScriptEventManager implements Listener {
      */
     public void kill() {
         this.isKilled = true;
+    }
+
+    /**
+     * Class for events.
+     */
+    private class EventHandler {
+        Class<? extends Event> eventClass;
+        ScriptEventHandler handler;
+
+        private EventHandler(Class<? extends Event> eventClass, ScriptEventHandler handler) {
+            this.eventClass = eventClass;
+            this.handler = handler;
+        }
     }
 }

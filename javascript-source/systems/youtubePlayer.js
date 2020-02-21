@@ -887,15 +887,11 @@
          * the text constantly in a loop.
          */
         this.updateCurrentSongFile = function(youtubeVideo) {
-            var writer = new java.io.OutputStreamWriter(new java.io.FileOutputStream(baseFileOutputPath + 'currentsong.txt'), 'UTF-8');
-
-            try {
-                writer.write(youtubeVideo.getVideoTitle());
-            } catch (ex) {
-                $.log.error('Failed to update current song file: ' + ex.toString());
-            } finally {
-                writer.close();
-            }
+            $.writeToFile(
+                youtubeVideo.getVideoTitle() + ' ',
+                baseFileOutputPath + 'currentsong.txt',
+                false
+            );
         };
 
         /**
@@ -1948,7 +1944,7 @@
 
             var request = currentPlaylist.requestSong(event.getArguments(), sender);
             if (request != null) {
-                $.say($.whisperPrefix(sender) + $.lang.get('ytplayer.command.songrequest.success', request.getVideoTitle(), currentPlaylist.getRequestsCount(), request.getVideoId()));
+                $.say($.lang.get('ytplayer.command.songrequest.success', request.getVideoTitle(), currentPlaylist.getRequestsCount(), request.getVideoId()));
                 connectedPlayerClient.pushSongList();
             } else {
                 $.say($.whisperPrefix(sender) + $.lang.get('ytplayer.command.songrequest.failed', currentPlaylist.getRequestFailReason()));

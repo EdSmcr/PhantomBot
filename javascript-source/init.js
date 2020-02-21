@@ -537,6 +537,7 @@
             var username = event.getUsername(),
                 command = event.getCommand(),
                 user = event.getDiscordUser(),
+                channel = event.getDiscordChannel(),
                 channelName = event.getChannel(),
                 channelId = event.getChannelId(),
                 isAdmin = event.isAdmin(),
@@ -558,11 +559,9 @@
             // If more permissions are added, we'll have to use a loop here.
             if (perm.permissions[0].selected.equals('true') && isAdmin == true) {
                 hasPerms = true;
-            } else if (perm.roles[0].indexOf('0') !== -1 || perm.roles[0].indexOf($.discordAPI.getGuild().getId().asString()) !== -1) {
-                hasPerms = true;
             } else {
                 for (var i = 0; i < perm.roles.length; i++) {
-                    if (user.getRoleIds().contains($.discordAPI.getRoleByID(perm.roles[i]).getId()) == true) {
+                    if (user.hasRole($.discordAPI.getRoleByID(perm.roles[i])) == true) {
                         hasPerms = true;
                         break;
                     }
@@ -582,8 +581,12 @@
                 return;
             }
 
-            if (!$.discord.getCommandChannelAllowed(command, channelName, channelId)) {
+            if ($.discord.getCommandChannel(command, channel) === undefined && $.discord.getCommandChannel(command, '_default_global_') === undefined) {
                 return;
+            } else {
+                if (($.discord.getCommandChannel(command, channel) !== undefined && (!$.discord.getCommandChannel(command, channel).equalsIgnoreCase(channelName) && !$.discord.getCommandChannel(command, channel).equalsIgnoreCase(channelId))) && $.discord.getCommandChannel(command, '_default_global_') != '') {
+                    return;
+                }
             }
 
             callHook('discordChannelCommand', event, false);
@@ -606,7 +609,7 @@
             for (var i = 0; i < roles.size(); i++) {
                 perms.roles.push({
                     'name' : roles.get(i).getName() + '',
-                    '_id': roles.get(i).getId().asString() + '',
+                    '_id': roles.get(i).getStringID() + '',
                     'selected': 'false'
                 });
             }

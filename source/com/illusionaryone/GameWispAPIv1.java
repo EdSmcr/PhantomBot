@@ -43,7 +43,7 @@ import org.json.JSONStringer;
  */
 public class GameWispAPIv1 {
 
-    private static GameWispAPIv1 instance;
+    private static final GameWispAPIv1 instance = new GameWispAPIv1();
     private static final String sAPIURL = "https://api.gamewisp.com";
     private static final int iHTTPTimeout = 2 * 1000;
     private static final String devKey = "d391637bb332e0b67d60388e2cac31dd93ad5bf";
@@ -54,11 +54,7 @@ public class GameWispAPIv1 {
     private static String sRefreshToken = "";
     private static Boolean noAccessWarning = false;
 
-    public static synchronized GameWispAPIv1 instance() {
-        if (instance == null) {
-            instance = new GameWispAPIv1();
-        }
-        
+    public static GameWispAPIv1 instance() {
         return instance;
     }
 
@@ -84,7 +80,7 @@ public class GameWispAPIv1 {
      */
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_url", url);
@@ -94,16 +90,16 @@ public class GameWispAPIv1 {
         jsonObject.put("_content", jsonContent);
     }
 
-    private static JSONObject readJsonFromGETUrl(String urlAddress) throws JSONException {
+    private static JSONObject readJsonFromGETUrl(String urlAddress) {
         return readJsonFromUrl("GET", urlAddress);
     }
 
-    private static JSONObject readJsonFromPOSTUrl(String urlAddress) throws JSONException {
+    private static JSONObject readJsonFromPOSTUrl(String urlAddress) {
         return readJsonFromUrl("POST", urlAddress);
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private static JSONObject readJsonFromUrl(String methodType, String urlAddress) throws JSONException {
+    private static JSONObject readJsonFromUrl(String methodType, String urlAddress) {
         JSONObject jsonResult = new JSONObject("{}");
         InputStream inputStream = null;
         OutputStream outputStream = null;
@@ -202,7 +198,7 @@ public class GameWispAPIv1 {
      * @param String
      * @return JSONObject
      */
-    public JSONObject getUserSubInfoJSON(String username) throws JSONException {
+    public JSONObject getUserSubInfoJSON(String username) {
         return readJsonFromGETUrl(sAPIURL + "/pub/v1/channel/subscriber-for-channel?access_token=" + GameWispAPIv1.sAccessToken + "&type=twitch&user_name=" + username + "&include=anniversaries,user,tier");
     }
 
@@ -211,7 +207,7 @@ public class GameWispAPIv1 {
      * @param String
      * @return String {JSONObject}
      */
-    public String getUserSubInfoString(String username) throws JSONException {
+    public String getUserSubInfoString(String username) {
         JSONObject jsonObject = getUserSubInfoJSON(username);
         return jsonObject.toString();
     }
@@ -220,7 +216,7 @@ public class GameWispAPIv1 {
      * Refreshes the token.
      * @param String
      */
-    public String[] refreshToken() throws JSONException {
+    public String[] refreshToken() {
         JSONObject jsonObject = readJsonFromPOSTUrl(sAPIURL + "/pub/v1/oauth/token" +
                                 "?grant_type=refresh_token" +
                                 "&client_id=" + devKey +

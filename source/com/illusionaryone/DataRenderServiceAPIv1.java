@@ -40,16 +40,12 @@ import org.json.JSONObject;
  */
 public class DataRenderServiceAPIv1 {
 
-    private static DataRenderServiceAPIv1 instance;
+    private static final DataRenderServiceAPIv1 instance = new DataRenderServiceAPIv1();
     private static final int iHTTPTimeout = 2 * 1000;
     private static String sAPIKey = "";
     private static String sAPIURL = "";
 
-    public static synchronized DataRenderServiceAPIv1 instance() {
-        if (instance == null) {
-            instance = new DataRenderServiceAPIv1();
-        }
-        
+    public static DataRenderServiceAPIv1 instance() {
         return instance;
     }
 
@@ -75,7 +71,7 @@ public class DataRenderServiceAPIv1 {
      */
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_url", url);
@@ -86,7 +82,7 @@ public class DataRenderServiceAPIv1 {
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private static JSONObject readJsonFromUrl(String urlAddress, String jsonString) throws JSONException {
+    private static JSONObject readJsonFromUrl(String urlAddress, String jsonString) {
         JSONObject jsonResult = new JSONObject("{}");
         InputStream inputStream = null;
         URL urlRaw;
@@ -216,7 +212,7 @@ public class DataRenderServiceAPIv1 {
      * @param   String  The type of data to send.
      * @return  String  Status string.
      */
-    public String postData(String jsonString, String channelName, String type) throws JSONException {
+    public String postData(String jsonString, String channelName, String type) {
         if (sAPIKey.length() == 0) {
             return "no_auth_key";
         }
@@ -234,7 +230,7 @@ public class DataRenderServiceAPIv1 {
      * @param   String  The channel name to authenticate as.
      * @return  String  Status string.
      */
-    public String deleteAllData(String channelName) throws JSONException {
+    public String deleteAllData(String channelName) {
         if (sAPIKey.length() == 0) {
             return "no_auth_key";
         }

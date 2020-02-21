@@ -36,11 +36,13 @@
             result: '',
             hasTie: 0,
             counts: [],
+            liveResults: {'votes':{}}
         },
         timeout;
     var objOBS = [];
 
-    /**
+
+    /** 
      * @function hasKey
      * @param {Array} list
      * @param {*} value
@@ -103,12 +105,17 @@
         poll.voters = [];
         poll.counts = [];
         poll.hasTie = 0;
+        poll.liveResults = {'votes': {}};
+
+        if (poll.liveResults['question']==undefined){
+            poll.liveResults['question'] = question;
+        }
 
         // Remove the old files.
         $.inidb.RemoveFile('pollPanel');
         $.inidb.RemoveFile('pollVotes');
 
-        
+        $.inidb.setAutoCommit(false);
         for (var i = 0; i < poll.options.length; i++) {
             optionsStr += (i + 1) + ") " + poll.options[i] + " ";
             $.inidb.set('pollVotes', poll.options[i], 0);
@@ -118,6 +125,9 @@
             });
         }
         
+        $.inidb.set('livePoll', 'openPoll', JSON.stringify(poll.liveResults));
+        
+        $.inidb.setAutoCommit(true);
 
         if (poll.time > 0) {
             $.say($.lang.get('pollsystem.poll.started', $.resolveRank(pollMaster), time, poll.minVotes, poll.question, optionsStr));
@@ -220,6 +230,9 @@
         $.inidb.set('pollresults', 'options', poll.options.join(','));
         $.inidb.set('pollresults', 'counts', poll.counts.join(','));
         $.inidb.set('pollresults', 'istie', poll.hasTie);
+
+        //$.inidb.del('livePoll', 'openPoll');
+
         poll.callback(poll.result);
     };
 
