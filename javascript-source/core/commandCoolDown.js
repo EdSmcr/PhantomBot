@@ -24,7 +24,7 @@
  */
 
 (function() {
-    var defaultCooldownTime = $.getSetIniDbNumber('cooldownSettings', 'defaultCooldownTime', 0),
+    var defaultCooldownTime = $.getSetIniDbNumber('cooldownSettings', 'defaultCooldownTime', 5),
         modCooldown = $.getSetIniDbBoolean('cooldownSettings', 'modCooldown', false),
         defaultCooldowns = {},
         cooldowns = {};
@@ -338,7 +338,7 @@
             if (event.getArgs()[0] == 'add') {
                 add(event.getArgs()[1], event.getArgs()[2], event.getArgs()[3].equals('true'));
             } else if (event.getArgs()[0] == 'update') {
-                defaultCooldownTime = $.getIniDbNumber('cooldownSettings', 'defaultCooldownTime', 0);
+                defaultCooldownTime = $.getIniDbNumber('cooldownSettings', 'defaultCooldownTime', 5);
                 modCooldown = $.getIniDbBoolean('cooldownSettings', 'modCooldown', false);
             } else {
                 remove(event.getArgs()[1]);
