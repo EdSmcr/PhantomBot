@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.TimeZone;
 import java.util.TreeSet;
+import org.json.JSONException;
 
 import tv.phantombot.PhantomBot;
 
@@ -91,7 +92,7 @@ public class ConsoleEventHandler implements Listener {
      * @param event
      */
     @Handler
-    public void onConsoleInput(ConsoleInputEvent event) {
+    public void onConsoleInput(ConsoleInputEvent event) throws JSONException {
         // The message said in the console.
         String message = event.getMessage();
         // If settings were changed.
@@ -260,7 +261,7 @@ public class ConsoleEventHandler implements Listener {
             datefmt.setTimeZone(TimeZone.getTimeZone(PhantomBot.getTimeZone()));
             String timestamp = datefmt.format(new Date());
 
-            dataStore.backupSQLite3("phantombot.manual.backup." + timestamp + ".db");
+            dataStore.backupDB("phantombot.manual.backup." + timestamp + ".db");
             return;
         }
 
@@ -447,7 +448,7 @@ public class ConsoleEventHandler implements Listener {
 
             com.gmt2001.Console.out.println("[CONSOLE] Executing bitstest");
 
-            EventBus.instance().postAsync(new TwitchBitsEvent(PhantomBot.instance().getBotName(), argument[0], argument[1]));
+            EventBus.instance().postAsync(new TwitchBitsEvent(PhantomBot.instance().getBotName(), "100", sendMessage));
             return;
         }
 

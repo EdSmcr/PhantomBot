@@ -68,4 +68,8 @@ nbproject/
 .classpath
 .project
 
-desktop.ini
+# Libs downloaded from Maven
+lib/
+
+# Allow java-runtime files
+!resources/java-runtime*/*
