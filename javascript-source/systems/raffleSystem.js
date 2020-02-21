@@ -293,8 +293,10 @@
         }
 
         /* Push the panel stats */
-            $.inidb.set('raffleList', username, true);
-            $.inidb.set('raffleresults', 'raffleEntries', Object.keys(entered).length);
+        $.inidb.setAutoCommit(false);
+        $.inidb.set('raffleList', username, true);
+        $.inidb.set('raffleresults', 'raffleEntries', Object.keys(entered).length);
+        $.inidb.setAutoCommit(true);
     }
 
     /**

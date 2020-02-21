@@ -35,7 +35,6 @@ import java.io.OutputStream;
 import java.net.URI;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.json.JSONException;
 
 import tv.phantombot.PhantomBot;
 
@@ -89,7 +88,7 @@ public class HTTPServerCommon {
         }
     }
 
-    public static void handle(HttpExchange exchange, String serverPassword, String serverWebAuth) throws IOException, JSONException {
+    public static void handle(HttpExchange exchange, String serverPassword, String serverWebAuth) throws IOException {
         Boolean hasPassword = false;
         Boolean doRefresh = false;
         Boolean doMarquee = false;
@@ -199,7 +198,7 @@ public class HTTPServerCommon {
                 handleFile("/web/alerts/index.html", exchange, hasPassword, false);
             } else if (uriPath.equals("/obs/poll-chart")) {
                 handleFile("/web/obs/poll-chart/index.html", exchange, hasPassword, false);
-            }  else if (uriPath.equals("/obs/hype-meter")) {
+            } else if (uriPath.equals("/obs/hype-meter")) {
                 handleFile("/web/obs/hype-meter/index.html", exchange, hasPassword, false);
             } else if (uriPath.equals("/obs/tug-of-war")) {
                 handleFile("/web/obs/tug-of-war/index.html", exchange, hasPassword, false);
@@ -248,7 +247,7 @@ public class HTTPServerCommon {
      * table=tableName&getSortedRowsByValue&limit=n
      * table=tableName&getSortedRowsByValue&offset=n
      */
-    private static void handleDBQuery(String uriPath, String[] uriQueryList, HttpExchange exchange, Boolean hasPassword) throws JSONException {
+    private static void handleDBQuery(String uriPath, String[] uriQueryList, HttpExchange exchange, Boolean hasPassword) {
         JSONStringer jsonObject = new JSONStringer();
         String[] keyValue;
         String   dbTable = null;
@@ -455,7 +454,7 @@ public class HTTPServerCommon {
      * @param hasPassword
      * @param needsPassword
      */
-    private static void handleLangFiles(String path, HttpExchange exchange, boolean hasPassword, boolean needsPassword) throws JSONException {
+    private static void handleLangFiles(String path, HttpExchange exchange, boolean hasPassword, boolean needsPassword) {
         if (needsPassword) {
             if (!hasPassword) {
                 sendHTMLError(403, "Access Denied", exchange);
@@ -480,7 +479,7 @@ public class HTTPServerCommon {
      * @param hasPassword
      * @param needsPassword
      */
-    private static void handleGamesList(HttpExchange exchange, boolean hasPassword, boolean needsPassword) throws JSONException {
+    private static void handleGamesList(HttpExchange exchange, boolean hasPassword, boolean needsPassword) {
         if (needsPassword) {
             if (!hasPassword) {
                 sendHTMLError(403, "Access Denied", exchange);
@@ -691,7 +690,7 @@ public class HTTPServerCommon {
         sendData("text/text", "event posted", exchange);
     }
 
-    private static void handlePutRequestLang(String langFile, String langData, HttpExchange exchange, Boolean hasPassword) throws IOException, JSONException {
+    private static void handlePutRequestLang(String langFile, String langData, HttpExchange exchange, Boolean hasPassword) throws IOException {
         if (!hasPassword) {
             sendHTMLError(403, "Access Denied.", exchange);
             return;
@@ -757,12 +756,6 @@ public class HTTPServerCommon {
             return "text/css";
         } else if (path.endsWith(".png")) {
             return "image/png";
-        } else if (path.endsWith(".mp3")) {
-            return "audio/mpeg";
-        } else if (path.endsWith(".aac")) {
-            return "audio/aac";
-        } else if (path.endsWith(".ogg")) {
-            return "audio/ogg";
         }
         return "text/text";
     }

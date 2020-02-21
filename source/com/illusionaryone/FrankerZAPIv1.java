@@ -40,15 +40,11 @@ import org.json.JSONObject;
  */
 public class FrankerZAPIv1 {
 
-    private static FrankerZAPIv1 instance;
+    private static final FrankerZAPIv1 instance = new FrankerZAPIv1();
     private static final String sAPIURL = "https://api.frankerfacez.com/v1";
     private static final int iHTTPTimeout = 2 * 1000;
 
-    public static synchronized FrankerZAPIv1 instance() {
-        if (instance == null) {
-            instance = new FrankerZAPIv1();
-        }
-        
+    public static FrankerZAPIv1 instance() {
         return instance;
     }
 
@@ -74,7 +70,7 @@ public class FrankerZAPIv1 {
      */
     private static void fillJSONObject(JSONObject jsonObject, boolean success, String type,
                                        String url, int responseCode, String exception,
-                                       String exceptionMessage, String jsonContent) throws JSONException {
+                                       String exceptionMessage, String jsonContent) {
         jsonObject.put("_success", success);
         jsonObject.put("_type", type);
         jsonObject.put("_url", url);
@@ -85,7 +81,7 @@ public class FrankerZAPIv1 {
     }
 
     @SuppressWarnings("UseSpecificCatch")
-    private static JSONObject readJsonFromUrl(String urlAddress) throws JSONException {
+    private static JSONObject readJsonFromUrl(String urlAddress) {
         JSONObject jsonResult = new JSONObject("{}");
         InputStream inputStream = null;
         URL urlRaw;
@@ -150,7 +146,7 @@ public class FrankerZAPIv1 {
      * @param channel
      * @return
      */
-    public JSONObject GetLocalEmotes(String channel) throws JSONException {
+    public JSONObject GetLocalEmotes(String channel) {
         return readJsonFromUrl(sAPIURL + "/room/" + channel);
     }
 
@@ -159,7 +155,7 @@ public class FrankerZAPIv1 {
      *
      * @return
      */
-    public JSONObject GetGlobalEmotes() throws JSONException {
+    public JSONObject GetGlobalEmotes() {
         return readJsonFromUrl(sAPIURL + "/set/global");
     }
 }

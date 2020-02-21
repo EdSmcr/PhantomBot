@@ -86,6 +86,7 @@ import tv.phantombot.httpserver.HTTPServer;
 import tv.phantombot.httpserver.HTTPSServer;
 import tv.phantombot.panel.PanelSocketSecureServer;
 import tv.phantombot.panel.PanelSocketServer;
+import tv.phantombot.panel.NewPanelSocketServer;
 import tv.phantombot.script.Script;
 import tv.phantombot.script.ScriptEventManager;
 import tv.phantombot.script.ScriptManager;
@@ -101,7 +102,6 @@ import tv.phantombot.twitch.api.TwitchValidate;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang3.SystemUtils;
-import org.json.JSONException;
 import tv.phantombot.cache.TwitchTeamsCache;
 import tv.phantombot.console.ConsoleEventHandler;
 import tv.phantombot.scripts.core.Moderation;
@@ -128,6 +128,7 @@ public final class PhantomBot implements Listener {
     private Boolean webEnabled;
     private Boolean musicEnabled;
     private Boolean useHttps;
+    private Boolean testPanelServer;
     private int basePort;
     private String bindIP;
     private int ytSocketPort;
@@ -202,6 +203,7 @@ public final class PhantomBot implements Listener {
     private YTWebSocketServer youtubeSocketServer;
     private YTWebSocketSecureServer youtubeSocketSecureServer;
     private PanelSocketServer panelSocketServer;
+    private NewPanelSocketServer newPanelSocketServer;
     private PanelSocketSecureServer panelSocketSecureServer;
     private HTTPServer httpServer;
     private HTTPSServer httpsServer;
@@ -233,9 +235,9 @@ public final class PhantomBot implements Listener {
     private TwitchPubSub pubSubEdge;
     private Properties pbProperties;
     private Boolean legacyServers = false;
-    private Boolean backupDBAuto = false;
-    private int backupDBHourFrequency = 0;
-    private int backupDBKeepDays = 0;
+    private Boolean backupSQLiteAuto = false;
+    private int backupSQLiteHourFrequency = 0;
+    private int backupSQLiteKeepDays = 0;
 
     // Error codes
     // [...] by convention, a nonzero status code indicates abnormal termination. (see System.exit() JavaDoc)
@@ -266,7 +268,7 @@ public final class PhantomBot implements Listener {
      * @return String Display version of PhantomBot.
      */
     public String botVersion() {
-        return "PhantomBot Version: " + RepoVersion.getPhantomBotVersion() + " (" + RepoVersion.getBuildType() + ")";
+        return "PhantomBot Version: " + RepoVersion.getPhantomBotVersion();
     }
 
     /**
@@ -405,6 +407,7 @@ public final class PhantomBot implements Listener {
         this.webEnabled = this.pbProperties.getProperty("webenable", "true").equalsIgnoreCase("true");
         this.musicEnabled = this.pbProperties.getProperty("musicenable", "true").equalsIgnoreCase("true");
         this.useHttps = this.pbProperties.getProperty("usehttps", "false").equalsIgnoreCase("true");
+        this.testPanelServer = this.pbProperties.getProperty("testpanelserver", "false").equalsIgnoreCase("true");
 
         /* Set the datastore variables */
         this.dataStoreType = this.pbProperties.getProperty("datastore", "");
@@ -510,10 +513,10 @@ public final class PhantomBot implements Listener {
         /* Set the client id for the twitch api to use */
         this.clientId = this.pbProperties.getProperty("clientid", "7wpchwtqz7pvivc3qbdn1kajz42tdmb");
 
-        /* Set any DB backup options. */
-        this.backupDBAuto = this.pbProperties.getProperty("backupdbauto", this.pbProperties.getProperty("backupsqliteauto", "true")).equalsIgnoreCase("true");
-        this.backupDBHourFrequency = Integer.parseInt(this.pbProperties.getProperty("backupdbhourfrequency", this.pbProperties.getProperty("backupsqlitehourfrequency", "24")));
-        this.backupDBKeepDays = Integer.parseInt(this.pbProperties.getProperty("backupdbkeepdays", this.pbProperties.getProperty("backupsqlitekeepdays", "5")));
+        /* Set any SQLite backup options. */
+        this.backupSQLiteAuto = this.pbProperties.getProperty("backupsqliteauto", "true").equalsIgnoreCase("true");
+        this.backupSQLiteHourFrequency = Integer.parseInt(this.pbProperties.getProperty("backupsqlitehourfrequency", "24"));
+        this.backupSQLiteKeepDays = Integer.parseInt(this.pbProperties.getProperty("backupsqlitekeepdays", "5"));
 
         // Set the newSetup flag
         this.newSetup = this.pbProperties.getProperty("newSetup").equals("true");
@@ -523,44 +526,42 @@ public final class PhantomBot implements Listener {
 
         /* Load the datastore */
         if (dataStoreType.equalsIgnoreCase("inistore")) {
-            dataStore = IniStore.instance(dataStoreConfig);
+            dataStore = IniStore.instance();
         } else if (dataStoreType.equalsIgnoreCase("mysqlstore")) {
+            dataStore = MySQLStore.instance();
             if (this.mySqlPort.isEmpty()) {
-                this.mySqlConn = "jdbc:mysql://" + this.mySqlHost + "/" + this.mySqlName + "?useSSL=false&user=" + this.mySqlUser + "&password=" + this.mySqlPass;
+                this.mySqlConn = "jdbc:mysql://" + this.mySqlHost + "/" + this.mySqlName + "?useSSL=false";
             } else {
-                this.mySqlConn = "jdbc:mysql://" + this.mySqlHost + ":" + this.mySqlPort + "/" + this.mySqlName + "?useSSL=false&user=" + this.mySqlUser + "&password=" + this.mySqlPass;
+                this.mySqlConn = "jdbc:mysql://" + this.mySqlHost + ":" + this.mySqlPort + "/" + this.mySqlName + "?useSSL=false";
             }
-
-            dataStore = MySQLStore.instance(this.mySqlConn);
-
             /* Check to see if we can create a connection */
-            if (!dataStore.CanConnect(this.mySqlConn, this.mySqlUser, this.mySqlPass)) {
+            if (dataStore.CreateConnection(this.mySqlConn, this.mySqlUser, this.mySqlPass) == null) {
                 print("Could not create a connection with MySQL Server. PhantomBot now shutting down...");
                 PhantomBot.exitError();
             }
             /* Convert to MySql */
-            if (IniStore.hasDatabase(dataStoreConfig) && IniStore.instance().GetFileList().length > 0 && MySQLStore.instance().GetFileList().length == 0) {
+            if (IniStore.instance().GetFileList().length > 0 && MySQLStore.instance().GetFileList().length == 0) {
                 DataStoreConverter.convertDataStore(MySQLStore.instance(), IniStore.instance());
-            } else if (SqliteStore.hasDatabase(dataStoreConfig) && SqliteStore.instance().GetFileList().length > 0  && MySQLStore.instance().GetFileList().length == 0) {
+            } else if (SqliteStore.instance().GetFileList().length > 0  && MySQLStore.instance().GetFileList().length == 0) {
                 DataStoreConverter.convertDataStore(MySQLStore.instance(), SqliteStore.instance());
             }
         } else if (dataStoreType.equalsIgnoreCase("h2store")) {
-            dataStore = H2Store.instance(dataStoreConfig);
+            dataStore = H2Store.instance();
 
-            if (!dataStore.CanConnect()) {
+            if (dataStore.CreateConnection("", "", "") == null) {
                 print("Could not create a connection with H2 Database. PhantomBot now shutting down...");
                 PhantomBot.exitError();
             }
 
-            if (SqliteStore.hasDatabase(dataStoreConfig) && SqliteStore.instance().GetFileList().length > 0 && H2Store.instance().GetFileList().length == 0) {
+            if (SqliteStore.instance().GetFileList().length > 0 && H2Store.instance().GetFileList().length == 0) {
                 DataStoreConverter.convertDataStore(H2Store.instance(), SqliteStore.instance());
             }
         } else {
             dataStoreType = "sqlite3store";
-            dataStore = SqliteStore.instance(dataStoreConfig);
+            dataStore = SqliteStore.instance();
 
             /* Convert the inistore to sqlite if the inistore exists and the db is empty */
-            if (IniStore.hasDatabase(dataStoreConfig) && IniStore.instance().GetFileList().length > 0 && SqliteStore.instance().GetFileList().length == 0) {
+            if (IniStore.instance().GetFileList().length > 0 && SqliteStore.instance().GetFileList().length == 0) {
                 DataStoreConverter.convertDataStore(SqliteStore.instance(), IniStore.instance());
             }
 
@@ -845,21 +846,34 @@ public final class PhantomBot implements Listener {
                 }
 
                 if (useHttps) {
-                    /* Set up the panel socket server */
-                    panelSocketSecureServer = new PanelSocketSecureServer(bindIP, panelSocketPort, webOAuth, webOAuthThro, httpsFileName, httpsPassword);
-                    /* Start the panel socket server */
-                    panelSocketSecureServer.start();
-                    print("PanelSocketSecureServer accepting connections on port: " + panelSocketPort + " (SSL)");
+                    if (testPanelServer) {
+                        newPanelSocketServer = new NewPanelSocketServer(panelSocketPort, webOAuth, webOAuthThro, httpsFileName, httpsPassword);
+                        newPanelSocketServer.start();
+                        print("TEST PanelSocketSecureServer accepting connections on port: " + panelSocketPort + " (SSL)");
+                    } else {
+                        /* Set up the panel socket server */
+                        panelSocketSecureServer = new PanelSocketSecureServer(bindIP, panelSocketPort, webOAuth, webOAuthThro, httpsFileName, httpsPassword);
+                        /* Start the panel socket server */
+                        panelSocketSecureServer.start();
+                        print("PanelSocketSecureServer accepting connections on port: " + panelSocketPort + " (SSL)");
+                    }
 
                     /* Set up a new https server */
                     httpsServer = new HTTPSServer(bindIP, (basePort), oauth, webOAuth, panelUsername, panelPassword, httpsFileName, httpsPassword);
                     print("HTTPS server accepting connection on port: " + basePort + " (SSL)");
                 } else {
-                    panelSocketServer = new PanelSocketServer(bindIP, panelSocketPort, webOAuth, webOAuthThro);
-                    /* Set up the NEW panel socket server */
-                    /* Start the panel socket server */
-                    panelSocketServer.start();
-                    print("PanelSocketServer accepting connections on port: " + panelSocketPort);
+                    if (testPanelServer) {
+                        newPanelSocketServer = new NewPanelSocketServer(panelSocketPort, webOAuth, webOAuthThro);
+                        newPanelSocketServer.start();
+                        print("TEST PanelSocketServer accepting connections on port: " + panelSocketPort);
+                    } else {
+                        /* Set up the panel socket server */
+                        panelSocketServer = new PanelSocketServer(bindIP, panelSocketPort, webOAuth, webOAuthThro);
+                        /* Set up the NEW panel socket server */
+                        /* Start the panel socket server */
+                        panelSocketServer.start();
+                        print("PanelSocketServer accepting connections on port: " + panelSocketPort);
+                    }
 
                     /* Set up a new http server */
                     httpServer = new HTTPServer(bindIP, (basePort), oauth, webOAuth, panelUsername, panelPassword);
@@ -1021,6 +1035,9 @@ public final class PhantomBot implements Listener {
         EventBus.instance().register(ConsoleEventHandler.instance());
         //EventBus.instance().register(tv.phantombot.scripts.core.Moderation.instance());
 
+        /* Load the datastore config */
+        dataStore.LoadConfig(dataStoreConfig);
+
         /* Export all these to the $. api in the scripts. */
         Script.global.defineProperty("inidb", dataStore, 0);
         Script.global.defineProperty("username", UsernameCache.instance(), 0);
@@ -1029,7 +1046,11 @@ public final class PhantomBot implements Listener {
         Script.global.defineProperty("channelName", channelName.toLowerCase(), 0);
         Script.global.defineProperty("ownerName", ownerName.toLowerCase(), 0);
         Script.global.defineProperty("ytplayer", (useHttps ? youtubeSocketSecureServer : youtubeSocketServer), 0);
-        Script.global.defineProperty("panelsocketserver", (useHttps ? panelSocketSecureServer : panelSocketServer), 0);
+        if (testPanelServer) {
+            Script.global.defineProperty("panelsocketserver", newPanelSocketServer, 0);
+        } else {
+            Script.global.defineProperty("panelsocketserver", (useHttps ? panelSocketSecureServer : panelSocketServer), 0);
+        }
         Script.global.defineProperty("random", random, 0);
         Script.global.defineProperty("youtube", YouTubeAPIv3.instance(), 0);
         Script.global.defineProperty("shortenURL", BitlyAPIv4.instance(), 0);
@@ -1063,20 +1084,16 @@ public final class PhantomBot implements Listener {
 
         // Moved this to debug only. People are already asking questions.
         if (PhantomBot.enableDebugging) {
-            try {
-                /* Check for bot verification. */
-                print("Bot Verification Status: " + (TwitchAPIv5.instance().getBotVerified(this.botName) ? "" : " NOT ") + "Verified.");
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
-            }
+            /* Check for bot verification. */
+            print("Bot Verification Status: " + (TwitchAPIv5.instance().getBotVerified(this.botName) ? "" : " NOT ") + "Verified.");
         }
 
         /* Check for a update with PhantomBot */
         doCheckPhantomBotUpdate();
 
         /* Perform SQLite datbase backups. */
-        if (this.backupDBAuto) {
-            doBackupDB();
+        if (this.backupSQLiteAuto) {
+            doBackupSQLiteDB();
         }
     }
 
@@ -1134,13 +1151,21 @@ public final class PhantomBot implements Listener {
             print("Shutting down all web socket/http servers...");
             if (!useHttps) {
                 httpServer.close();
-                panelSocketServer.dispose();
+                if (testPanelServer) {
+                    newPanelSocketServer.dispose();
+                } else {
+                    panelSocketServer.dispose();
+                }
                 if (musicEnabled) {
                     youtubeSocketServer.dispose();
                 }
             } else {
                 httpsServer.close();
-                panelSocketSecureServer.dispose();
+                if (testPanelServer) {
+                    newPanelSocketServer.dispose();
+                } else {
+                    panelSocketSecureServer.dispose();
+                }
                 if (musicEnabled) {
                     youtubeSocketSecureServer.dispose();
                 }
@@ -1160,7 +1185,7 @@ public final class PhantomBot implements Listener {
 
         com.gmt2001.Console.out.print("\r\n");
         print("Closing the database...");
-        dataStore.dispose();
+        dataStore.CloseConnection();
 
         print(this.botName + " is exiting.");
     }
@@ -1309,13 +1334,11 @@ public final class PhantomBot implements Listener {
 
     /** Load up main */
     public static void main(String[] args) throws IOException {
-        System.setProperty("io.netty.noUnsafe", "true");
-        
         // Move user files.
         moveUserConfig();
 
-        if (Float.valueOf(System.getProperty("java.specification.version")) < (float) 11) {
-            System.out.println("Detected Java " + System.getProperty("java.version") + ". " + "PhantomBot requires Java 11 or later.");
+        if (Float.valueOf(System.getProperty("java.specification.version")) < (float) 1.8 || Float.valueOf(System.getProperty("java.specification.version")) >= (float) 1.9) {
+            System.out.println("Detected Java " + System.getProperty("java.version") + ". " + "PhantomBot requires Java 8. Java 9 and above will NOT work.");
             PhantomBot.exitError();
         }
 
@@ -1393,37 +1416,29 @@ public final class PhantomBot implements Listener {
      * doCheckPhantomBotUpdate
      */
     private void doCheckPhantomBotUpdate() {
-        if (RepoVersion.getBuildType().startsWith("edge") || RepoVersion.getBuildType().startsWith("custom")) {
-            return;
-        }
-
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(() -> {
-            try {
-                Thread.currentThread().setName("tv.phantombot.PhantomBot::doCheckPhantomBotUpdate");
-                
-                String[] newVersionInfo = GitHubAPIv3.instance().CheckNewRelease();
-                if (newVersionInfo != null) {
-                    try {
-                        Thread.sleep(6000);
-                        print("");
-                        print("New PhantomBot Release Detected: " + newVersionInfo[0]);
-                        print("Release Changelog: https://github.com/PhantomBot/PhantomBot/releases/" + newVersionInfo[0]);
-                        print("Download Link: " + newVersionInfo[1]);
-                        print("A reminder will be provided in 24 hours!");
-                        print("");
-                    } catch (InterruptedException ex) {
-                        com.gmt2001.Console.err.printStackTrace(ex);
-                    }
-                    
-                    if (webEnabled) {
-                        dataStore.set("settings", "newrelease_info", newVersionInfo[0] + "|" + newVersionInfo[1]);
-                    }
-                } else {
-                    dataStore.del("settings", "newrelease_info");
+            Thread.currentThread().setName("tv.phantombot.PhantomBot::doCheckPhantomBotUpdate");
+
+            String[] newVersionInfo = GitHubAPIv3.instance().CheckNewRelease();
+            if (newVersionInfo != null) {
+                try {
+                    Thread.sleep(6000);
+                    print("");
+                    print("New PhantomBot Release Detected: " + newVersionInfo[0]);
+                    print("Release Changelog: https://github.com/PhantomBot/PhantomBot/releases/" + newVersionInfo[0]);
+                    print("Download Link: " + newVersionInfo[1]);
+                    print("A reminder will be provided in 24 hours!");
+                    print("");
+                } catch (InterruptedException ex) {
+                    com.gmt2001.Console.err.printStackTrace(ex);
                 }
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
+
+                if (webEnabled) {
+                    dataStore.set("settings", "newrelease_info", newVersionInfo[0] + "|" + newVersionInfo[1]);
+                }
+            } else {
+                dataStore.del("settings", "newrelease_info");
             }
         }, 0, 24, TimeUnit.HOURS);
     }
@@ -1437,33 +1452,34 @@ public final class PhantomBot implements Listener {
     /**
      * Backup the database, keeping so many days.
      */
-    private void doBackupDB() {
-        if (!this.dataStore.canBackup()) {
+    private void doBackupSQLiteDB() {
+
+        if (!dataStoreType.equals("sqlite3store")) {
             return;
         }
-        
+
         ScheduledExecutorService service = Executors.newSingleThreadScheduledExecutor();
         service.scheduleAtFixedRate(() -> {
-            Thread.currentThread().setName("tv.phantombot.PhantomBot::doBackupDB");
+            Thread.currentThread().setName("tv.phantombot.PhantomBot::doBackupSQLiteDB");
 
             SimpleDateFormat datefmt = new SimpleDateFormat("ddMMyyyy.hhmmss");
             datefmt.setTimeZone(TimeZone.getTimeZone(timeZone));
             String timestamp = datefmt.format(new Date());
 
-            dataStore.backupDB("phantombot.auto.backup." + timestamp + ".db");
+            dataStore.backupSQLite3("phantombot.auto.backup." + timestamp + ".db");
 
             try {
                 Iterator<File> dirIterator = FileUtils.iterateFiles(new File("./dbbackup"), new WildcardFileFilter("phantombot.auto.*"), null);
                 while (dirIterator.hasNext()) {
                     File backupFile = dirIterator.next();
-                    if (FileUtils.isFileOlder(backupFile, (System.currentTimeMillis() - (long) (backupDBKeepDays * 864e5)))) {
+                    if (FileUtils.isFileOlder(backupFile, (System.currentTimeMillis() - (long) (backupSQLiteKeepDays * 864e5)))) {
                         FileUtils.deleteQuietly(backupFile);
                     }
                 }
             } catch (Exception ex) {
                 com.gmt2001.Console.err.println("Failed to clean up database backup directory: " + ex.getMessage());
             }
-        }, 0, backupDBHourFrequency, TimeUnit.HOURS);
+        }, 0, backupSQLiteHourFrequency, TimeUnit.HOURS);
     }
 
     /**

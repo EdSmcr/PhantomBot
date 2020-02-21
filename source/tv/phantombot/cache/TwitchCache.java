@@ -23,10 +23,13 @@
 
 package tv.phantombot.cache;
 
+import com.google.common.collect.Maps;
+
 import java.lang.Math;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.List;
@@ -38,9 +41,7 @@ import org.json.JSONObject;
 import com.gmt2001.TwitchAPIv5;
 import com.illusionaryone.ImgDownload;
 import java.io.File;
-import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.io.FileUtils;
-import org.json.JSONException;
 
 import tv.phantombot.PhantomBot;
 import tv.phantombot.event.EventBus;
@@ -58,7 +59,7 @@ import tv.phantombot.event.twitch.titlechange.TwitchTitleChangeEvent;
  */
 public class TwitchCache implements Runnable {
 
-    private static final Map<String, TwitchCache> instances = new ConcurrentHashMap<>();
+    private static final Map<String, TwitchCache> instances = Maps.newHashMap();
     private final String channel;
     private final Thread updateThread;
     private boolean killed = false;
@@ -158,11 +159,7 @@ public class TwitchCache implements Runnable {
 
             if (doUpdateClips) {
                 doUpdateClips = false;
-                try {
-                    updateClips();
-                } catch (JSONException ex) {
-                    com.gmt2001.Console.err.logStackTrace(ex);
-                }
+                updateClips();
             } else {
                 doUpdateClips = true;
             }
@@ -183,7 +180,7 @@ public class TwitchCache implements Runnable {
      * We do not throw an exception because this is not a critical function unlike the gathering
      * of data via the updateCache() method.
      */
-    private void updateClips() throws JSONException {
+    private void updateClips() {
         String doCheckClips = PhantomBot.instance().getDataStore().GetString("clipsSettings", "", "toggle");
         String discordDoClipsCheck = PhantomBot.instance().getDataStore().GetString("discordSettings", "", "clipsToggle");
         if ((doCheckClips == null || doCheckClips.equals("false")) && (discordDoClipsCheck == null || discordDoClipsCheck.equals("false"))) {

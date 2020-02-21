@@ -193,6 +193,7 @@
                 return;
             }
             $.inidb.RemoveFile("highlights");
+            $.inidb.ReloadFile("highlights");
             return;
         }
 

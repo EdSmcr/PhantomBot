@@ -17,7 +17,7 @@
 
 package tv.phantombot.event.discord.role;
 
-import discord4j.core.object.entity.Role;
+import sx.blah.discord.handle.obj.IRole;
 
 /**
  *
@@ -29,7 +29,7 @@ public class DiscordRoleDeletedEvent extends DiscordRoleEvent {
      * 
      * @param role
      */
-    public DiscordRoleDeletedEvent(Role role) {
+    public DiscordRoleDeletedEvent(IRole role) {
         // Not proper, fix this later.
         super(role);
     }

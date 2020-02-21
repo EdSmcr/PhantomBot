@@ -17,17 +17,15 @@
 
 package tv.phantombot.event.discord.reaction;
 
-import discord4j.core.event.domain.message.MessageEvent;
-import discord4j.core.event.domain.message.ReactionAddEvent;
-import discord4j.core.event.domain.message.ReactionRemoveEvent;
-import discord4j.core.object.reaction.ReactionEmoji;
+import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
+import sx.blah.discord.handle.obj.IReaction;
 
 /**
  *
  * @author Branden
  */
 public class DiscordMessageReactionEvent extends DiscordReactionEvent {
-    private final MessageEvent event;
+    private final ReactionEvent event;
     private final ReactionType type;
     
     /**
@@ -44,24 +42,11 @@ public class DiscordMessageReactionEvent extends DiscordReactionEvent {
      * @param event 
      * @param type 
      */
-    public DiscordMessageReactionEvent(ReactionAddEvent event) {
-        super(event.getUser().block(), event.getChannel().block());
+    public DiscordMessageReactionEvent(ReactionEvent event, ReactionType type) {
+        super(event.getUser(), event.getChannel());
         
         this.event = event;
-        this.type = ReactionType.ADD;
-    }
-    
-    /**
-     * Class constructor.
-     * 
-     * @param event 
-     * @param type 
-     */
-    public DiscordMessageReactionEvent(ReactionRemoveEvent event) {
-        super(event.getUser().block(), event.getChannel().block());
-        
-        this.event = event;
-        this.type = ReactionType.REMOVE;
+        this.type = type;
     }
     
     /**
@@ -69,12 +54,8 @@ public class DiscordMessageReactionEvent extends DiscordReactionEvent {
      * 
      * @return 
      */
-    public ReactionEmoji getReactionEmoji() {
-        if (type == ReactionType.ADD) {
-            return ((ReactionAddEvent)event).getEmoji();
-        } else {
-            return ((ReactionRemoveEvent)event).getEmoji();
-        }
+    public IReaction getReaction() {
+        return event.getReaction();
     }
     
     /**
@@ -91,7 +72,7 @@ public class DiscordMessageReactionEvent extends DiscordReactionEvent {
      * 
      * @return 
      */
-    public MessageEvent getEvent() {
+    public ReactionEvent getEvent() {
         return event;
     }
 }

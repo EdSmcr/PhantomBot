@@ -16,7 +16,7 @@
  */
 package tv.phantombot.event.discord.channel;
 
-import discord4j.core.object.entity.User;
+import sx.blah.discord.handle.obj.IUser;
 
 public class DiscordChannelJoinEvent extends DiscordChannelEvent {
 
@@ -25,7 +25,7 @@ public class DiscordChannelJoinEvent extends DiscordChannelEvent {
      *
      * @param {IUser} user
      */
-    public DiscordChannelJoinEvent(User user) {
+    public DiscordChannelJoinEvent(IUser user) {
         super(user);
     }
 }

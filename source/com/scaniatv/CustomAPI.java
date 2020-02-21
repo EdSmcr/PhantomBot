@@ -20,25 +20,32 @@ package com.scaniatv;
 
 import com.gmt2001.HttpRequest;
 import com.gmt2001.HttpResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.MalformedURLException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
+import java.nio.charset.Charset;
 
+import java.util.Iterator;
 import java.util.HashMap;
+import javax.net.ssl.HttpsURLConnection;
 
 import org.json.JSONObject;
 import org.json.JSONException;
 
 public class CustomAPI {
-    private static CustomAPI instance;
+    private static final CustomAPI instance = new CustomAPI();
 
     /*
      * Method to the this instance.
      *
      * @return {Object}
      */
-    public static synchronized CustomAPI instance() {
-        if (instance == null) {
-            instance = new CustomAPI();
-        }
-        
+    public static CustomAPI instance() {
         return instance;
     }
 
@@ -55,7 +62,7 @@ public class CustomAPI {
      * @param  {String} url
      * @return {JSONObject}
      */
-    public JSONObject getJSON(String url) throws JSONException {
+    public JSONObject getJSON(String url) {
         try {
             HttpResponse data = HttpRequest.getData(HttpRequest.RequestType.GET, url, "", new HashMap<String, String>());
             if (data.success) {
@@ -111,7 +118,8 @@ public class CustomAPI {
     public HttpResponse del(String url, String content) {
         return HttpRequest.getData(HttpRequest.RequestType.DELETE, url, content, new HashMap<String, String>());
     }
-	/*
+    
+    /*
      * Reads data from an API. In this case its tipeeestream.
      */
     @SuppressWarnings("UseSpecificCatch")

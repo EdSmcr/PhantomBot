@@ -17,8 +17,8 @@
 
 package tv.phantombot.event.discord.reaction;
 
-import discord4j.core.object.entity.Channel;
-import discord4j.core.object.entity.User;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IUser;
 
 import tv.phantombot.event.discord.DiscordEvent;
 
@@ -33,7 +33,7 @@ public abstract class DiscordReactionEvent extends DiscordEvent {
      *
      * @param {IUser} user
      */
-    protected DiscordReactionEvent(User user) {
+    protected DiscordReactionEvent(IUser user) {
         super(user);
     }
 
@@ -43,7 +43,7 @@ public abstract class DiscordReactionEvent extends DiscordEvent {
      * @param {IUser}    user
      * @param {IChannel} channel
      */
-    protected DiscordReactionEvent(User user, Channel channel) {
+    protected DiscordReactionEvent(IUser user, IChannel channel) {
         super(user, channel);
     }
 }

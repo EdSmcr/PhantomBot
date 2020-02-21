@@ -33,7 +33,7 @@ public class ScriptFileWatcher implements Runnable {
      *
      * @return {Object}
      */
-    public static synchronized ScriptFileWatcher instance() {
+    public static ScriptFileWatcher instance() {
         if (instance == null) {
             instance = new ScriptFileWatcher();
         } 

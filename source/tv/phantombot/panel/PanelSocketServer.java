@@ -207,11 +207,7 @@ public class PanelSocketServer extends WebSocketServer {
             MessageRunnable messageRunnable = new MessageRunnable(webSocket, jsonString);
             new Thread(messageRunnable, "tv.phantombot.panel.PanelSocketServer::MessageRunnable").start();
         } catch (Exception ex) {
-            try {
-                handleMessage(webSocket, jsonString);
-            } catch (JSONException ex1) {
-                com.gmt2001.Console.err.logStackTrace(ex);
-            }
+            handleMessage(webSocket, jsonString);
         }
     }
 
@@ -221,7 +217,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param webSocket  The WebSocket object for this message.
      * @param jsonString The message that was received on the WebSocket, assumed to be a JSON message.
      */
-    private void handleMessage(WebSocket webSocket, String jsonString) throws JSONException {
+    private void handleMessage(WebSocket webSocket, String jsonString) {
         JSONObject jsonObject;
         JSONArray  jsonArray;
         wsSession  sessionData;
@@ -437,7 +433,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param hasAuth If the auth was the right one.
      * @param type type of auth none, read or read/write.
      */
-    private void handleAuth(WebSocket webSocket, String hasAuth, String type) throws JSONException {
+    private void handleAuth(WebSocket webSocket, String hasAuth, String type) {
         JSONStringer jsonObject = new JSONStringer();
 
         jsonObject.object().key("authresult").value(hasAuth).key("authtype").value(type).endObject();
@@ -453,7 +449,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param id        Optional unique ID which is sent back to the WebSocket.
      * @param async     If the command should be sent in async.
      */
-    private void doHandleCommand(WebSocket webSocket, String command, String username, String id, boolean async) throws JSONException {
+    private void doHandleCommand(WebSocket webSocket, String command, String username, String id, boolean async) {
         if (async) {
             PhantomBot.instance().handleCommand(username, command);
         } else {
@@ -473,7 +469,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param webSocket The WebSocket which requested the version.
      * @param id        The unique ID which is sent back to the WebSocket.
      */
-    private void doVersion(WebSocket webSocket, String id) throws JSONException {
+    private void doVersion(WebSocket webSocket, String id) {
         JSONStringer jsonObject = new JSONStringer();
         String version;
 
@@ -503,7 +499,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param table     Table name to query.
      * @param key       Key to query with.
      */
-    private void doDBQuery(WebSocket webSocket, String id, String table, String key) throws JSONException {
+    private void doDBQuery(WebSocket webSocket, String id, String table, String key) {
         JSONStringer jsonObject = new JSONStringer();
         String value;
 
@@ -530,7 +526,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param id        The unique ID which is sent back to the WebSocket.
      * @param table     Table name to query.
      */
-    private void doDBKeysQuery(WebSocket webSocket, String id, String table) throws JSONException {
+    private void doDBKeysQuery(WebSocket webSocket, String id, String table) {
         JSONStringer jsonObject = new JSONStringer();
 
         jsonObject.object().key("query_id").value(id).key("results").array();
@@ -564,7 +560,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param table     Table name to query.
      * @param jsonArray JSON array object that holds a list of keys to query against the table with.
      */
-    private void doDBKeysListQuery(WebSocket webSocket, String id, JSONArray jsonArray) throws JSONException {
+    private void doDBKeysListQuery(WebSocket webSocket, String id, JSONArray jsonArray) {
         JSONStringer jsonObject = new JSONStringer();
 
         if (jsonArray.length() == 0) {
@@ -606,7 +602,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param offset    the offset
      * @param order     ASC or DESC
      */
-    private void doDBKeysByOrder(WebSocket webSocket, String id, String table, String limit, String offset, String order) throws JSONException {
+    private void doDBKeysByOrder(WebSocket webSocket, String id, String table, String limit, String offset, String order) {
         JSONStringer jsonObject = new JSONStringer();
 
         jsonObject.object().key("query_id").value(id).key("results").array();
@@ -643,7 +639,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param order     ASC or DESC
      * @param isNumber  true or false
      */
-    private void doDBValuesByOrder(WebSocket webSocket, String id, String table, String limit, String offset, String order, String isNumber) throws JSONException {
+    private void doDBValuesByOrder(WebSocket webSocket, String id, String table, String limit, String offset, String order, String isNumber) {
         JSONStringer jsonObject = new JSONStringer();
 
         jsonObject.object().key("query_id").value(id).key("results").array();
@@ -682,7 +678,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param table     Table name to query.
      * @param key       key to search
      */
-    private void doDBKeysSearch(WebSocket webSocket, String id, String table, String key, String order, String limit, String offset) throws JSONException {
+    private void doDBKeysSearch(WebSocket webSocket, String id, String table, String key, String order, String limit, String offset) {
         JSONStringer jsonObject = new JSONStringer();
 
         jsonObject.object().key("query_id").value(id).key("results").array();
@@ -717,7 +713,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param key       The key to update.
      * @param value     The value to insert into the table related to the key.
      */
-    private void doDBUpdate(WebSocket webSocket, String id, String table, String key, String value) throws JSONException {
+    private void doDBUpdate(WebSocket webSocket, String id, String table, String key, String value) {
         JSONStringer jsonObject = new JSONStringer();
         try {
             PhantomBot.instance().getDataStore().set(table, key, value);
@@ -741,7 +737,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param key       The key to update.
      * @param value     The value to increment into the table related to the key.
      */
-    private void doDBIncr(WebSocket webSocket, String id, String table, String key, String value) throws JSONException {
+    private void doDBIncr(WebSocket webSocket, String id, String table, String key, String value) {
         JSONStringer jsonObject = new JSONStringer();
         try {
             PhantomBot.instance().getDataStore().incr(table, key, Integer.parseInt(value));
@@ -765,7 +761,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param key       The key to update.
      * @param value     The value to decrement into the table related to the key.
      */
-    private void doDBDecr(WebSocket webSocket, String id, String table, String key, String value) throws JSONException {
+    private void doDBDecr(WebSocket webSocket, String id, String table, String key, String value) {
         JSONStringer jsonObject = new JSONStringer();
         try {
             PhantomBot.instance().getDataStore().decr(table, key, Integer.parseInt(value));
@@ -787,7 +783,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param table     Table name to update.
      * @param key       The key to delete.
      */
-    private void doDBDelKey(WebSocket webSocket, String id, String table, String key) throws JSONException {
+    private void doDBDelKey(WebSocket webSocket, String id, String table, String key) {
         JSONStringer jsonObject = new JSONStringer();
         try {
             PhantomBot.instance().getDataStore().del(table, key);
@@ -806,7 +802,7 @@ public class PanelSocketServer extends WebSocketServer {
      *
      * @param audioHook The name of the audio clip to play.
      */
-    public void triggerAudioPanel(String audioHook) throws JSONException {
+    public void triggerAudioPanel(String audioHook) {
         JSONStringer jsonObject = new JSONStringer();
         jsonObject.object().key("audio_panel_hook").value(audioHook).endObject();
         debugMsg("triggerAudioPanel(" + audioHook + ")");
@@ -816,7 +812,7 @@ public class PanelSocketServer extends WebSocketServer {
     /**
      * Peforms a forced query of the audio_hooks table to update audio hooks.
      */
-    public void doAudioHooksUpdate() throws JSONException {
+    public void doAudioHooksUpdate() {
         doDBKeysQuery(null, "audio_hook_reload", "audio_hooks");
     }
 
@@ -826,7 +822,7 @@ public class PanelSocketServer extends WebSocketServer {
      *
      * @param imageInfo The information relating to the image to display.
      */
-    public void alertImage(String imageInfo) throws JSONException {
+    public void alertImage(String imageInfo) {
         JSONStringer jsonObject = new JSONStringer();
         jsonObject.object().key("alert_image").value(imageInfo).endObject();
         debugMsg("alertImage(" + imageInfo +")");
@@ -842,7 +838,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param arguments Any arguments that are needed for the event.
      * @param jsonArray Arguments provided in a JSONArray to be parsed out and processed.
      */
-    private void doWSEvent(WebSocket webSocket, String id, String script, String arguments, JSONArray jsonArray) throws JSONException {
+    private void doWSEvent(WebSocket webSocket, String id, String script, String arguments, JSONArray jsonArray) {
         JSONStringer jsonObject = new JSONStringer();
         List<String> tempArgs = new LinkedList<>();
         String[] args = null;
@@ -904,7 +900,7 @@ public class PanelSocketServer extends WebSocketServer {
      * @param  oauth   OAUTH to use to identify and authenticate a user.
      * @return         Indicates if authentication was successful.
      */
-    private Boolean authenticateOauth(String oauth) throws JSONException {
+    private Boolean authenticateOauth(String oauth) {
         String value;
         String authUsername = TwitchAPIv5.instance().GetUserFromOauth(oauth);
 
@@ -1033,11 +1029,7 @@ public class PanelSocketServer extends WebSocketServer {
          */
         @Override
         public void run() {
-            try {
-                handleMessage(webSocket, jsonString);
-            } catch (JSONException ex) {
-                com.gmt2001.Console.err.logStackTrace(ex);
-            }
+            handleMessage(webSocket, jsonString);
         }
     }
 }

@@ -16,36 +16,35 @@
  */
 package tv.phantombot.discord.util;
 
-import discord4j.core.object.entity.Channel;
-import discord4j.core.object.entity.GuildChannel;
-import discord4j.core.object.entity.GuildEmoji;
-import discord4j.core.object.entity.GuildMessageChannel;
-import discord4j.core.object.entity.Member;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.MessageChannel;
-import discord4j.core.object.entity.PrivateChannel;
-import discord4j.core.object.entity.Role;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.presence.Activity;
-import discord4j.core.object.presence.Presence;
-import discord4j.core.object.reaction.ReactionEmoji;
-import discord4j.core.object.util.Permission;
-import discord4j.core.object.util.PermissionSet;
-import discord4j.core.object.util.Snowflake;
-import discord4j.core.spec.EmbedCreateSpec;
-import discord4j.rest.http.client.ClientException;
-import discord4j.rest.json.response.ErrorResponse;
-import java.awt.Color;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.regex.Matcher;
+import com.vdurmont.emoji.Emoji;
+import sx.blah.discord.api.internal.json.objects.EmbedObject;
+
+import sx.blah.discord.handle.obj.Permissions;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.handle.obj.IRole;
+
+import sx.blah.discord.util.MissingPermissionsException;
+import sx.blah.discord.util.DiscordException;
+import sx.blah.discord.util.RequestBuffer;
+import sx.blah.discord.util.EmbedBuilder;
+
 import java.util.regex.Pattern;
-import reactor.core.publisher.Flux;
+import java.util.regex.Matcher;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import java.io.FileNotFoundException;
+import java.io.File;
+
+import java.awt.Color;
+import sx.blah.discord.handle.impl.obj.ReactionEmoji;
+
+import sx.blah.discord.handle.obj.ActivityType;
+import sx.blah.discord.handle.obj.StatusType;
+
 import tv.phantombot.discord.DiscordAPI;
 
 /**
@@ -56,18 +55,15 @@ import tv.phantombot.discord.DiscordAPI;
  */
 public class DiscordUtil {
 
-    public DiscordUtil() {
-    }
-
     /**
      * Method that removes the # in the channel name.
      *
-     * @param channelName
+     * @param  channelName
      * @return {String}
      */
     public String sanitizeChannelName(String channelName) {
         // We have to make sure that it's at the start.
-        if (channelName.charAt(0) == '#') {
+        if (channelName.startsWith("#")) {
             return channelName.substring(1);
         } else {
             return channelName;
@@ -77,37 +73,38 @@ public class DiscordUtil {
     /**
      * Method to send a message to a channel.
      *
-     * @param channel
-     * @param message
-     * @return {Message}
+     * @param  channel
+     * @param  message
+     * @return {IMessage}
      */
-    public Message sendMessage(MessageChannel channel, String message) {
-        if (channel != null) {
-            if (channel.getType() == Channel.Type.DM) {
-                sendPrivateMessage((PrivateChannel) channel, message);
+    public IMessage sendMessage(IChannel channel, String message) {
+        return RequestBuffer.request(() -> {
+            try {
+                if (channel != null) {
+                    com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [CHAT] " + message);
+
+                    return channel.sendMessage(message);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendMessage(channel, message);
+                } else {
+                    // Throw this if the channel object is null.
+                    throw new DiscordException("Failed to send message due to the channel object being null.");
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to send a message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
                 return null;
             }
-
-            com.gmt2001.Console.out.println("[DISCORD] [#" + ((GuildMessageChannel) channel).getName() + "] [CHAT] " + message);
-
-            return channel.createMessage(message).doOnError(e -> {
-                com.gmt2001.Console.err.printStackTrace(e);
-            }).onErrorReturn(null).block();
-        } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
-            return sendMessage(channel, message);
-        } else {
-            throw new IllegalArgumentException("channel object was null");
-        }
+        }).get();
     }
 
     /**
      * Method to send a message to a channel.
      *
-     * @param channelName
-     * @param message
-     * @return {Message}
+     * @param  channelName
+     * @param  message
+     * @return {IMessage}
      */
-    public Message sendMessage(String channelName, String message) {
+    public IMessage sendMessage(String channelName, String message) {
         return sendMessage(getChannel(channelName), message);
     }
 
@@ -117,16 +114,23 @@ public class DiscordUtil {
      * @param user
      * @param message
      */
-    public void sendPrivateMessage(User user, String message) {
-        if (user != null) {
-            PrivateChannel channel = user.getPrivateChannel().doOnError(e -> {
-                com.gmt2001.Console.err.printStackTrace(e);
-            }).block();
+    public void sendPrivateMessage(IUser user, String message) {
+        RequestBuffer.request(() -> {
+            try {
+                if (user != null) {
+                    com.gmt2001.Console.out.println("[DISCORD] [@" + user.getName().toLowerCase() + "#" + user.getDiscriminator() + "] [DM] " + message);
 
-            sendPrivateMessage(channel, message);
-        } else {
-            throw new IllegalArgumentException("user object was null");
-        }
+                    user.getOrCreatePMChannel().sendMessage(message);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    sendPrivateMessage(user, message);
+                } else {
+                    // Throw this if the user object is null.
+                    throw new DiscordException("Failed to send private message due to the user being null.");
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to send a private message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        });
     }
 
     /**
@@ -140,137 +144,120 @@ public class DiscordUtil {
     }
 
     /**
-     * Method to send private messages to a user.
-     *
-     * @param userName
-     * @param message
-     */
-    public void sendPrivateMessage(PrivateChannel channel, String message) {
-        if (channel != null) {
-            User user = channel.getRecipients().blockFirst();
-            com.gmt2001.Console.out.println("[DISCORD] [@" + user.getUsername().toLowerCase() + "#" + user.getDiscriminator() + "] [DM] " + message);
-
-            channel.createMessage(message).doOnError(e -> {
-                com.gmt2001.Console.err.printStackTrace(e);
-            }).block();
-        } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
-            sendPrivateMessage(channel, message);
-        } else {
-            throw new IllegalArgumentException("channel object was null");
-        }
-    }
-
-    /**
      * Method to send embed messages.
      *
-     * @param channel
-     * @param embed
-     * @return {Message}
+     * @param  channel
+     * @param  builder
+     * @return {IMessage}
      */
-    public Message sendMessageEmbed(GuildMessageChannel channel, Consumer<? super EmbedCreateSpec> embed) {
-        if (channel != null) {
-            Message m = channel.createMessage(msg
-                    -> msg.setEmbed(embed)
-            ).doOnError(e -> {
-                com.gmt2001.Console.err.printStackTrace(e);
-            }).onErrorReturn(null).block();
+    public IMessage sendMessageEmbed(IChannel channel, EmbedObject builder) {
+        return RequestBuffer.request(() -> {
+            try {
+                if (channel != null && builder != null) {
+                    com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [EMBED] ");
 
-            if (m != null) {
-                com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [EMBED] " + m.getEmbeds().get(0).getDescription().orElse(m.getEmbeds().get(0).getTitle().orElse("")));
+                    return channel.sendMessage(builder);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendMessageEmbed(channel, builder);
+                } else {
+                    // Throw this if the channel and builder object is null.
+                    throw new DiscordException("Failed to send embed message due to either the channel or builder being null.");
+                }
+            } catch (MissingPermissionsException | IllegalArgumentException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to send an embed message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+                return null;
             }
+        }).get();
+    }
 
-            return m;
-        } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
-            return sendMessageEmbed(channel, embed);
-        } else {
-            throw new IllegalArgumentException("channel object was null");
-        }
+    /**
+     * Method to send embed messages.
+     *
+     * @param  channelName
+     * @param builder
+     * @return {IMessage}
+     */
+    public IMessage sendMessageEmbed(String channelName, EmbedObject builder) {
+        return sendMessageEmbed(getChannel(channelName), builder);
+    }
+
+    /**
+     * Method to send embed messages.
+     *
+     * @param  channel
+     * @param  message
+     * @param  color
+     * @return {IMessage}
+     */
+    public IMessage sendMessageEmbed(IChannel channel, String color, String message) {
+        return RequestBuffer.request(() -> {
+            try {
+                EmbedObject builder = new EmbedBuilder().withDescription(message).withColor(getColor(color)).build();
+
+                if (channel != null) {
+                    com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [EMBED] " + message);
+
+                    return channel.sendMessage(builder);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendMessageEmbed(channel, color, message);
+                } else {
+                    // Throw this if the channel object is null.
+                    throw new DiscordException("Failed to send embed message due to the channel being null.");
+                }
+            } catch (MissingPermissionsException | IllegalArgumentException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to send an embed message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+                return null;
+            }
+        }).get();
     }
 
     /**
      * Method to send embed messages.
      *
      * @param channelName
-     * @param embed
-     * @return {Message}
-     */
-    public Message sendMessageEmbed(String channelName, Consumer<? super EmbedCreateSpec> embed) {
-        return sendMessageEmbed(getChannel(channelName), embed);
-    }
-
-    /**
-     * Method to send embed messages.
-     *
-     * @param channel
      * @param message
      * @param color
-     * @return {Message}
+     * @return {IMessage}
      */
-    public Message sendMessageEmbed(GuildMessageChannel channel, String color, String message) {
-        return sendMessageEmbed(channel, ebd
-                -> ebd.setColor(getColor(color)).setDescription(message)
-        );
-    }
-
-    /**
-     * Method to send embed messages.
-     *
-     * @param channelName
-     * @param message
-     * @param color
-     * @return {Message}
-     */
-    public Message sendMessageEmbed(String channelName, String color, String message) {
+    public IMessage sendMessageEmbed(String channelName, String color, String message) {
         return sendMessageEmbed(getChannel(channelName), color, message);
     }
 
     /**
      * Method to send a file to a channel.
      *
-     * @param channel
-     * @param message
-     * @param fileLocation
-     * @return {Message}
+     * @param  channel
+     * @param  message
+     * @param  fileLocation
+     * @return {IMessage}
      */
-    public Message sendFile(GuildMessageChannel channel, String message, String fileLocation) {
-        if (channel != null) {
-            if (fileLocation.contains("..")) {
-                com.gmt2001.Console.err.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "] Rejecting fileLocation that contains '..'");
-                return null;
-            } else {
-                com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "] " + message);
+    public IMessage sendFile(IChannel channel, String message, String fileLocation) {
+        return RequestBuffer.request(() -> {
+            try {
+                if (channel != null) {
+                    if (fileLocation.contains("..")) {
+                        com.gmt2001.Console.err.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "] Rejecting fileLocation that contains '..'");
+                        return null;
+                    } else {
+                        com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "] " + message);
 
-                if (message.isEmpty()) {
-                    return channel.createMessage(msg
-                            -> {
-                        try {
-                            msg.addFile(fileLocation, Files.newInputStream(Paths.get(fileLocation)));
-                        } catch (IOException ex) {
-                            com.gmt2001.Console.err.printStackTrace(ex);
+                        if (message.isEmpty()) {
+                            return channel.sendFile(new File("addons/" + fileLocation));
+                        } else {
+                            return channel.sendFile(message, new File("addons/" + fileLocation));
                         }
                     }
-                    ).doOnError(e -> {
-                        com.gmt2001.Console.err.printStackTrace(e);
-                    }).onErrorReturn(null).block();
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    return sendFile(channel, message, fileLocation);
                 } else {
-                    return channel.createMessage(msg
-                            -> {
-                        try {
-                            msg.addFile(fileLocation, Files.newInputStream(Paths.get(fileLocation))).setContent(message);
-                        } catch (IOException ex) {
-                            com.gmt2001.Console.err.printStackTrace(ex);
-                        }
-                    }
-                    ).doOnError(e -> {
-                        com.gmt2001.Console.err.printStackTrace(e);
-                    }).onErrorReturn(null).block();
+                    // Throw this if the channel object is null.
+                    throw new DiscordException("Failed to send file message due to the channel being null.");
                 }
+            } catch (MissingPermissionsException | FileNotFoundException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to upload a file: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+                return null;
             }
-        } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
-            return sendFile(channel, message, fileLocation);
-        } else {
-            throw new IllegalArgumentException("channel object was null");
-        }
+        }).get();
     }
 
     /**
@@ -279,20 +266,20 @@ public class DiscordUtil {
      * @param channelName
      * @param message
      * @param fileLocation
-     * @return {Message}
+     * @return {IMessage}
      */
-    public Message sendFile(String channelName, String message, String fileLocation) {
+    public IMessage sendFile(String channelName, String message, String fileLocation) {
         return sendFile(getChannel(channelName), message, fileLocation);
     }
 
     /**
      * Method to send a file to a channel.
      *
-     * @param channel
-     * @param fileLocation
-     * @return {Message}
+     * @param  channel
+     * @param  fileLocation
+     * @return {IMessage}
      */
-    public Message sendFile(GuildMessageChannel channel, String fileLocation) {
+    public IMessage sendFile(IChannel channel, String fileLocation) {
         return sendFile(channel, "", fileLocation);
     }
 
@@ -301,9 +288,9 @@ public class DiscordUtil {
      *
      * @param channelName
      * @param fileLocation
-     * @return {Message}
+     * @return {IMessage}
      */
-    public Message sendFile(String channelName, String fileLocation) {
+    public IMessage sendFile(String channelName, String fileLocation) {
         return sendFile(getChannel(channelName), "", fileLocation);
     }
 
@@ -313,15 +300,55 @@ public class DiscordUtil {
      * @param message The message object
      * @param emoji The reaction object
      */
-    public void addReaction(Message message, ReactionEmoji emoji) {
-        if (message != null && emoji != null) {
-            message.addReaction(emoji).doOnError(e -> {
-                com.gmt2001.Console.err.printStackTrace(e);
-            }).block();
-        } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+    public void addReaction(IMessage message, ReactionEmoji emoji) {
+        RequestBuffer.request(() -> {
+            try {
+                if (message != null && emoji != null) {
+                    message.addReaction(emoji);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    addReaction(message, emoji);
+                } else {
+                    // Throw this if the message object is null.
+                    throw new DiscordException("Failed to add reaction to message due to the message or reaction being null.");
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to add a reaction: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        }).get();
+    }
+
+    /**
+     * Method that adds a reaction to a message.
+     *
+     * @param message The message object
+     * @param emoji The reaction object
+     */
+    public void addReaction(IMessage message, Emoji emoji) {
+        RequestBuffer.request(() -> {
+            try {
+                if (message != null && emoji != null) {
+                    message.addReaction(emoji);
+                } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
+                    addReaction(message, emoji);
+                } else {
+                    // Throw this if the message object is null.
+                    throw new DiscordException("Failed to add reaction to message due to the message or reaction being null.");
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to add a reaction: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        }).get();
+    }
+
+    /**
+     * Method that adds multiple reactions to a message.
+     *
+     * @param message The message object
+     * @param emojis The reaction objects
+     */
+    public void addReactions(IMessage message, ReactionEmoji[] emojis) {
+        for (ReactionEmoji emoji : emojis) {
             addReaction(message, emoji);
-        } else {
-            throw new IllegalArgumentException("message or emoji object was null");
         }
     }
 
@@ -331,83 +358,28 @@ public class DiscordUtil {
      * @param message The message object
      * @param emojis The reaction objects
      */
-    public void addReactions(Message message, ReactionEmoji... emojis) {
-        for (ReactionEmoji emoji : emojis) {
+    public void addReactions(IMessage message, Emoji[] emojis) {
+        for (Emoji emoji : emojis) {
             addReaction(message, emoji);
-        }
-    }
-
-    /**
-     * Method that adds a reaction to a message.
-     *
-     * @param message The message object
-     * @param emoji The emoji unicode
-     */
-    public void addReaction(Message message, String emoji) {
-        List<GuildEmoji> gel = DiscordAPI.getGuild().getEmojis().collectList().block();
-        ReactionEmoji re = null;
-
-        if (gel != null) {
-            for (GuildEmoji ge : gel) {
-                if (ge.getName().equalsIgnoreCase(emoji)) {
-                    re = ReactionEmoji.custom(ge);
-                }
-            }
-        }
-
-        if (re == null) {
-            re = ReactionEmoji.unicode(emoji);
-        }
-
-        addReaction(message, re);
-    }
-
-    /**
-     * Method that adds a reaction to a message.
-     *
-     * @param message The message object
-     * @param emojis The emoji unicodes
-     */
-    public void addReactions(Message message, String... emojis) {
-        List<GuildEmoji> gel = DiscordAPI.getGuild().getEmojis().collectList().block();
-        ReactionEmoji re;
-        for (String emoji : emojis) {
-            re = null;
-
-            if (gel != null) {
-                for (GuildEmoji ge : gel) {
-                    if (ge.getName().equalsIgnoreCase(emoji)) {
-                        re = ReactionEmoji.custom(ge);
-                    }
-                }
-            }
-
-            if (re == null) {
-                re = ReactionEmoji.unicode(emoji);
-            }
-
-            addReaction(message, re);
         }
     }
 
     /**
      * Method to return a channel object by its name.
      *
-     * @param channelName - The name of the channel.
-     * @return {Channel}
+     * @param  channelName - The name of the channel.
+     * @return {IChannel}
      */
-    public GuildMessageChannel getChannel(String channelName) {
+    public IChannel getChannel(String channelName) throws NullPointerException {
         // Remove any # in the channel name.
         channelName = sanitizeChannelName(channelName);
+        
+        List<IChannel> channels = DiscordAPI.getGuild().getChannels();
 
-        List<GuildChannel> channels = DiscordAPI.getGuild().getChannels().collectList().block();
-
-        if (channels != null) {
-            for (GuildChannel channel : channels) {
-                if (channel.getName().equalsIgnoreCase(channelName)
-                        || channel.getId().asString().equals(channelName)) {
-                    return (GuildMessageChannel) channel;
-                }
+        for (IChannel channel : channels) {
+            if (channel.getName().equalsIgnoreCase(channelName)
+                    || channel.getStringID().equals(channelName)) {
+                return channel;
             }
         }
 
@@ -417,102 +389,87 @@ public class DiscordUtil {
     /**
      * Method to return a channel object by its ID.
      *
-     * @param channelId - The string ID of the channel
-     * @return {Channel}
+     * @param   channelId - The string ID of the channel
+     * @return {IChannel}
      */
-    public GuildMessageChannel getChannelByID(String channelId) {
-        List<GuildChannel> channels = DiscordAPI.getGuild().getChannels().collectList().block();
+    public IChannel getChannelByID(String channelId) throws NullPointerException {
+        List<IChannel> channels = DiscordAPI.getGuild().getChannels();
 
-        if (channels != null) {
-            for (GuildChannel channel : channels) {
-                if (channel.getId().asString().equals(channelId)) {
-                    return (GuildMessageChannel) channel;
-                }
+        for (IChannel channel : channels) {
+            if (channel.getStringID().equals(channelId)) {
+                return channel;
             }
         }
-
         return null;
     }
 
     /**
      * Method to return a user object by its name.
      *
-     * @param userName - The user's name.
-     * @return {User}
+     * @param  userName - The user's name.
+     * @return {IUser}
      */
-    public User getUser(String userName) {
-        List<Member> users = DiscordAPI.getGuild().getMembers().collectList().block();
+    public IUser getUser(String userName) throws NullPointerException {
+        List<IUser> users = DiscordAPI.getGuild().getUsers();
 
-        if (users != null) {
-            for (Member user : users) {
-                if (user.getDisplayName().equalsIgnoreCase(userName)) {
-                    return user;
-                }
+        for (IUser user : users) {
+            if (user.getDisplayName(DiscordAPI.getGuild()).equalsIgnoreCase(userName)) {
+                return user;
             }
         }
-
         return null;
     }
 
     /**
      * Method to return a user object by its id.
      *
-     * @param userId - The ID of the user.
-     * @return {User}
+     * @param  userId - The ID of the user.
+     * @return {IUser}
      */
-    public User getUserById(long userId) {
-        List<Member> users = DiscordAPI.getGuild().getMembers().collectList().block();
+    public IUser getUserById(long userId) throws NullPointerException {
+        List<IUser> users = DiscordAPI.getGuild().getUsers();
 
-        if (users != null) {
-            for (Member user : users) {
-                if (user.getId().asLong() == userId) {
-                    return user;
-                }
+        for (IUser user : users) {
+            if (user.getLongID() == userId) {
+                return user;
             }
         }
-
         return null;
     }
 
     /**
      * Method to return a user object by its name and its discriminator.
      *
-     * @param userName
-     * @param discriminator
-     * @return {User}
+     * @param  userName
+     * @param  discriminator
+     * @return {IUser}
      */
-    public User getUserWithDiscriminator(String userName, String discriminator) {
-        List<Member> users = DiscordAPI.getGuild().getMembers().collectList().block();
+    public IUser getUserWithDiscriminator(String userName, String discriminator) throws NullPointerException {
+        List<IUser> users = DiscordAPI.getGuild().getUsersByName(userName, true);
 
-        if (users != null) {
-            for (Member user : users) {
-                if (user.getDisplayName().equalsIgnoreCase(userName)
-                        && user.getDiscriminator().equalsIgnoreCase(discriminator)) {
-                    return user;
-                }
+        for (IUser user : users) {
+            if (user.getDisplayName(DiscordAPI.getGuild()).equalsIgnoreCase(userName)
+                    && user.getDiscriminator().equalsIgnoreCase(discriminator)) {
+                return user;
             }
         }
-
         return null;
     }
 
     /**
      * Method to return a role object by its name.
      *
-     * @param roleName
-     * @return {Role}
+     * @param  roleName
+     * @return {IRole}
      */
-    public Role getRole(String roleName) {
-        List<Role> roles = DiscordAPI.getGuild().getRoles().collectList().block();
+    public IRole getRole(String roleName) throws NullPointerException {
+        List<IRole> roles = DiscordAPI.getClient().getRoles();
 
-        if (roles != null) {
-            for (Role role : roles) {
-                if (role.getName().equalsIgnoreCase(roleName)) {
-                    return role;
-                }
+        for (IRole role : roles) {
+            if (role.getName().equalsIgnoreCase(roleName)) {
+                return role;
             }
         }
-
         return null;
     }
 
@@ -520,67 +477,53 @@ public class DiscordUtil {
      * Method that returns a role by its ID.
      *
      * @param id
-     * @return {Role}
+     * @return
      */
-    public Role getRoleByID(String id) {
-        List<Role> roles = DiscordAPI.getGuild().getRoles().collectList().block();
+    public IRole getRoleByID(String id) throws NullPointerException {
+       List<IRole> roles = DiscordAPI.getClient().getRoles();
 
-        if (roles != null) {
-            for (Role role : roles) {
-                if (role.getId().asString().equalsIgnoreCase(id)) {
-                    return role;
-                }
+        for (IRole role : roles) {
+            if (role.getStringID().equalsIgnoreCase(id)) {
+                return role;
             }
         }
-
         return null;
     }
 
     /**
      * Method to get an array of role objects by a string of role names.
      *
-     * @param roles
-     * @return {Role[]}
+     * @param  roles
+     * @return {IRole[]}
      */
-    public Role[] getRoleObjects(String... roles) {
-        Role[] list = new Role[roles.length];
+    public IRole[] getRoleObjects(String[] roles) {
+        IRole[] list = new IRole[roles.length];
 
         for (int i = 0; i < roles.length; i++) {
             list[i] = getRole(roles[i]);
         }
-
         return list;
     }
 
     /**
      * Method to get a list of a user's roles.
      *
-     * @param user
+     * @param  user
      * @return {List}
      */
-    public Role[] getUserRoles(User user) {
-        Member m = user.asMember(DiscordAPI.getGuild().getId()).block();
+    public IRole[] getUserRoles(IUser user) {
+        List<IRole> roles = (user == null ? new ArrayList<>() : DiscordAPI.getGuild().getRolesForUser(user));
 
-        if (m == null) {
-            return new Role[0];
-        }
-
-        List<Role> roles = m.getRoles().collectList().block();
-
-        if (roles == null) {
-            return new Role[0];
-        }
-
-        return roles.isEmpty() ? new Role[0] : roles.toArray(new Role[0]);
+        return (roles.size() < 1 ? new IRole[0] : roles.toArray(new IRole[roles.size()]));
     }
 
     /**
      * Method to get a list of a user's roles.
      *
-     * @param userId
+     * @param  userId
      * @return {List}
      */
-    public Role[] getUserRoles(String userId) {
+    public IRole[] getUserRoles(String userId) {
         return getUserRoles(getUserById(Long.parseUnsignedLong(userId)));
     }
 
@@ -590,28 +533,16 @@ public class DiscordUtil {
      * @param user
      * @param roles
      */
-    public void editUserRoles(User user, Role... roles) {
-        if (roles == null || user == null) {
-            throw new IllegalArgumentException("user or roles object was null");
-        }
-
-        Member m = user.asMember(DiscordAPI.getGuild().getId()).block();
-
-        if (m == null) {
-            return;
-        }
-
-        Set<Snowflake> rolesSf = Collections.<Snowflake>emptySet();
-
-        for (Role role : roles) {
-            rolesSf.add(role.getId());
-        }
-
-        m.edit(eds
-                -> eds.setRoles(rolesSf)
-        ).doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+    public void editUserRoles(IUser user, IRole[] roles) {
+        RequestBuffer.request(() -> {
+            try {
+                if (roles != null && user != null) {
+                    DiscordAPI.getGuild().editUserRoles(user, roles);
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to edit roles on user: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        });
     }
 
     /**
@@ -620,7 +551,7 @@ public class DiscordUtil {
      * @param userId
      * @param roles
      */
-    public void editUserRoles(String userId, Role... roles) {
+    public void editUserRoles(String userId, IRole[] roles) {
         editUserRoles(getUserById(Long.parseUnsignedLong(userId)), roles);
     }
 
@@ -630,20 +561,16 @@ public class DiscordUtil {
      * @param role
      * @param user
      */
-    public void addRole(Role role, User user) {
-        if (role == null || user == null) {
-            throw new IllegalArgumentException("user or role object was null");
-        }
-
-        Member m = user.asMember(DiscordAPI.getGuild().getId()).block();
-
-        if (m == null) {
-            return;
-        }
-
-        m.addRole(role.getId()).doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+    public void addRole(IRole role, IUser user) {
+        RequestBuffer.request(() -> {
+            try {
+                if (role != null && user != null) {
+                    user.addRole(role);
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to add role on user: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        });
     }
 
     /**
@@ -662,7 +589,7 @@ public class DiscordUtil {
      * @param roleName
      * @param user
      */
-    public void addRole(String roleName, User user) {
+    public void addRole(String roleName, IUser user) {
         addRole(getRole(roleName), user);
     }
 
@@ -672,20 +599,16 @@ public class DiscordUtil {
      * @param role
      * @param user
      */
-    public void removeRole(Role role, User user) {
-        if (role == null || user == null) {
-            throw new IllegalArgumentException("user or role object was null");
-        }
-
-        Member m = user.asMember(DiscordAPI.getGuild().getId()).block();
-
-        if (m == null) {
-            return;
-        }
-
-        m.removeRole(role.getId()).doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+    public void removeRole(IRole role, IUser user) {
+        RequestBuffer.request(() -> {
+            try {
+                if (role != null && user != null) {
+                    user.removeRole(role);
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to remove role on user: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        });
     }
 
     /**
@@ -704,11 +627,13 @@ public class DiscordUtil {
      * @param roleName
      */
     public void createRole(String roleName) {
-        DiscordAPI.getGuild().createRole(role
-                -> role.setName(roleName)
-        ).doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+        RequestBuffer.request(() -> {
+            try {
+                DiscordAPI.getGuild().createRole().changeName(roleName);
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to create role: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        });
     }
 
     /**
@@ -716,10 +641,16 @@ public class DiscordUtil {
      *
      * @param role
      */
-    public void deleteRole(Role role) {
-        role.delete().doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+    public void deleteRole(IRole role) {
+        RequestBuffer.request(() -> {
+            try {
+                if (role != null) {
+                    role.delete();
+                }
+            } catch (MissingPermissionsException | DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to delete role: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+            }
+        });
     }
 
     /**
@@ -736,40 +667,24 @@ public class DiscordUtil {
      *
      * @return
      */
-    public List<Role> getGuildRoles() {
-        return DiscordAPI.getGuild().getRoles().collectList().block();
+    public List<IRole> getGuildRoles() {
+        return DiscordAPI.getGuild().getRoles();
     }
 
     /**
      * Method to check if someone is an administrator.
      *
-     * @param user
+     * @param  user
      * @return {Boolean}
      */
-    public boolean isAdministrator(User user) {
-        if (user == null) {
-            throw new IllegalArgumentException("user object was null");
-        }
-
-        Member m = user.asMember(DiscordAPI.getGuild().getId()).block();
-
-        if (m == null) {
-            return false;
-        }
-
-        PermissionSet ps = m.getBasePermissions().block();
-
-        if (ps == null) {
-            return false;
-        }
-
-        return ps.contains(Permission.ADMINISTRATOR);
+    public boolean isAdministrator(IUser user) {
+        return (user != null ? user.getPermissionsForGuild(DiscordAPI.getGuild()).contains(Permissions.ADMINISTRATOR) : false);
     }
 
     /**
      * Method to check if someone is an administrator.
      *
-     * @param userName
+     * @param  userName
      * @return {Boolean}
      */
     public boolean isAdministrator(String userName) {
@@ -782,30 +697,26 @@ public class DiscordUtil {
      * @param channel
      * @param amount
      */
-    public void bulkDelete(GuildMessageChannel channel, int amount) {
+    public void bulkDelete(IChannel channel, int amount) {
         // Discord4J says that getting messages can block the current thread if they need to be requested from Discord's API.
         // So start this on a new thread to avoid that. Please note that you need to delete at least 2 messages.
 
-        if (channel == null || amount < 2) {
-            throw new IllegalArgumentException("channel object was null or amount was less than 2");
-        }
+        if (channel != null) {
+            Thread thread;
+            thread = new Thread(() -> {
+                RequestBuffer.request(() -> {
+                    try {
+                        List<IMessage> messages = channel.getMessageHistory(amount < 2 ? 2 : amount);
 
-        Thread thread;
-        thread = new Thread(() -> {
-            List<Message> msgs = channel.getMessagesBefore(channel.getLastMessageId().orElseThrow()).take(amount).collectList().block();
-
-            if (msgs != null) {
-                Flux<Snowflake> msgSfs = Flux.empty();
-
-                msgs.forEach((msg) -> {
-                    Flux.concat(msgSfs, Flux.just(msg.getId()));
+                        channel.bulkDelete(messages);
+                    } catch (DiscordException ex) {
+                        com.gmt2001.Console.err.println("Failed to bulk delete messages: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+                    }
                 });
+            }, "tv.phantombot.discord.util.DiscordUtil::bulkDelete");
 
-                channel.bulkDelete(msgSfs);
-            }
-        }, "tv.phantombot.discord.util.DiscordUtil::bulkDelete");
-
-        thread.start();
+            thread.start();
+        }
     }
 
     /**
@@ -824,18 +735,18 @@ public class DiscordUtil {
      * @param channel
      * @param list
      */
-    public void bulkDeleteMessages(GuildMessageChannel channel, Message... list) {
-        if (channel == null || list == null || list.length < 2) {
-            throw new IllegalArgumentException("channel object was null, list object was null, or amount was less than 2");
+    public void bulkDeleteMessages(IChannel channel, IMessage[] list) {
+        if (channel != null) {
+            RequestBuffer.request(() -> {
+                try {
+                    List<IMessage> messages = Arrays.asList(list);
+
+                    channel.bulkDelete(messages);
+                } catch (DiscordException ex) {
+                    com.gmt2001.Console.err.println("Failed to bulk delete messages: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+                }
+            });
         }
-
-        Flux<Snowflake> msgSfs = Flux.empty();
-
-        for (Message msg : list) {
-            Flux.concat(msgSfs, Flux.just(msg.getId()));
-        }
-
-        channel.bulkDelete(msgSfs);
     }
 
     /**
@@ -844,7 +755,7 @@ public class DiscordUtil {
      * @param channelName
      * @param messages
      */
-    public void bulkDeleteMessages(String channelName, Message... messages) {
+    public void bulkDeleteMessages(String channelName, IMessage[] messages) {
         bulkDeleteMessages(getChannel(channelName), messages);
     }
 
@@ -853,32 +764,16 @@ public class DiscordUtil {
      *
      * @param message
      */
-    public void deleteMessage(Message message) {
-        if (message == null) {
-            throw new IllegalArgumentException("message object was null");
-        }
-
-        com.gmt2001.Console.debug.println("Deleteing Discord message: " + message.getId().asString());
-
-        try {
-            message.delete().block();
-        } catch (RuntimeException e) {
-            if (e instanceof ClientException) {
-                ErrorResponse er = ((ClientException) e).getErrorResponse();
-                if (er != null && er.getFields().containsKey("errorResponse")) {
-                    ErrorResponse er2 = (ErrorResponse) er.getFields().get("errorResponse");
-                    if (er2 != null) {
-                        if (er2.getFields().containsKey("code") && (int) er2.getFields().get("code") == 10008) {
-                            com.gmt2001.Console.err.println("Delete message failed (Unknown Message): " + message.getId().asString());
-                            com.gmt2001.Console.debug.printStackTrace(e);
-                            return;
-                        }
-                    }
+    public void deleteMessage(IMessage message) {
+        RequestBuffer.request(() -> {
+            try {
+                if (message != null) {
+                    message.delete();
                 }
+            } catch (DiscordException ex) {
+                com.gmt2001.Console.err.println("Failed to delete a message: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
             }
-
-            com.gmt2001.Console.err.printStackTrace(e);
-        }
+        });
     }
 
     /**
@@ -887,9 +782,11 @@ public class DiscordUtil {
      * @param game
      */
     public void setGame(String game) {
-        DiscordAPI.getClient().updatePresence(Presence.online(Activity.playing(game))).doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+        try {
+            DiscordAPI.getShard().changePresence(StatusType.ONLINE, ActivityType.PLAYING, game);
+        } catch (DiscordException ex) {
+            com.gmt2001.Console.err.println("Failed to set game: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+        }
     }
 
     /**
@@ -899,9 +796,11 @@ public class DiscordUtil {
      * @param url
      */
     public void setStream(String game, String url) {
-        DiscordAPI.getClient().updatePresence(Presence.online(Activity.streaming(game, url))).doOnError(e -> {
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).block();
+        try {
+            DiscordAPI.getShard().changeStreamingPresence(StatusType.ONLINE, game, url);
+        } catch (DiscordException ex) {
+            com.gmt2001.Console.err.println("Failed to set stream: [" + ex.getClass().getSimpleName() + "] " + ex.getMessage());
+        }
     }
 
     /**
@@ -909,32 +808,24 @@ public class DiscordUtil {
      *
      */
     public void removeGame() {
-        DiscordAPI.getClient().updatePresence(Presence.online()).block();
+        DiscordAPI.getShard().changePresence(StatusType.ONLINE, ActivityType.PLAYING, null);
     }
 
     /**
      * Method that gets all server members
-     *
-     * @return
+     * @return 
      */
-    public List<User> getUsers() {
-        List<Member> m = DiscordAPI.getGuild().getMembers().collectList().block();
-        List<User> u = Collections.<User>emptyList();
-
-        if (m != null) {
-            Collections.copy(u, m);
-        }
-
-        return u;
+    public List<IUser> getUsers() {
+        return DiscordAPI.getClient().getUsers();
     }
 
     /**
      * Method to get a color object.
      *
-     * @param color
+     * @param  color
      * @return {Color}
      */
-    public Color getColor(String color) {
+    public Color getColor(String color) throws IllegalArgumentException {
         Matcher match = Pattern.compile("(\\d{1,3}),?\\s?(\\d{1,3}),?\\s?(\\d{1,3})").matcher(color);
 
         if (match.find()) {

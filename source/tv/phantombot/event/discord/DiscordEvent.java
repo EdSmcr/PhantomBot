@@ -14,21 +14,21 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 package tv.phantombot.event.discord;
 
-import discord4j.core.object.entity.Channel;
-import discord4j.core.object.entity.Message;
-import discord4j.core.object.entity.TextChannel;
-import discord4j.core.object.entity.User;
-import discord4j.core.object.entity.VoiceChannel;
+import sx.blah.discord.handle.obj.IChannel;
+import sx.blah.discord.handle.obj.IVoiceChannel;
+import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IUser;
+
 import tv.phantombot.event.Event;
 
 public abstract class DiscordEvent extends Event {
-
-    private final User user;
-    private final VoiceChannel voicechannel;
-    private final Channel channel;
-    private final Message message;
+    private final IUser user;
+    private final IVoiceChannel voicechannel;
+    private final IChannel channel;
+    private final IMessage message;
     private final String username;
     private final String channelName;
     private final String sender;
@@ -41,96 +41,97 @@ public abstract class DiscordEvent extends Event {
      * Class constructor for this event.
      */
     protected DiscordEvent() {
-        this(null);
+        this.user = null;
+        this.channel = null;
+        this.message = null;
+        this.channelName = null;
+        this.channelId = null;
+        this.username = null;
+        this.discrim = null;
+        this.senderId = null;
+        this.sender = null;
+        this.mention = null;
+        this.voicechannel = null;
+    }
+    
+    /**
+     * Class constructor for this event.
+     *
+     * @param {IUser} user
+     */
+    protected DiscordEvent(IUser user) {
+        this.user = user;
+        this.channel = null;
+        this.message = null;
+        this.channelName = null;
+        this.channelId = null;
+        this.voicechannel = null;
+        this.username = user.getName();
+        this.discrim = user.getDiscriminator();
+        this.senderId = user.getStringID();
+        this.sender = (username + "#" + discrim);
+        this.mention = user.mention();
     }
 
     /**
      * Class constructor for this event.
      *
-     * @param {User} user
+     * @param {IUser}    user
+     * @param {IChannel} channel
      */
-    protected DiscordEvent(User user) {
-        this(user, null);
+    protected DiscordEvent(IUser user, IChannel channel) {
+        this.user = user;
+        this.channel = channel;
+        this.voicechannel = null;
+        this.message = null;
+        this.channelName = channel.getName();
+        this.channelId = channel.getStringID();
+        this.username = user.getName();
+        this.discrim = user.getDiscriminator();
+        this.senderId = user.getStringID();
+        this.sender = (username + "#" + discrim);
+        this.mention = user.mention();
     }
-
+    
     /**
      * Class constructor for this event.
      *
-     * @param {User} user
-     * @param {Channel} channel
+     * @param {IUser}    user
+     * @param {IChannel} channel
+     * @param {IMessage} message
      */
-    protected DiscordEvent(User user, Channel channel) {
-        this(user, channel, null);
-    }
-
-    /**
-     * Class constructor for this event.
-     *
-     * @param {User} user
-     * @param {Channel} channel
-     * @param {Message} message
-     */
-    protected DiscordEvent(User user, Channel channel, Message message) {
+    protected DiscordEvent(IUser user, IChannel channel, IMessage message) {
         this.user = user;
         this.channel = channel;
         this.voicechannel = null;
         this.message = message;
-
-        if (channel != null) {
-            if (channel.getType() != Channel.Type.DM) {
-                this.channelName = ((TextChannel) channel).getName();
-            } else {
-                this.channelName = channel.getMention();
-            }
-
-            this.channelId = channel.getId().asString();
-        } else {
-            this.channelName = null;
-            this.channelId = null;
-        }
-
-        if (user != null) {
-            this.username = user.getUsername();
-            this.discrim = user.getDiscriminator();
-            this.senderId = user.getId().asString();
-            this.sender = (username + "#" + discrim);
-            this.mention = user.getMention();
-        } else {
-            this.username = null;
-            this.discrim = null;
-            this.senderId = null;
-            this.sender = null;
-            this.mention = null;
-        }
+        this.channelName = channel.getName();
+        this.channelId = channel.getStringID();
+        this.username = user.getName();
+        this.discrim = user.getDiscriminator();
+        this.senderId = user.getStringID();
+        this.sender = (username + "#" + discrim);
+        this.mention = user.mention();
     }
 
     /**
      * Class constructor for this event.
      *
-     * @param {User} user
-     * @param {VoiceChannel} channel
+     * @param {IUser}    user
+     * @param {IVoiceChannel} channel
      */
-    protected DiscordEvent(User user, VoiceChannel voicechannel) {
+    protected DiscordEvent(IUser user, IVoiceChannel voicechannel) {
         this.user = user;
         this.channel = null;
         this.voicechannel = voicechannel;
         this.message = null;
         this.channelName = voicechannel.getName();
-        this.channelId = voicechannel.getId().asString();
-        
-        if (user != null) {
-            this.username = user.getUsername();
-            this.discrim = user.getDiscriminator();
-            this.senderId = user.getId().asString();
-            this.sender = (username + "#" + discrim);
-            this.mention = user.getMention();
-        } else {
-            this.username = null;
-            this.discrim = null;
-            this.senderId = null;
-            this.sender = null;
-            this.mention = null;
-        }
+        this.channelId = voicechannel.getStringID();
+        this.username = user.getName();
+        this.discrim = user.getDiscriminator();
+        this.senderId = user.getStringID();
+        this.sender = (username + "#" + discrim);
+        this.mention = user.mention();
     }
 
     /**
@@ -168,14 +169,14 @@ public abstract class DiscordEvent extends Event {
     public String getChannel() {
         return this.channelName;
     }
-
+    
     /**
      * Method that gets the raw message.
-     *
+     * 
      * @return {String}
      */
     public String getMessage() {
-        return this.message.getContent().get();
+        return this.message.getContent();
     }
 
     /**
@@ -208,36 +209,27 @@ public abstract class DiscordEvent extends Event {
     /**
      * Method that returns the user's object for Discord4J.
      *
-     * @return {User}
+     * @return {IUser}
      */
-    public User getDiscordUser() {
+    public IUser getDiscordUser() {
         return this.user;
     }
 
     /**
      * Method that returns the channel's object for Discord4J.
      *
-     * @return {Channel}
+     * @return {IChannel}
      */
-    public Channel getDiscordChannel() {
+    public IChannel getDiscordChannel() {
         return this.channel;
     }
-
-    /**
-     * Method that returns the channel's object for Discord4J.
-     *
-     * @return {Channel}
-     */
-    public Channel getDiscordVoiceChannel() {
-        return this.voicechannel;
-    }
-
+    
     /**
      * Method that returns the message object
-     *
-     * @return {Message}
+     * 
+     * @return {IMessage}
      */
-    public Message getDiscordMessage() {
+    public IMessage getDiscordMessage() {
         return this.message;
     }
 }

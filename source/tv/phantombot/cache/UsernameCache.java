@@ -17,12 +17,11 @@
 package tv.phantombot.cache;
 
 import com.gmt2001.TwitchAPIv5;
+import com.google.common.collect.Maps;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import org.json.JSONException;
 import tv.phantombot.PhantomBot;
 import org.json.JSONObject;
 
@@ -34,7 +33,7 @@ public class UsernameCache {
         return instance;
     }
 
-    private final Map<String, UserData> cache = new ConcurrentHashMap<>();
+    private final Map<String, UserData> cache = Maps.newHashMap();
     private Date timeoutExpire = new Date();
     private Date lastFail = new Date();
     private int numfail = 0;
@@ -83,7 +82,7 @@ public class UsernameCache {
     
     // This will be implemented later
     // For now it's just to keep another class from throwing errors.
-    public JSONObject getUserData(String username) throws JSONException {
+    public JSONObject getUserData(String username) {
         return new JSONObject("");
     }
 
