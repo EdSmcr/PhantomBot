@@ -1,9 +1,0 @@
-language: java
-before_install:
-  - sudo apt-get -y install ant
-jdk:
-  - openjdk8
-notifications:
-  slack: zelakto:YwbCS7lxWrNFsFvNDXaoyLHU
-  email: false
-sudo: false

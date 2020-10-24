@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ public class MessageQueue implements Runnable {
      *
      * @param {boolean} isAllowedToSend
      */
-    public void setAllowSendMessages(boolean isAllowedToSend) {
+    public synchronized void setAllowSendMessages(boolean isAllowedToSend) {
         this.isAllowedToSend = isAllowedToSend;
     }
 
@@ -95,7 +95,11 @@ public class MessageQueue implements Runnable {
      * @param {String} message
      */
     public void say(String message) {
-        queue.add(new Message(message));
+        message = message.replace('\r', ' ');
+        String[] spl = message.split("\n");
+        for (String str : spl) {
+            queue.add(new Message(str));
+        }
     }
 
     /**
@@ -104,7 +108,11 @@ public class MessageQueue implements Runnable {
      * @param {String} message
      */
     public void sayNow(String message) {
-        queue.addFirst(new Message(message, message.startsWith(".")));
+        message = message.replace('\r', ' ');
+        String[] spl = message.split("\n");
+        for (int i = spl.length; i > 0; i--) {
+            queue.addFirst(new Message(spl[i - 1], spl[i - 1].startsWith(".")));
+        }
     }
 
     /**
@@ -144,6 +152,7 @@ public class MessageQueue implements Runnable {
                 }
             } catch (WebsocketNotConnectedException ex) {
                 com.gmt2001.Console.err.println("Failed to send message due to being disconnected from Twitch IRC.");
+                this.setAllowSendMessages(false);
                 session.reconnect();
             } catch (InterruptedException ex) {
                 com.gmt2001.Console.err.printStackTrace(ex);

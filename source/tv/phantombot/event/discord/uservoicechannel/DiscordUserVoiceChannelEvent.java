@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,9 +17,8 @@
 
 package tv.phantombot.event.discord.uservoicechannel;
 
-import sx.blah.discord.handle.obj.IVoiceChannel;
-import sx.blah.discord.handle.obj.IUser;
-
+import discord4j.core.object.entity.User;
+import discord4j.core.object.entity.channel.VoiceChannel;
 import tv.phantombot.event.discord.DiscordEvent;
 
 public abstract class DiscordUserVoiceChannelEvent extends DiscordEvent {
@@ -29,7 +28,7 @@ public abstract class DiscordUserVoiceChannelEvent extends DiscordEvent {
      *
      * @param {IUser} user
      */
-    protected DiscordUserVoiceChannelEvent(IUser user) {
+    protected DiscordUserVoiceChannelEvent(User user) {
         super(user);
     }
 
@@ -39,7 +38,7 @@ public abstract class DiscordUserVoiceChannelEvent extends DiscordEvent {
      * @param {IUser}    user
      * @param {IVoiceChannel} voicechannel
      */
-    protected DiscordUserVoiceChannelEvent(IUser user, IVoiceChannel voicechannel) {
+    protected DiscordUserVoiceChannelEvent(User user, VoiceChannel voicechannel) {
         super(user, voicechannel);
     }
 }

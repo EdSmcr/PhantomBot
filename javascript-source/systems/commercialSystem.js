@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@
                         var result = $.twitch.RunCommercial($.channelName, commercialLength);
                         lastCommercial = $.systemTime();
                         
-                        if (commercialMessage.length() > 0 && result.getInt("_http") !== 422) {
+                        if (commercialMessage.length > 0 && result.getInt("_http") != 422) {
                             $.say(commercialMessage);
                         }
                     }
@@ -71,7 +71,7 @@
                 if (args.length <= 1) {
                     if (commercialTimer) {
                         $.say($.whisperPrefix(sender) + $.lang.get('commercialsystem.autotimer.status-on', commercialLength, commercialInterval));
-                        if (commercialMessage.length() > 0) {
+                        if (commercialMessage.length > 0) {
                             $.say($.whisperPrefix(sender) + $.lang.get('commercialsystem.autotimer.status-on-msg', commercialMessage));
                         } else {
                             $.say($.whisperPrefix(sender) + $.lang.get('commercialsystem.autotimer.status-on-nomsg'));

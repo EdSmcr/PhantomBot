@@ -1,7 +1,7 @@
 /* astyle --style=java --indent=spaces=4 --mode=java */
 
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -77,6 +77,7 @@ public class TwitchCache implements Runnable {
     private long streamUptimeSeconds = 0L;
     private int viewerCount = 0;
     private int views = 0;
+    private String displayName;
 
     /**
      * Creates an instance for a channel.
@@ -106,6 +107,7 @@ public class TwitchCache implements Runnable {
         }
 
         this.channel = channel;
+        this.displayName = channel;
         this.updateThread = new Thread(this, "tv.phantombot.cache.TwitchCache");
 
         Thread.setDefaultUncaughtExceptionHandler(com.gmt2001.UncaughtExceptionHandler.instance());
@@ -349,20 +351,23 @@ public class TwitchCache implements Runnable {
                     logoLink = streamObj.getString("logo");
                     this.logoLink = logoLink;
                     if (new File("./web/panel").isDirectory()) {
-                        ImgDownload.downloadHTTPTo(logoLink, "./web/panel/img/logo.png");
+                        ImgDownload.downloadHTTPTo(logoLink, "./web/panel/img/logo.jpeg");
                     }
                 }
 
                 // Get the display name.
-                if (new File("./web/panel").isDirectory() && streamObj.has("display_name") && !streamObj.isNull("display_name")) {
-                    File file = new File("./web/panel/js/utils/panelConfig.js");
-                    if (file.exists()) {
-                        // Read the file.
-                        String fileContent = FileUtils.readFileToString(file, "utf-8");
-                        // Replace the name.
-                        fileContent = fileContent.replace("@DISPLAY_NAME@", streamObj.getString("display_name"));
-                        // Write the new stuff.
-                        FileUtils.writeStringToFile(file, fileContent, "utf-8");
+                if (streamObj.has("display_name") && !streamObj.isNull("display_name")) {
+                    this.displayName = streamObj.getString("display_name");
+                    if (new File("./web/panel").isDirectory()) {
+                        File file = new File("./web/panel/js/utils/panelConfig.js");
+                        if (file.exists()) {
+                            // Read the file.
+                            String fileContent = FileUtils.readFileToString(file, "utf-8");
+                            // Replace the name.
+                            fileContent = fileContent.replace("@DISPLAY_NAME@", streamObj.getString("display_name"));
+                            // Write the new stuff.
+                            FileUtils.writeStringToFile(file, fileContent, "utf-8");
+                        }
                     }
                 }
 
@@ -489,6 +494,12 @@ public class TwitchCache implements Runnable {
         forcedStreamTitleUpdate = true;
         this.streamTitle = streamTitle;
         EventBus.instance().postAsync(new TwitchTitleChangeEvent(streamTitle));
+    }
+    /**
+     * Returns the display name of the streamer.
+     */
+    public String getDisplayName() {
+        return this.displayName;
     }
 
     /**

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@
 (function() {
     var userGroups = [],
         modeOUsers = [],
-        subUsers = [],
+        subUsers = new java.util.concurrent.CopyOnWriteArrayList(),
         vipUsers = [],
         modListUsers = [],
         users = [],
@@ -151,7 +151,7 @@
         var idx = -1;
 
         for (var i = 0; i < list.length; i++) {
-            if (list[i] !== undefined && list[i].equalsIgnoreCase(value)) {
+            if (list[i] !== undefined && $.equalsIgnoreCase(list[i], value)) {
                 idx = i;
                 break;
             }
@@ -228,7 +228,7 @@
      * @returns {boolean}
      */
     function isModv3(username, tags) {
-        return (tags != null && tags != '{}' && tags.get('user-type').length() > 0) || isModeratorCache(username.toLowerCase());
+        return (tags != null && tags != '{}' && tags.get('user-type').length() > 0) || isModeratorCache(username.toLowerCase()) || isOwner(username);
     }
 
     /**
@@ -238,7 +238,7 @@
      * @returns {boolean}
      */
     function isSub(username) {
-        return hasKey(subUsers, username);
+        return subUsers.contains(username.toLowerCase());
     }
 
     /**
@@ -249,7 +249,7 @@
      * @returns {boolean}
      */
     function isSubv3(username, tags) {
-        return (tags != null && tags != '{}' && tags.get('subscriber').equals('1'));
+        return (tags != null && tags != '{}' && tags.get('subscriber').equals('1')) || isSub(username);
     }
 
     /**
@@ -279,7 +279,7 @@
      * @returns {boolean}
      */
     function isVIP(username, tags) {
-        return (tags != null && tags != '{}' && tags.get('badges').indexOf('vip') !== -1) || getUserGroupId(username.toLowerCase()) == 5;
+        return (tags != null && tags != '{}' && tags.get('vip').equals('1')) || getUserGroupId(username.toLowerCase()) == 5;
     }
 
     /**
@@ -318,7 +318,7 @@
      * @returns {Boolean}
      */
     function isTwitchSub(username) {
-        return hasKey(subUsers, username);
+        return isSub(username);
     }
 
     /**
@@ -445,7 +445,7 @@
      */
     function addSubUsersList(username) {
         if (!isSub(username)) {
-            subUsers.push(username);
+            subUsers.add(username);
         }
     }
 
@@ -455,10 +455,8 @@
      * @param username
      */
     function delSubUsersList(username) {
-        var i = getKeyIndex(subUsers, username);
-
-        if (i >= 0) {
-            subUsers.splice(i, 1);
+        if (subUsers.contains(username)) {
+            subUsers.remove(username);
         }
     }
 
@@ -791,7 +789,7 @@
         var sender = event.getSender().toLowerCase(),
             message = event.getMessage().toLowerCase().trim(),
             modMessageStart = 'the moderators of this channel are: ',
-            vipMessageStart = 'the vips of this channel are: ',
+            vipMessageStart = 'vips for this channel are: ',
             novipMessageStart = 'this channel does not have any vips',
             keys = $.inidb.GetKeyList('group', ''),
             subsTxtList = [],
@@ -815,7 +813,7 @@
                         $.inidb.set('group', spl[i], '2');
                     }
                 }
-                $.saveArray(modListUsers, 'addons/mods.txt', false);
+                $.saveArray(modListUsers, './addons/mods.txt', false);
             } else if (message.indexOf(vipMessageStart) > -1) {
                 spl = message.replace(vipMessageStart, '').split(', ');
                 vipUsers = [];
@@ -832,24 +830,25 @@
                         $.inidb.set('group', spl[i], '5');
                     }
                 }
-                $.saveArray(vipUsers, 'addons/vips.txt', false);
+                $.saveArray(vipUsers, './addons/vips.txt', false);
             } else if (message.indexOf(novipMessageStart) > -1) {
                 for (i in keys) {
                     if ($.inidb.get('group', keys[i]).equalsIgnoreCase('5')) {
                         $.inidb.del('group', keys[i]);
                     }
                 }
-                $.deleteFile('addons/vips.txt', true);
+                $.deleteFile('./addons/vips.txt', true);
             } else if (message.indexOf('specialuser') > -1) {
                 spl = message.split(' ');
                 if (spl[2].equalsIgnoreCase('subscriber')) {
-                    if (subUsers.indexOf(spl[1].toLowerCase()) !== -1) {
-                        subUsers.push(spl[1]);
+                    if (!subUsers.contains(spl[1].toLowerCase())) {
+                        subUsers.add(spl[1]);
+
                         restoreSubscriberStatus(spl[1].toLowerCase());
-                        for (i in subUsers) {
-                            subsTxtList.push(subUsers[i]);
+                        for (var i = 0; i < subUsers.size(); i++) {
+                            subsTxtList.push(subUsers.get(i));
                         }
-                        $.saveArray(subsTxtList, 'addons/subs.txt', false);
+                        $.saveArray(subsTxtList, './addons/subs.txt', false);
                     }
                 }
             }

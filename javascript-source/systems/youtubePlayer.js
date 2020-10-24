@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -975,7 +975,7 @@
                 "title": currentPlaylist.getCurrentVideo().getVideoTitle() + '',
                 "duration": currentPlaylist.getCurrentVideo().getVideoLengthMMSS() + ''
             };
-            client.currentSong(JSON.stringify(jsonData));
+            client.sendJSONToAll(JSON.stringify(jsonData));
         }
 
         /**
@@ -1037,7 +1037,7 @@
                         }
                     }
                 }
-                client.playList(JSON.stringify(jsonList));
+                client.sendJSONToAll(JSON.stringify(jsonList));
             }
         };
 
@@ -1062,7 +1062,7 @@
                         "requester": youtubeObject.getOwner() + ''
                     });
                 }
-                client.songList(JSON.stringify(jsonList));
+                client.sendJSONToAll(JSON.stringify(jsonList));
             }
         };
 
@@ -1295,7 +1295,6 @@
         loadDefaultPl();
         connectedPlayerClient.pushPlayList();
         $.youtubePlayerConnected = true;
-        $.ytplayer.setClientConnected(true);
     });
 
     /**
@@ -1304,7 +1303,6 @@
     $.bind('yTPlayerDisconnect', function(event) {
         connectedPlayerClient = null;
 
-        $.ytplayer.setClientConnected(false);
         $.consoleLn($.lang.get('ytplayer.console.client.disconnected'));
         if (!songRequestsEnabled && announceInChat) {
             $.say($.lang.get('ytplayer.songrequests.disabled'));
