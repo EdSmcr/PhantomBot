@@ -21,7 +21,7 @@
  * 
  */
 (function() {
-    var daysCount = 1
+    var daysCount = 1,
     timeout = (6e4 * 5); // 5 minutes.
     
     var _streamInfo = function(){
