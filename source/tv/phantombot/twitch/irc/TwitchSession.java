@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ public class TwitchSession extends MessageQueue {
     private static TwitchSession instance;
     private final String botName;
     private final String channelName;
-    private final String oAuth;
+    private String oAuth;
     private TwitchWSIRC twitchWSIRC;
     private final ReentrantLock lock = new ReentrantLock();
     private final ReentrantLock lock2 = new ReentrantLock();
@@ -77,6 +77,11 @@ public class TwitchSession extends MessageQueue {
      */
     public String getChannelName() {
         return this.channelName;
+    }
+
+    public void setOAuth(String oAuth) {
+        this.oAuth = oAuth;
+        twitchWSIRC.setOAuth(oAuth);
     }
 
     /**

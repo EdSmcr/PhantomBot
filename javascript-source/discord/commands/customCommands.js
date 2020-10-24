@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -119,7 +119,7 @@
 
         if (s.match(/\(readfile/)) {
             if (s.search(/\((readfile ([^)]+)\))/g) >= 0) {
-                s = $.replace(s, '(' + RegExp.$1, $.readFile('./addons/' + RegExp.$2.replace(/\.\./g, ''))[0]);
+                s = $.replace(s, '(' + RegExp.$1, $.readFile('./addons/' + $.replace(RegExp.$2, '..', ''))[0]);
             }
         }
 
@@ -139,7 +139,7 @@
             var file = s.match(/\(writefile (.+), (.+), (.+)\)/)[1],
                 append = (s.match(/\(writefile (.+), (.+), (.+)\)/)[2] == 'true' ? true : false),
                 string = s.match(/\(writefile (.+), (.+), (.+)\)/)[3];
-            $.writeToFile(string, './addons/' + file.replace(/\.\./g, ''), append);
+            $.writeToFile(string, './addons/' + $.replace(file, '..', ''), append);
             return null;
         }
 
@@ -157,7 +157,7 @@
         }
 
         if (s.match(/\(setrole ([\w\W\s]+), ([\w\W\s]+)/)) {
-            $.discord.addRole(s.match(/\(setrole ([\w\W\s]+), ([\w\W\s]+)\)/)[2], s.match(/\(setrole ([\w\W\s]+), ([\w\W\s]+)\)/)[1]);
+            $.discord.setRole(s.match(/\(setrole ([\w\W\s]+), ([\w\W\s]+)\)/)[2], s.match(/\(setrole ([\w\W\s]+), ([\w\W\s]+)\)/)[1]);
 
             s = $.replace(s, s.match(/\(setrole ([\w\W\s]+), ([\w\W\s]+)\)/)[0], '');
             if (s.length === 0) {
@@ -416,7 +416,6 @@
             }
 
             action = action.replace('!', '').toLowerCase();
-            subAction = String(subAction).replace(/#/g, '').toLowerCase();
 
             if (!$.discord.commandExists(action)) {
                 $.discord.say(channel, $.discord.userPrefix(mention) + $.lang.get('discord.customcommands.404'));
@@ -450,12 +449,12 @@
                 i;
 
             for (i in keys) {
-                key.push('#' + keys[i]);
+                key.push($.discord.sanitizeChannelName(keys[i]));
             }
 
-            $.inidb.set('discordChannelcom', action, subAction);
+            $.inidb.set('discordChannelcom', action, key.join(','));
             $.discord.updateCommandChannel(action);
-            $.discord.say(channel, $.discord.userPrefix(mention) + $.lang.get('discord.customcommands.channelcom.success', action, key.join(', ')));
+            $.discord.say(channel, $.discord.userPrefix(mention) + $.lang.get('discord.customcommands.channelcom.success', action, subAction.replace(',', ', ')));
         }
 
         /**
@@ -598,7 +597,7 @@
                     if (event.getArgs()[2].length() === 0) {
                         $.inidb.del('discordChannelcom', event.getArgs()[0]);
                     } else {
-                        $.inidb.set('discordChannelcom', event.getArgs()[0], event.getArgs()[2].replace(/#/g, '').toLowerCase());
+                        $.inidb.set('discordChannelcom', event.getArgs()[0], String(event.getArgs()[2]).replace(/#/g, '').toLowerCase());
                     }
 
                     $.discord.updateCommandChannel(event.getArgs()[0]);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -71,16 +71,30 @@
     function sendNotice() {
         var EventBus = Packages.tv.phantombot.event.EventBus,
             CommandEvent = Packages.tv.phantombot.event.command.CommandEvent,
+            start = RandomNotice,
+            notice = null;
+                        
+        do {
             notice = $.inidb.get('notices', 'message_' + RandomNotice);
+
+            RandomNotice++;
+
+            if (RandomNotice >= numberOfNotices) {
+                RandomNotice = 0;
+            }
+            
+            if (notice && notice.match(/\(gameonly=.*\)/g)) {
+                var game = notice.match(/\(gameonly=(.*)\)/)[1];
+                if ($.getGame($.channelName).equalsIgnoreCase(game)) {
+                    notice = $.replace(notice, notice.match(/(\(gameonly=.*\))/)[1], "");
+                } else {
+                    notice = null;
+                }
+            }
+        } while(!notice && start !== RandomNotice);
 
         if (notice == null) {
             return;
-        }
-
-        RandomNotice++;
-
-        if (RandomNotice >= numberOfNotices) {
-            RandomNotice = 0;
         }
 
         if (notice.startsWith('command:')) {
@@ -258,17 +272,17 @@
              * @commandpath notice interval [minutes] - Sets the notice interval in minutes
              */
             if (action.equalsIgnoreCase('interval')) {
-                if (args.length == 0) {
+                if (args.length < 2) {
                     $.say($.whisperPrefix(sender) + $.lang.get('noticehandler.notice-interval-usage'));
                     return;
-                } else if (parseInt(args[1]) < 5) {
+                } else if (isNaN(args[1]) || parseInt(args[1]) < 5) {
                     $.say($.whisperPrefix(sender) + $.lang.get('noticehandler.notice-interval-404'));
                     return;
                 } else {
-                    $.inidb.set('noticeSettings', 'interval', args[1]);
+                    $.inidb.set('noticeSettings', 'interval', parseInt(args[1]));
                     noticeInterval = parseInt(args[1]);
                     $.say($.whisperPrefix(sender) + $.lang.get('noticehandler.notice-inteval-success'));
-                    reloadNoticeSettings()
+                    reloadNoticeSettings();
                     return;
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -995,49 +995,49 @@ $(function() {
             // select2.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/vendors/select2/select2.dark.min.css'
+                'href': '/panel/vendors/select2/select2.dark.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/vendors/adminlte/css/AdminLTE.dark.min.css'
+                'href': '/panel/vendors/adminlte/css/AdminLTE.dark.min.css'
             }));
 
             // skins.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/vendors/adminlte/css/skins/skin-purple.dark.min.css'
+                'href': '/panel/vendors/adminlte/css/skins/skin-purple.dark.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/css/style.dark.min.css'
+                'href': '/panel/css/style.dark.min.css'
             }));
         } else {
             // select2.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/vendors/select2/select2.min.css'
+                'href': '/panel/vendors/select2/select2.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/vendors/adminlte/css/AdminLTE.min.css'
+                'href': '/panel/vendors/adminlte/css/AdminLTE.min.css'
             }));
 
             // skins.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/vendors/adminlte/css/skins/skin-purple.min.css'
+                'href': '/panel/vendors/adminlte/css/skins/skin-purple.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'panel/css/style.min.css'
+                'href': '/panel/css/style.min.css'
             }));
         }
     };
@@ -1074,7 +1074,7 @@ $(function() {
                             'You can grab your own copy of version ' + version + ' of PhantomBot ' +
                                 $('<a/>', { 'target': '_blank' }).prop('href', downloadLink).append('here.')[0].outerHTML + ' <br>' +
                             '<b>Please check ' +
-                                $('<a/>', { 'target': '_blank' }).prop('href', 'https://community.phantombot.tv/t/how-to-update-phantombot').append('this guide')[0].outerHTML +
+                                $('<a/>', { 'target': '_blank' }).prop('href', 'https://phantombot.github.io/PhantomBot/guides/#guide=content/setupbot/updatebot').append('this guide')[0].outerHTML +
                                 ' on how to properly update PhantomBot.</b>'
                         })), function() {
                             $('#pb-update').modal('toggle');

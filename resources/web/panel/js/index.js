@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@
 
 // Main socket and functions.
 $(function() {
-    var webSocket = new ReconnectingWebSocket((getProtocol() === 'https://' || window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host.split(':')[0] + ':' + getPanelPort(), null, { reconnectInterval: 500 }),
+    var webSocket = new ReconnectingWebSocket((getProtocol() === 'https://' || window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/panel', null, { reconnectInterval: 500 }),
         callbacks = [],
         listeners = [],
         socket = {};
@@ -314,7 +314,7 @@ $(function() {
         callback = (callback === undefined ? storeKey : callback);
 
         // Genetate a callback.
-        generateCallBack(callback_id, dataObj.tables, false, false, callback, (typeof storeKey === 'function' ? false : true));
+        generateCallBack(callback_id, dataObj.tables, false, false, callback, (typeof storeKey !== 'function'));
 
         // Start sending the updates to the socket.
         for (let i = 0; i < dataObj.tables.length; i++) {
@@ -529,6 +529,19 @@ $(function() {
                         helpers.log('Called callback with id: ' + message.query_id, helpers.LOG_TYPE.DEBUG);
                         // Remove the callback from the array.
                         delete callbacks[message.query_id];
+
+                        // Remove any active spinners.
+                        if (message.query_id !== 'get_bot_updates' && message.query_id.indexOf('get') !== -1) {
+                            // Remove any active spinners.
+                            $('.load-ajax').remove();
+                        }
+
+                        if (message.query_id.indexOf('module_toggle') !== -1 || message.query_id.indexOf('module_status') !== -1
+                            || message.query_id.endsWith('module')) {
+                            if (message.results.value == 'false') {
+                                $('.load-ajax').remove();
+                            }
+                        }
                     } else {
                         helpers.log('Awaiting for data (' + callback.await + ' left) before calling callback with id: ' + message.query_id, helpers.LOG_TYPE.DEBUG);
                     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2019 phantombot.tv
+ * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,10 +32,11 @@ import tv.phantombot.event.EventBus;
 import tv.phantombot.event.irc.complete.IrcConnectCompleteEvent;
 
 public class TwitchWSIRC extends WebSocketClient {
+
     private final TwitchSession session;
     private final String botName;
     private final String channelName;
-    private final String oAuth;
+    private String oAuth;
     private TwitchWSIRCParser twitchWSIRCParser;
     private long lastPong = System.currentTimeMillis();
     private long lastPing = 0l;
@@ -44,7 +45,7 @@ public class TwitchWSIRC extends WebSocketClient {
     /**
      * Class constructor.
      *
-     * @param {URI}    uri
+     * @param {URI} uri
      * @param {String} channelName
      * @param {String} botName
      * @param {String} oAuth
@@ -65,27 +66,31 @@ public class TwitchWSIRC extends WebSocketClient {
             if (this.getReadyState() != ReadyState.OPEN) {
                 return;
             }
-            
+
             if (this.connecting) {
                 lastPing = System.currentTimeMillis();
                 lastPong = System.currentTimeMillis();
                 this.connecting = false;
                 return;
             }
-            
+
             // if we sent a ping longer than 3 minutes ago, send another one.
             if (System.currentTimeMillis() > (lastPing + 180000)) {
                 com.gmt2001.Console.debug.println("Sending a PING to Twitch.");
                 lastPing = System.currentTimeMillis();
                 this.send("PING");
 
-            // If Twitch's last pong was more than 3.5 minutes ago, close our connection.
+                // If Twitch's last pong was more than 3.5 minutes ago, close our connection.
             } else if (System.currentTimeMillis() > (lastPong + 210000)) {
                 com.gmt2001.Console.out.println("Closing our connection with Twitch since no PONG got sent back.");
                 com.gmt2001.Console.warn.println("Closing our connection with Twitch since no PONG got sent back.", true);
                 this.close();
             }
         }, 10, 30, TimeUnit.SECONDS);
+    }
+
+    public void setOAuth(String oAuth) {
+        this.oAuth = oAuth;
     }
 
     /**
@@ -120,6 +125,10 @@ public class TwitchWSIRC extends WebSocketClient {
         return false;
     }
 
+    synchronized void gotPong() {
+        lastPong = System.currentTimeMillis();
+    }
+
     /**
      * Callback that is called when we open a connect to Twitch.
      *
@@ -128,9 +137,9 @@ public class TwitchWSIRC extends WebSocketClient {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         com.gmt2001.Console.out.println("Connected to " + this.botName + "@" + this.uri.getHost() + " (SSL)");
-        
+
         this.twitchWSIRCParser = TwitchWSIRCParser.instance(this.getConnection(), channelName, session);
-        
+
         // Send the oauth
         this.send("PASS " + oAuth);
         // Send the bot name.
@@ -143,8 +152,8 @@ public class TwitchWSIRC extends WebSocketClient {
     /**
      * Callback that is called when the connection with Twitch is lost.
      *
-     * @param {int}     code
-     * @param {String}  reason
+     * @param {int} code
+     * @param {String} reason
      * @param {boolean} remote
      */
     @Override
@@ -179,18 +188,16 @@ public class TwitchWSIRC extends WebSocketClient {
      */
     @Override
     public void onMessage(String message) {
-        if (message.startsWith("PONG")) {
-            lastPong = System.currentTimeMillis();
-        } else if (message.startsWith("PING")) {
+        if (message.startsWith("PING")) {
             send("PONG");
-        } else {
-            try {
-                new Thread(() -> {
-                    twitchWSIRCParser.parseData(message);
-                }).start();
-            } catch (Exception ex) {
-                twitchWSIRCParser.parseData(message);
-            }
+        }
+
+        try {
+            new Thread(() -> {
+                twitchWSIRCParser.parseData(message, this);
+            }).start();
+        } catch (Exception ex) {
+            twitchWSIRCParser.parseData(message, this);
         }
     }
 }
