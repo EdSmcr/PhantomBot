@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
+ * Copyright (C) 2016-2021 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -28,8 +28,9 @@
 
     /*
      * @function unescapeTags
-     *
+     * @export $
      * @param {string} args
+     * @returns {string}
      */
     function escapeTags(args) {
         return args.replace(/([\\()])/g, '\\$1');
@@ -1605,9 +1606,12 @@
 
     /*
      * @function tags
-     *
+     * @export $
      * @param {string} event
      * @param {string} message
+     * @param {bool} atEnabled
+     * @param {object} localTransformers
+     * @param {bool} disableGlobalTransformers
      * @return {string}
      */
     function tags(event, message, atEnabled, localTransformers, disableGlobalTransformers) {
@@ -1693,10 +1697,17 @@
         return message;
     }
 
+    /*
+     * @function addTagTransformer
+     * @export $
+     * @param {string} tag
+     * @param {function} transformer
+     */
     function addTagTransformer(tag, transformer) {
         transformers[tag.toLowerCase()] = transformer;
     }
     
     $.tags = tags;
+    $.escapeTags = escapeTags;
     $.addTagTransformer = addTagTransformer;
 })();

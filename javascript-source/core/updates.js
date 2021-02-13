@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
+ * Copyright (C) 2016-2021 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -118,7 +118,7 @@
             'installedv2.0.8', 'installedv2.0.9', 'installedv2.1.0', 'installedv2.1.1', 'installedv2.2.1', 'installedv2.3s',
             'installedv2.3.3ss', 'installedv2.3.5ss', 'installedv2.3.5.1', 'installedv2.3.5.2', 'installedv2.3.5.3', 'installedv2.3.6',
             'installedv2.3.6ss', 'installedv2.3.6b', 'installedv2.3.7', 'installedv2.3.7b', 'installedv2.3.9', 'installedv2.3.9.1', 'installedv2.3.9.1b',
-            'installedv2.4.0', 'installedv2.4.1'
+            'installedv2.4.0', 'installedv2.4.1', 'installedv3.3.0', 'installedv3.3.6',
         ];
         for (i in versions) {
             $.inidb.set('updates', versions[i], 'true');
@@ -155,6 +155,7 @@
                 './handlers/donationHandler.js',
                 './systems/cleanupSystem.js',
                 './systems/greetingSystem.js',
+                './systems/welcomeSystem.js',
                 './systems/pointSystem.js',
                 './systems/noticeSystem.js',
                 './systems/pollSystem.js',
@@ -554,11 +555,11 @@
 
         $.inidb.RemoveFile('quotes');
 
-        
+
         for (i in temp) {
             $.inidb.set('quotes', i, temp[i]);
         }
-        
+
         $.inidb.SaveAll(true);
 
         $.inidb.del('modules', './handlers/discordHandler.js');
@@ -643,7 +644,7 @@
         var keys = $.inidb.GetKeyList('points', ''),
             i;
 
-        
+
         for (i in keys) {
             if (keys[i].match(/[A-Z]/)) {
                 if ($.inidb.get('points', keys[i]) == null) {
@@ -671,7 +672,7 @@
                 $.consoleLn('[permission] [remove] ' + keys[i]);
             }
         }
-        
+
         $.inidb.SaveAll(true);
 
         $.consoleLn('PhantomBot update 2.3.6b completed!');
@@ -921,6 +922,43 @@
         $.inidb.set('updates', 'installedv3.3.0', 'true');
     }
 
+    /* version 3.3.6 updates */
+    if (!$.inidb.exists('updates', 'installedv3.3.6') || $.inidb.get('updates', 'installedv3.3.6') != 'true') {
+        $.consoleLn('Starting PhantomBot update 3.3.6 updates...');
+
+        $.inidb.set('modules', './systems/welcomeSystem.js', 'false');
+
+        $.consoleLn('PhantomBot update 3.3.6 completed!');
+        $.inidb.set('updates', 'installedv3.3.6', 'true');
+    }
+
+    /* version 3.4.1 updates */
+    if (!$.inidb.exists('updates', 'installedv3.4.1') || $.inidb.get('updates', 'installedv3.4.1') != 'true') {
+        $.consoleLn('Starting PhantomBot update 3.4.1 updates...');
+
+        var keys = $.inidb.GetKeyList('keywords', ''),
+        i,
+        coolkey,
+        json;
+
+        for (i = 0; i < keys.length; i++) {
+            json = JSON.parse($.inidb.get('keywords', keys[i]));
+
+            if (json.isCaseSensitive) {
+                coolkey = $.inidb.get('coolkey', $.jsString(json.keyword).toLowerCase());
+                $.inidb.del('coolkey', $.jsString(json.keyword).toLowerCase());
+                $.inidb.set('coolkey', json.keyword, coolkey);
+            } else {
+                json.keyword = $.jsString(json.keyword).toLowerCase();
+                $.inidb.del('keywords', keys[i]);
+                $.inidb.set('keywords', json.keyword, JSON.stringify(json));
+            }
+        }
+
+        $.consoleLn('PhantomBot update 3.4.1 completed!');
+        $.inidb.set('updates', 'installedv3.4.1', 'true');
+    }
+
     /**
      * @function getTableContents
      * @param {string} tableName
@@ -970,11 +1008,11 @@
     function restoreTableContents(tableName, contents) {
         var i;
 
-        
+
         for (i in contents) {
             $.inidb.set(tableName, i, contents[i]);
         }
-        
+
         $.inidb.SaveAll(true);
     }
 })();

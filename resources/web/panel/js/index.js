@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016-2020 phantombot.github.io/PhantomBot
+ * Copyright (C) 2016-2021 phantombot.github.io/PhantomBot
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -538,7 +538,7 @@ $(function() {
 
                         if (message.query_id.indexOf('module_toggle') !== -1 || message.query_id.indexOf('module_status') !== -1
                             || message.query_id.endsWith('module')) {
-                            if (message.results.value == 'false') {
+                            if (message.results !== undefined && message.results.value == 'false') {
                                 $('.load-ajax').remove();
                             }
                         }
