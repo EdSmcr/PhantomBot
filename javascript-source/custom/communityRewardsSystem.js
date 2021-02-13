@@ -29,11 +29,11 @@
      * @returns {undefined}
      */
     function givePointsAll(gifter, amount) {
-        $.inidb.setAutoCommit(false);
+        //$.inidb.setAutoCommit(false);
         for (var i in $.users) {
-            $.inidb.incr('points', $.users[i][0].toLowerCase(), amount);
+            $.inidb.incr('points', $.users[i].toLowerCase(), parseInt(amount));
         }
-        $.inidb.setAutoCommit(true);
+        //$.inidb.setAutoCommit(true);
 
         $.say('Thank you ' + gifter + ' for your generosity in gifting a sub!  Because of your kindness everyone in chat gets ' + amount + ' candy.');
     };

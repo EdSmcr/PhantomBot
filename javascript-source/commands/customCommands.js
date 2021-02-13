@@ -94,8 +94,11 @@
             case 6:
                 allowed = $.isReg(username) || $.isModv3(username, tags);
                 break;
-            default:
+            case 7:
                 allowed = true;
+                break;
+            default:
+                allowed = false;
                 break;
         }
 

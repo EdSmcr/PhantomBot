@@ -1,0 +1,69 @@
+<!--
+    Copyright (C) 2016-2019 phantombot.tv
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>BitBoss for PhantomBot</title>
+        <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <!-- Load our styles -->
+        <link rel="stylesheet" href="bitboss/css/styles.css"/>
+    </head>
+
+    <!-- Main body -->
+    <body>
+        <div class="container">
+            <div id="img-container" class="img-container">
+                <img id="boss" src="bitboss/images/Final_Jester.png"/>
+            </div>
+            <div class="meters-container">
+                    <div class="header"></div>
+                    <div class="overshield-container">
+                        <span class="overshield" ></span>
+                        <span class="overshield" ></span>
+                        <span class="overshield" ></span>
+                        <span class="overshield" ></span>
+                        <span class="overshield" ></span>
+                    </div>
+                    <div class="progress-container">
+                        <div id="progress" class="progress-bar" >
+                        </div>  
+                    </div>
+                    <div class="footer"></div>
+                    <div class="name-container">
+                            <span class="tag">&nbsp;<span>#lowco</span>&nbsp;</span>
+                    </div>
+            </div>
+        </div>
+
+        <!-- Load jQuery -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.0/jquery.min.js"></script>
+        <!-- Load jQuery UI -->
+         <script src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+        <!-- Load Reconnecting socket -->
+        <script src="/common/reconnecting-websocket/reconnectingWS.min.js"></script>
+        <!-- Load Bot config file -->
+        <script src="/common/js/wsConfig.js"></script>
+        
+        <!-- Load custom scripts -->
+        <!--<script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/175711/delaunay.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/gsap/1.13.2/TweenMax.min.js"></script>
+        <script src="/obs/bitboss/js/custom.js"></script>-->
+  
+        <!-- Load our script -->
+        <script src="/obs/bitboss/js/index.js"></script>
+    </body>
+</html>
