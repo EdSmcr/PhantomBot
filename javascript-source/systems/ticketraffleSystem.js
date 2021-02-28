@@ -85,7 +85,9 @@
         $.inidb.set('raffleresults', 'ticketRaffleEntries', 0);
         entries = "";
         entries = [];
-
+        
+        reloadTRaffle();
+        
         if (messageInterval != 0) {
             interval = setInterval(function() {
                 $.say(raffleMessage.replace('(entries)', String(totalEntries))); //can't use regex here. why? who knows.

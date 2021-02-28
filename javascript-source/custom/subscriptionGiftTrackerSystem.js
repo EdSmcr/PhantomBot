@@ -21,16 +21,14 @@
  * 
  */
 (function() {
-    
      /*
      * @event twitchSubscriptionGift
      */
     $.bind('twitchSubscriptionGift', function(event) {
-        var gifter = event.getUsername(),
-            total = event.getTotal();
+        var gifter = event.getUsername();
         $.consoleLn('twitchSubscriptionGift called.');
         
-        storeSubsGifts(gifter, total, 1);
+        storeSubsGifts(gifter, 1);
     });
   
     /*
@@ -38,22 +36,20 @@
      */
     $.bind('twitchMassSubscriptionGifted', function(event) {
         var gifter = event.getUsername(),
-            amount = event.getAmount(),
-            total = event.getTotal();
+            amount = event.getAmount();
         $.consoleLn('twitchMassSubscriptionGifted called.');
 
-        storeSubsGifts(gifter, total, amount);
+        storeSubsGifts(gifter, amount);
     });
 
     /*
      * @event twitchAnonymousSubscriptionGift
      */
     $.bind('twitchAnonymousSubscriptionGift', function(event) {
-        var gifter = event.getUsername(),
-            total = event.getTotal();
+        var gifter = event.getUsername();
         $.consoleLn('twitchAnonymousSubscriptionGift called.');
         
-        storeSubsGifts(gifter, total, 1);
+        storeSubsGifts(gifter, 1);
     });
 
     /*
@@ -61,11 +57,10 @@
      */
     $.bind('twitchMassAnonymousSubscriptionGifted', function(event) {
         var gifter = event.getUsername(),
-            amount = event.getAmount(),
-            total = event.getTotal();
+            amount = event.getAmount();
         $.consoleLn('twitchMassAnonymousSubscriptionGifted called.');
         
-        storeSubsGifts(gifter, total, amount);
+        storeSubsGifts(gifter, amount);
     });
 
 
@@ -90,14 +85,8 @@
      * @param {type} amount
      * @returns {undefined}
      */
-    function storeSubsGifts(gifter, total, amount){
-        if (total == -1){
-            $.inidb.incr('subsGifts', gifter, amount);
-        }
-        else
-        {
-            $.getSetIniDbNumber('subsGifts', gifter, total);
-        }
+    function storeSubsGifts(gifter, amount){
+        $.inidb.incr('subsGifts', gifter, amount);
     }
     
     /**
