@@ -18,7 +18,7 @@
             'dark': 0
         });
 
-        $.panelsocketserver.sendJSONToAll(JSON.stringify({
+        $.alertspollssocket.sendJSONToAll(JSON.stringify({
             'new_tugOfWar_vote': 'true',
             'data': JSON.stringify(objOBS)
         }));
@@ -29,7 +29,7 @@
 
                     calculateBitsPercentage();
         
-                    $.panelsocketserver.sendJSONToAll(JSON.stringify({
+                    $.alertspollssocket.sendJSONToAll(JSON.stringify({
                         'new_tugOfWar_vote': 'true',
                         'data': JSON.stringify(objOBS)
                     }));
@@ -68,7 +68,7 @@
         
         calculateBitsPercentage();
         
-        $.panelsocketserver.sendJSONToAll(JSON.stringify({
+        $.alertspollssocket.sendJSONToAll(JSON.stringify({
                         'new_tugOfWar_vote': 'true',
                         'data': JSON.stringify(objOBS)
                     }));

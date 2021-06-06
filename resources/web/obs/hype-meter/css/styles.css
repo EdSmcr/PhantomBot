@@ -25,7 +25,7 @@
 .arrow{
     left: 257px;
     bottom: 2px;
-    z-index: 2;    
+    z-index: 4;    
 }
 
 .shadow{
@@ -37,7 +37,7 @@
 
 .iconLeft, .iconRight{
     bottom: 60px;
-    width: 50px;
+    width: 110px;
     z-index: 3;
 }
 

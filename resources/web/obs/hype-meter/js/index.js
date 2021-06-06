@@ -197,7 +197,7 @@ $(function() {
                     }
                 } else {
                     // Handle our stats.
-                   if (message.hasOwnProperty('hypeMeterSystem_new_vote')) { // New vote, handle it.
+                   if (message.hasOwnProperty('hypemeter_new_vote')) { // New vote, handle it.
                         updateMeter(message);
                     } 
                 }

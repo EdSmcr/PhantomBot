@@ -94,7 +94,7 @@
 
                 calculateBitsPercentage();
 
-                $.panelsocketserver.sendJSONToAll(JSON.stringify({
+                $.alertspollssocket.sendJSONToAll(JSON.stringify({
                                 'new_bitboss_vote': 'true',
                                 'data': JSON.stringify(objOBS)
                             }));
