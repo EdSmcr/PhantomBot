@@ -270,7 +270,7 @@
 
         keys = Object.keys(queue);
         t = 1;
-
+        
         for (i in keys) {
             queue[keys[i]].position = t;
             var temp = JSON.parse($.inidb.get('queue', keys[i]));
@@ -278,7 +278,7 @@
             $.inidb.set('queue', keys[i], JSON.stringify(temp));
             t++;
         }
-
+        
     }
 
     /*
@@ -287,16 +287,12 @@
      * @param {String} username
      * @param {String} action
      */
-    function pick(username, action, random) {
+    function pick(username, action) {
         var total = (action === undefined || isNaN(parseInt(action)) ? 1 : parseInt(action)),
             keys = Object.keys(queue),
             temp = [],
             t = 1,
             i;
-
-        if (random) {
-            keys = $.arrayShuffle(keys);
-        }
 
         for (i in keys) {
             if (total >= t && temp.length < 400) {
@@ -378,14 +374,7 @@
              * @commandpath queue pick [amount] - Picks the players next in line from the queue. Note if the amount is not specified it will only pick one.
              */
             else if (action.equalsIgnoreCase('pick')) {
-                pick(sender, subAction, false);
-            }
-
-            /*
-             * @commandpath queue random [amount] - Picks random players from the queue. Note if the amount is not specified it will only pick one.
-             */
-            else if (action.equalsIgnoreCase('random')) {
-                pick(sender, subAction, true);
+                pick(sender, subAction);
             }
 
             /*
@@ -420,7 +409,6 @@
         $.registerChatSubcommand('queue', 'clear', 1);
         $.registerChatSubcommand('queue', 'remove', 1);
         $.registerChatSubcommand('queue', 'pick', 1);
-        $.registerChatSubcommand('queue', 'random', 1);
         $.registerChatSubcommand('queue', 'list', 7);
         $.registerChatSubcommand('queue', 'next', 7);
         $.registerChatSubcommand('queue', 'info', 7);
@@ -441,9 +429,7 @@
             } else if (action.equalsIgnoreCase('close')) {
                 close($.channelName);
             } else if (action.equalsIgnoreCase('pick')) {
-                pick($.channelName, event.getArgs()[1], false);
-            } else if (action.equalsIgnoreCase('random')) {
-                pick($.channelName, event.getArgs()[1], true);
+                pick($.channelName, event.getArgs()[1]);
             } else if (action.equalsIgnoreCase('remove')) {
                 if (event.getArgs()[1] !== undefined && queue[event.getArgs()[1]] !== undefined) {
                     delete queue[event.getArgs()[1].toLowerCase()];

@@ -234,13 +234,13 @@ public abstract class DataStore {
         SetString(fName, section, key, sval);
     }
 
-    public boolean GetBoolean(String fName, String section, String key) {
+    public Boolean GetBoolean(String fName, String section, String key) {
         int ival = GetInteger(fName, section, key);
 
         return ival == 1;
     }
 
-    public void SetBoolean(String fName, String section, String key, boolean value) {
+    public void SetBoolean(String fName, String section, String key, Boolean value) {
         int ival = 0;
 
         if (value) {
@@ -332,10 +332,6 @@ public abstract class DataStore {
 
     public String[] searchByKey(String fName, String search) {
         return GetKeysByLikeKeys(fName, "", search);
-    }
-
-    public String[][] executeSql(String sql, String[] replacements) {
-        return new String[][]{};
     }
 
     public void CreateIndexes() {

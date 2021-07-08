@@ -62,10 +62,6 @@
         return (game.length > 15 ? game.substr(0, 15) + '...' : game);
     }
 
-    function sanitizeTitle(s) {
-        return s.replace(/(\@everyone|\@here|<@&\d+>|<@\d+>|<#\d+>)/ig, '');
-    }
-
     /**
      * @event twitchOffline
      */
@@ -147,7 +143,7 @@
                 msg = $.discordAPI.sendMessageEmbed(channelName, new Packages.tv.phantombot.discord.util.EmbedBuilder()
                     .withColor(100, 65, 164)
                     .withThumbnail($.twitchcache.getLogoLink())
-                    .withTitle(sanitizeTitle(s))
+                    .withTitle(s.replace(/(\@everyone|\@here)/ig, ''))
                     .appendField($.lang.get('discord.streamhandler.offline.game'), getTrimmedGameName(), true)
                     .appendField($.lang.get('discord.streamhandler.offline.viewers'), $.lang.get('discord.streamhandler.offline.viewers.stat', avgViewers, maxViewers), true)
                     .appendField($.lang.get('discord.streamhandler.offline.chatters'), $.lang.get('discord.streamhandler.offline.chatters.stat', avgChatters, maxChatters), true)
@@ -201,7 +197,7 @@
                     msg = $.discordAPI.sendMessageEmbed(channelName, new Packages.tv.phantombot.discord.util.EmbedBuilder()
                         .withColor(100, 65, 164)
                         .withThumbnail($.twitchcache.getLogoLink())
-                        .withTitle(sanitizeTitle(s))
+                        .withTitle(s.replace(/(\@everyone|\@here)/ig, ''))
                         .appendField($.lang.get('discord.streamhandler.common.game'), getTrimmedGameName(), false)
                         .appendField($.lang.get('discord.streamhandler.common.title'), $.getStatus($.channelName), false)
                         .withUrl('https://twitch.tv/' + $.channelName)
@@ -243,7 +239,7 @@
         liveMessages.push($.discordAPI.sendMessageEmbed(channelName, new Packages.tv.phantombot.discord.util.EmbedBuilder()
             .withColor(100, 65, 164)
             .withThumbnail($.twitchcache.getLogoLink())
-            .withTitle(sanitizeTitle(s))
+            .withTitle(s.replace(/(\@everyone|\@here)/ig, ''))
             .appendField($.lang.get('discord.streamhandler.common.game'), getTrimmedGameName(), false)
             .appendField($.lang.get('discord.streamhandler.common.title'), $.getStatus($.channelName), false)
             .appendField($.lang.get('discord.streamhandler.common.uptime'), $.getStreamUptime($.channelName).toString(), false)

@@ -218,7 +218,7 @@
      * @returns {boolean}
      */
     function isMod(username) {
-        return isModeratorCache(username.toLowerCase()) || getUserGroupId(username.toLowerCase()) <= 2 || isOwner(username);
+        return getUserGroupId(username.toLowerCase()) <= 2 || isOwner(username);
     }
 
     /**
@@ -229,13 +229,7 @@
      * @returns {boolean}
      */
     function isModv3(username, tags) {
-        if (tags != null && tags != '{}') {
-            if (tags.get('user-type').length() > 0) { // Broadcaster should be included here.
-                return true;
-            }
-        }
-        $.consoleDebug('Used isModv3 without tags::' + tags);
-        return isMod(username);
+        return (tags != null && tags != '{}' && tags.get('user-type').length() > 0) || isModeratorCache(username.toLowerCase()) || isOwner(username);
     }
 
     /**
@@ -259,10 +253,17 @@
         if (tags != null && tags != '{}') {
             if (tags.containsKey('subscriber')) {
                 return tags.get('subscriber').equals('1');
+            } else {
+                $.consoleDebug('Used isSub without tags::' + tags);
+                return isSub(username);
             }
+        } else {
+            $.consoleDebug('Used isSub without tags::' + tags);
+            return isSub(username);
         }
-        $.consoleDebug('Used isSubv3 without tags::' + tags);
-        return isSub(username);
+
+        // Only use isSub is we don't have tags, using that method is our last resource.
+        // return (tags != null && tags != '{}' && tags.get('subscriber').equals('1')) || isSub(username);
     }
 
     /**
@@ -292,13 +293,7 @@
      * @returns {boolean}
      */
     function isVIP(username, tags) {
-        if (tags != null && tags != '{}') {
-            if (tags.containsKey('vip')) {
-                return tags.get('vip').equals('1');
-            }
-        }
-        $.consoleDebug('Used isVIP without tags::' + tags);
-        return getUserGroupId(username.toLowerCase()) == getVIPGroupID();
+        return (tags != null && tags != '{}' && tags.get('vip').equals('1')) || getUserGroupId(username.toLowerCase()) == getVIPGroupID();
     }
 
     /**

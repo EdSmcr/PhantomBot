@@ -35,8 +35,6 @@ $(function() {
     // Example: MAJOR.MINOR.PATCH
     helpers.PANEL_VERSION = "NONE";
 
-    helpers.hashmap = [];
-
     /*
      * @function adds commas to thousands.
      *
@@ -114,31 +112,23 @@ $(function() {
     helpers.getEventMessage = function(event) {
         switch (event.type.toLowerCase()) {
             case 'subscriber':
-                return (event.username + ' just subscribed at tier ' + event.tier + '!');
+                return (event.username + ' just subscribed!');
             case 'prime subscriber':
                 return (event.username + ' just subscribed with Twitch Prime!');
-            case 'prime resubscriber':
-                return (event.username + ' just resubscribed with Twitch Prime for ' + event.months + ' months!');
             case 'resubscriber':
-                return (event.username + ' just resubscribed at tier ' + event.tier + ' for ' + event.months + ' months!');
+                return (event.username + ' just resubscribed for ' + event.months + ' months in a row!');
             case 'follower':
                 return (event.username + ' just followed!');
             case 'bits':
                 return (event.username + ' just cheered ' + event.amount + ' bits!');
             case 'host':
                 return (event.username + ' just hosted with ' + event.viewers + ' viewers!');
-            case 'tip':
-                return (event.username + ' just tipped ' + event.amount + ' ' + event.currency +'!');
+            case 'tip': // To be added soon.
+                break;
             case 'raid':
                 return (event.username + ' raided for ' + event.viewers + ' viewers!');
             case 'gifted subscription':
-                return (event.username + ' gifted a subscription to ' + event.recipient + ' at tier ' + event.tier + '!');
-            case 'anonymous gifted subscription':
-                return ('An anonymous viewer gifted a subscription to ' + event.recipient + ' at tier ' + event.tier + '!');
-            case 'mass gifted subscription':
-                return (event.username + ' gifted subscriptions to ' + event.amount + ' viewers at tier ' + event.tier + '!');
-            case 'anonymous mass gifted subscription':
-                return ('An anonymous viewer gifted subscriptions to ' + event.amount + ' viewers at tier ' + event.tier + '!');
+                return (event.username + ' gifted a subscription to ' + event.recipient + '!');
         }
     };
 
@@ -152,31 +142,23 @@ $(function() {
     helpers.getEventColor = function(event) {
         switch (event.toLowerCase()) {
             case 'subscriber':
-                return 'background-color: #16b7d9;';
+                return 'background-color: #16a7d9;';
             case 'prime subscriber':
-                return 'background-color: #1667d9;';
-            case 'prime resubscriber':
-                return 'background-color: #1637d9;';
+                return 'background-color: #1693bc;';
             case 'resubscriber':
-                return 'background-color: #1697d9;';
+                return 'background-color: #ed961c;';
             case 'follower':
                 return 'background-color: #c62828;';
             case 'bits':
                 return 'background-color: #6441a5;';
             case 'host':
                 return 'background-color: #ed4c1c;';
-            case 'tip':
-                return 'background-color: #846195;';
+            case 'tip': // To be added soon.
+                return 'background-color: #6441a5;';
             case 'raid':
                 return 'background-color: #4caf50;';
             case 'gifted subscription':
                 return 'background-color: #01579b;';
-            case 'anonymous gifted subscription':
-                return 'background-color: #666666;';
-            case 'mass gifted subscription':
-                return 'background-color: #01779b;';
-            case 'anonymous mass gifted subscription':
-                return 'background-color: #aaaaaa;';
         }
     };
 
@@ -406,7 +388,7 @@ $(function() {
         }).append($('<div/>', {
             'class': 'modal-content'
         }).append($('<div/>', {
-            'class': 'modal-header'
+            'class': 'modal-header',
         }).append($('<button/>', {
             'type': 'button',
             'class': 'close',
@@ -419,7 +401,7 @@ $(function() {
             'class': 'modal-body',
             'html': body
         })).append($('<div/>', {
-            'class': 'modal-footer'
+            'class': 'modal-footer',
         }).append($('<button/>', {
             'class': 'btn btn-primary',
             'type': 'button',
@@ -457,7 +439,7 @@ $(function() {
         }).append($('<div/>', {
             'class': 'modal-content'
         }).append($('<div/>', {
-            'class': 'modal-header'
+            'class': 'modal-header',
         }).append($('<button/>', {
             'type': 'button',
             'class': 'close',
@@ -470,7 +452,7 @@ $(function() {
             'class': 'modal-body',
             'html': body
         })).append($('<div/>', {
-            'class': 'modal-footer'
+            'class': 'modal-footer',
         }).append($('<button/>', {
             'class': 'btn btn-default pull-left',
             'type': 'button',
@@ -521,7 +503,7 @@ $(function() {
     helpers.getInputGroup = function(id, type, title, placeholder, value, toolTip, disabled) {
         return $('<div/>', {
             'class': 'form-group'
-        }).append($('<label/>', {
+        }).append($('<lable/>', {
             'html': $('<b/>', {
                 'text': title
             })
@@ -553,7 +535,7 @@ $(function() {
     helpers.getTextAreaGroup = function(id, type, title, placeholder, value, toolTip, unlimited) {
         return $('<div/>', {
             'class': 'form-group'
-        }).append($('<label/>', {
+        }).append($('<lable/>', {
             'html': $('<b/>', {
                 'text': title
             })
@@ -585,7 +567,7 @@ $(function() {
     helpers.getDropdownGroup = function(id, title, def, options, toolTip) {
         return  $('<div/>', {
             'class': 'form-group'
-        }).append($('<label/>', {
+        }).append($('<lable/>', {
             'html': $('<b/>', {
                 'text': title
             })
@@ -608,55 +590,6 @@ $(function() {
             return $('<option/>', {
                 'html': option
             });
-        }))));
-    };
-
-    helpers.getDropdownGroupWithGrouping = function(id, title, options, toolTip) {
-        return  $('<div/>', {
-            'class': 'form-group'
-        }).append($('<label/>', {
-            'html': $('<b/>', {
-                'text': title
-            })
-        })).append($('<div/>', {
-            'class': 'dropdown',
-            'data-toggle': 'tooltip',
-            'title': toolTip
-        }).append($('<select/>', {
-            'class': 'form-control select2 select2-hidden-accessible',
-            'id': id,
-            'style': 'width: 100%; cursor: pointer;'
-        }).append(options.map(function(option) {
-            let selected = option.selected;
-            let roles = option.options;
-            let group = $('<optgroup/>', {
-                'label': option.title
-            });
-
-            for (let i = 0; i < roles.length; i++) {
-                let o = $('<option/>', {
-                    'html': roles[i].name,
-                    'id': roles[i]._id
-                });
-
-                if (roles[i].value !== undefined) {
-                    o.attr('value', roles[i].value);
-                }
-
-                if (roles[i].selected !== undefined && roles[i].selected === true) {
-                    o.attr('selected', 'selected');
-                } else if (selected !== undefined && selected.indexOf(roles[i]._id) > -1) {
-                    o.attr('selected', 'selected');
-                }
-
-                if (roles[i].disabled !== undefined && roles[i].disabled === true) {
-                    o.attr('disabled', 'disabled');
-                }
-
-                group.append(o);
-            }
-
-            return group;
         }))));
     };
 
@@ -684,7 +617,7 @@ $(function() {
     helpers.getMultiDropdownGroup = function(id, title, options, toolTip) {
         return  $('<div/>', {
             'class': 'form-group'
-        }).append($('<label/>', {
+        }).append($('<lable/>', {
             'html': $('<b/>', {
                 'text': title
             })
@@ -710,7 +643,7 @@ $(function() {
                     'id': roles[i]._id
                 });
 
-                if (roles[i].selected !== undefined && roles[i].selected === 'true') {
+                if (roles[i].selected === 'true') {
                     o.attr('selected', 'selected');
                 } else if (selected !== undefined && selected.indexOf(roles[i]._id) > -1) {
                     o.attr('selected', 'selected');
@@ -741,7 +674,7 @@ $(function() {
     helpers.getFlatMultiDropdownGroup = function(id, title, options, toolTip) {
         return  $('<div/>', {
             'class': 'form-group'
-        }).append($('<label/>', {
+        }).append($('<lable/>', {
             'html': $('<b/>', {
                 'text': title
             })
@@ -759,7 +692,7 @@ $(function() {
                 'html': option.name,
                 'id': option._id
             });
-            if (option.selected !== undefined && option.selected === 'true') {
+            if (option.selected === 'true') {
                 o.attr('selected', 'selected');
             }
             return o;
@@ -870,7 +803,7 @@ $(function() {
             if (isRemoved) {
                 onClose();
                 swal(closeMessage, {
-                    'icon': 'success'
+                    'icon': 'success',
                 });
             }
         });
@@ -1100,49 +1033,49 @@ $(function() {
             // select2.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'vendors/select2/select2.dark.min.css'
+                'href': '/panel/vendors/select2/select2.dark.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'vendors/adminlte/css/AdminLTE.dark.min.css'
+                'href': '/panel/vendors/adminlte/css/AdminLTE.dark.min.css'
             }));
 
             // skins.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'vendors/adminlte/css/skins/skin-purple.dark.min.css'
+                'href': '/panel/vendors/adminlte/css/skins/skin-purple.dark.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'css/style.dark.min.css'
+                'href': '/panel/css/style.dark.min.css'
             }));
         } else {
             // select2.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'vendors/select2/select2.min.css'
+                'href': '/panel/vendors/select2/select2.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'vendors/adminlte/css/AdminLTE.min.css'
+                'href': '/panel/vendors/adminlte/css/AdminLTE.min.css'
             }));
 
             // skins.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'vendors/adminlte/css/skins/skin-purple.min.css'
+                'href': '/panel/vendors/adminlte/css/skins/skin-purple.min.css'
             }));
 
             // AdminLTE.
             head.append($('<link/>', {
                 'rel': 'stylesheet',
-                'href': 'css/style.min.css'
+                'href': '/panel/css/style.min.css'
             }));
         }
     };
@@ -1157,28 +1090,9 @@ $(function() {
         if (version !== null) {
             if ($('#notifications-total').data('isset') === false) {
                 // Send a warning to the user.
-                toastr.warning('New update availabel for PhantomBot!', {
+                toastr.warning('New update available for PhantomBot!', {
                     'timeOut': 2000
                 });
-
-                let html = '';
-                if (version.startsWith("nightly-")) {
-                    html = 'Nightly build ' + version.substr(8) + ' of PhantomBot is now availabel to download! <br>' +
-                            'You can grab your own copy of nightly build ' + version.substr(8) + ' of PhantomBot ' +
-                                $('<a/>', { 'target': '_blank', 'rel': 'noopener noreferrer' }).prop('href', downloadLink).append('here.')[0].outerHTML + ' <br>' +
-                            '<b>Please check ' +
-                                $('<a/>', { 'target': '_blank', 'rel': 'noopener noreferrer' }).prop('href', 'https://phantombot.github.io/PhantomBot/guides/#guide=content/setupbot/updatebot').append('this guide')[0].outerHTML +
-                                ' on how to properly update PhantomBot.</b>';
-                } else {
-                    html = 'Version ' + version + ' of PhantomBot is now availabel to download! <br>' +
-                            'You can view the changes of this version ' +
-                                $('<a/>', { 'target': '_blank', 'rel': 'noopener noreferrer' }).prop('href', 'https://github.com/PhantomBot/PhantomBot/releases/' + version).append('here.')[0].outerHTML + ' <br>' +
-                            'You can grab your own copy of version ' + version + ' of PhantomBot ' +
-                                $('<a/>', { 'target': '_blank', 'rel': 'noopener noreferrer' }).prop('href', downloadLink).append('here.')[0].outerHTML + ' <br>' +
-                            '<b>Please check ' +
-                                $('<a/>', { 'target': '_blank', 'rel': 'noopener noreferrer' }).prop('href', 'https://phantombot.github.io/PhantomBot/guides/#guide=content/setupbot/updatebot').append('this guide')[0].outerHTML +
-                                ' on how to properly update PhantomBot.</b>';
-                }
 
                 // Set the total notifications.
                 $('#notifications-total').html('1').data('isset', 'true');
@@ -1192,14 +1106,21 @@ $(function() {
                             'role': 'form'
                         })
                         .append($('<p/>', {
-                            'html': html
+                            'html': 'Version ' + version + ' of PhantomBot is now available to download! <br>' +
+                            'You can view the changes of this version ' +
+                                $('<a/>', { 'target': '_blank' }).prop('href', 'https://github.com/PhantomBot/PhantomBot/releases/' + version).append('here.')[0].outerHTML + ' <br>' +
+                            'You can grab your own copy of version ' + version + ' of PhantomBot ' +
+                                $('<a/>', { 'target': '_blank' }).prop('href', downloadLink).append('here.')[0].outerHTML + ' <br>' +
+                            '<b>Please check ' +
+                                $('<a/>', { 'target': '_blank' }).prop('href', 'https://phantombot.github.io/PhantomBot/guides/#guide=content/setupbot/updatebot').append('this guide')[0].outerHTML +
+                                ' on how to properly update PhantomBot.</b>'
                         })), function() {
                             $('#pb-update').modal('toggle');
                         }).modal('toggle');
                     }
                 }).append($('<i/>', {
                     'class': 'fa fa-warning text-yellow'
-                })).append('Update availabel')))
+                })).append('Update available')))
             }
         }
     };
@@ -1264,74 +1185,6 @@ $(function() {
         }
 
         return parsedDate;
-    };
-
-    helpers.parseHashmap = function() {
-        var hash = window.location.hash.substr(1);
-        var kvs = hash.split('&');
-        var hashmap = [];
-        var spl;
-
-        for (var i = 0; i < kvs.length; i++) {
-            spl = kvs[i].split('=', 2);
-            hashmap[spl[0]] = spl[1];
-        }
-
-        helpers.hashmap = hashmap;
-    };
-
-    helpers.setupAuth = function() {
-        if (window.localStorage.getItem('remember') && window.localStorage.getItem('expires')) {
-            if (window.localStorage.getItem('expires') > Date.now()) {
-                window.localStorage.setItem('expires', Date.now() + (parseInt(window.localStorage.getItem('remember')) * 3600000));
-            } else {
-                window.sessionStorage.removeItem('webauth');
-            }
-        }
-        window.panelSettings.auth = window.sessionStorage.getItem('webauth') || '!missing';
-    };
-
-    helpers.getBotHost = function() {
-        var bothostname = window.localStorage.getItem('bothostname') || 'localhost';
-        var botport = window.localStorage.getItem('botport') || 25000;
-
-        return bothostname.length > 0 ? bothostname + (botport !== 80 && botport !== 443 ? ':' + botport : '') : '!missing';
-    };
-
-    helpers.getUserLogo = function() {
-      socket.doRemote('userLogo', 'userLogo', {}, function(e) {
-          if (!e[0].errors) {
-              $('#user-image1').attr('src', 'data:image/jpeg;base64, ' + e[0].logo);
-              $('#user-image2').attr('src', 'data:image/jpeg;base64, ' + e[0].logo);
-          }
-      });
-    };
-
-    //https://stackoverflow.com/a/57380742
-    helpers.promisePoll = (promiseFunction, { pollIntervalMs = 2000 } = {}) => {
-        const startPoll = async resolve => {
-            const startTime = new Date();
-            const result = await promiseFunction();
-
-            if (result) {
-                return resolve();
-            }
-
-            const timeUntilNext = Math.max(pollIntervalMs - (new Date() - startTime), 0);
-            setTimeout(() => startPoll(resolve), timeUntilNext);
-        };
-
-        return new Promise(startPoll);
-    };
-
-    helpers.toggleDebug = function() {
-        localStorage.setItem('phantombot_debug_state', localStorage.getItem('phantombot_debug_state') !== '1' ? '1' : '0');
-        helpers.DEBUG_STATE = (localStorage.getItem('phantombot_debug_state') !== null ? parseInt(localStorage.getItem('phantombot_debug_state')) : helpers.DEBUG_STATES.NONE);
-        helpers.log('Debug Output set to ' + helpers.DEBUG_STATE, helpers.LOG_TYPE.FORCE);
-    };
-
-    helpers.isLocalPanel = function() {
-        return helpers.getBotHost() === window.location.host;
     };
 
     // Export.

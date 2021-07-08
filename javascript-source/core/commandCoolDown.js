@@ -165,10 +165,6 @@
         return 0;
     }
 
-    function exists(command) {
-        return defaultCooldowns[command] !== undefined || cooldowns[command] !== undefined;
-    }
-
     /*
      * @function set
      *
@@ -355,7 +351,6 @@
         remove: remove,
         clear: clear,
         get: get,
-        exists: exists,
         set: set,
         add: add,
         getSecs: getSecs

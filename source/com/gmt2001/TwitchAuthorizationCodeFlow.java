@@ -28,11 +28,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Enumeration;
-import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
@@ -43,7 +40,6 @@ import org.json.JSONObject;
 import tv.phantombot.CaselessProperties;
 import tv.phantombot.PhantomBot;
 import tv.phantombot.httpserver.HTTPOAuthHandler;
-import tv.phantombot.twitch.api.TwitchValidate;
 
 /**
  *
@@ -61,38 +57,39 @@ public class TwitchAuthorizationCodeFlow {
     }
 
     public boolean refresh(CaselessProperties properties) {
-        return refreshTokens(properties, true, true);
+        return refreshTokens(properties);
     }
 
-    public boolean checkAndRefreshTokens(CaselessProperties properties) {
-        boolean bot = false;
-        boolean api = false;
-
-        Calendar c = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
-        c.setTimeInMillis(Long.parseLong(properties.getProperty("oauthexpires", "0")));
-        c.add(Calendar.MILLISECOND, -((int) REFRESH_INTERVAL) - 1000);
-        if (c.before(Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC)))) {
-            bot = true;
-        }
-
-        c = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
-        c.setTimeInMillis(Long.parseLong(properties.getProperty("apiexpires", "0")));
-        c.add(Calendar.MILLISECOND, -((int) REFRESH_INTERVAL) - 1000);
-        if (c.before(Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC)))) {
-            api = true;
-        }
-
-        return refreshTokens(properties, bot, api);
-    }
-
-    private boolean refreshTokens(CaselessProperties properties, boolean bot, boolean api) {
+    private boolean refreshTokens(CaselessProperties properties) {
         boolean changed = false;
-        if (bot) {
-            changed = changed || refreshBotOAuth(properties);
+        if (properties != null && properties.getProperty("refresh") != null
+                && !properties.getProperty("refresh").isBlank()) {
+            JSONObject result = tryRefresh(properties.getProperty("clientid"), properties.getProperty("clientsecret"), properties.getProperty("refresh"));
+
+            if (result.has("error")) {
+                com.gmt2001.Console.err.println(result.toString());
+            } else {
+                properties.setProperty("oauth", result.getString("access_token"));
+                properties.setProperty("refresh", result.getString("refresh_token"));
+
+                com.gmt2001.Console.out.println("Refreshed the bot token");
+                changed = true;
+            }
         }
 
-        if (api) {
-            changed = changed || refreshAPIOAuth(properties);
+        if (properties != null && properties.getProperty("apirefresh") != null
+                && !properties.getProperty("apirefresh").isBlank()) {
+            JSONObject result = tryRefresh(properties.getProperty("clientid"), properties.getProperty("clientsecret"), properties.getProperty("apirefresh"));
+
+            if (result.has("error")) {
+                com.gmt2001.Console.err.println(result.toString());
+            } else {
+                properties.setProperty("apioauth", result.getString("access_token"));
+                properties.setProperty("apirefresh", result.getString("refresh_token"));
+
+                com.gmt2001.Console.out.println("Refreshed the broadcaster token");
+                changed = true;
+            }
         }
 
         if (changed) {
@@ -113,57 +110,8 @@ public class TwitchAuthorizationCodeFlow {
                 if (PhantomBot.instance() != null) {
                     PhantomBot.instance().reloadProperties();
                 }
-
-                TwitchValidate.instance().updateChatToken(PhantomBot.instance().getProperties().getProperty("oauth"));
-                TwitchValidate.instance().updateAPIToken(PhantomBot.instance().getProperties().getProperty("apioauth"));
-            } catch (NullPointerException | IOException ex) {
+            } catch (IOException ex) {
                 com.gmt2001.Console.err.printStackTrace(ex);
-            }
-        }
-
-        return changed;
-    }
-
-    private boolean refreshBotOAuth(CaselessProperties properties) {
-        boolean changed = false;
-        if (properties != null && properties.getProperty("refresh") != null
-                && !properties.getProperty("refresh").isBlank()) {
-            JSONObject result = tryRefresh(properties.getProperty("clientid"), properties.getProperty("clientsecret"), properties.getProperty("refresh"));
-
-            if (result.has("error")) {
-                com.gmt2001.Console.err.println(result.toString());
-            } else {
-                Calendar c = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
-                c.add(Calendar.SECOND, result.getInt("expires_in"));
-                properties.setProperty("oauth", result.getString("access_token"));
-                properties.setProperty("refresh", result.getString("refresh_token"));
-                properties.setProperty("oauthexpires", c.getTimeInMillis() + "");
-
-                com.gmt2001.Console.out.println("Refreshed the bot token");
-                changed = true;
-            }
-        }
-
-        return changed;
-    }
-
-    private boolean refreshAPIOAuth(CaselessProperties properties) {
-        boolean changed = false;
-        if (properties != null && properties.getProperty("apirefresh") != null
-                && !properties.getProperty("apirefresh").isBlank()) {
-            JSONObject result = tryRefresh(properties.getProperty("clientid"), properties.getProperty("clientsecret"), properties.getProperty("apirefresh"));
-
-            if (result.has("error")) {
-                com.gmt2001.Console.err.println(result.toString());
-            } else {
-                Calendar c = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
-                c.add(Calendar.SECOND, result.getInt("expires_in"));
-                properties.setProperty("apioauth", result.getString("access_token"));
-                properties.setProperty("apirefresh", result.getString("refresh_token"));
-                properties.setProperty("apiexpires", c.getTimeInMillis() + "");
-
-                com.gmt2001.Console.out.println("Refreshed the broadcaster token");
-                changed = true;
             }
         }
 
@@ -181,7 +129,7 @@ public class TwitchAuthorizationCodeFlow {
                 @Override
                 public void run() {
                     if (PhantomBot.instance() != null) {
-                        checkAndRefreshTokens(PhantomBot.instance().getProperties());
+                        refreshTokens(PhantomBot.instance().getProperties());
                     }
                 }
             }, REFRESH_INTERVAL, REFRESH_INTERVAL);
@@ -267,11 +215,8 @@ public class TwitchAuthorizationCodeFlow {
                     data = ("false|invalidJSONResponse" + result.toString()).getBytes();
                     com.gmt2001.Console.err.println(result.toString());
                 } else {
-                    Calendar c = Calendar.getInstance(TimeZone.getTimeZone(ZoneOffset.UTC));
-                    c.add(Calendar.SECOND, result.getInt("expires_in"));
                     PhantomBot.instance().getProperties().setProperty((qsd.parameters().get("type").get(0).equals("bot") ? "" : "api") + "oauth", result.getString("access_token"));
                     PhantomBot.instance().getProperties().setProperty((qsd.parameters().get("type").get(0).equals("bot") ? "" : "api") + "refresh", result.getString("refresh_token"));
-                    PhantomBot.instance().getProperties().setProperty((qsd.parameters().get("type").get(0).equals("bot") ? "oauth" : "api") + "expires", c.getTimeInMillis() + "");
 
                     if (!qsd.parameters().get("type").get(0).equals("bot")) {
                         handler.changeBroadcasterToken();

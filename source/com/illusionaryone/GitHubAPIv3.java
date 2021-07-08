@@ -31,7 +31,6 @@ import javax.net.ssl.HttpsURLConnection;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import tv.phantombot.PhantomBot;
 import tv.phantombot.RepoVersion;
 
 /*
@@ -179,7 +178,20 @@ public class GitHubAPIv3 {
             return null;
         }
 
-        String os = PhantomBot.getOsSuffix();
+        String os = "";
+        String osname = System.getProperty("os.name").toLowerCase();
+
+        if (osname.contains("win")) {
+            os = "-win";
+        } else if (osname.contains("mac")) {
+            os = "-mac";
+        } else if (osname.contains("nix") || osname.contains("nux") || osname.contains("aix")) {
+            if (System.getProperty("os.arch").toLowerCase().contains("arm")) {
+                os = "-arm";
+            } else {
+                os = "-lin";
+            }
+        }
 
         JSONArray assetsArray = jsonArray.getJSONObject(0).getJSONArray("assets");
         Pattern p = Pattern.compile(".*PhantomBot-[0-9]+\\.[0-9]+\\.[0-9]+" + os + "\\.zip", Pattern.CASE_INSENSITIVE);

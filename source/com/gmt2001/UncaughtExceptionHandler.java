@@ -47,7 +47,7 @@ public class UncaughtExceptionHandler implements Thread.UncaughtExceptionHandler
         PrintWriter ptrace = new PrintWriter(trace);
 
         e.printStackTrace(ptrace);
-        com.gmt2001.Console.err.printStackTrace(e, true);
+        com.gmt2001.Console.err.printStackTrace(e);
 
         try {
             if (!new File ("./logs/stacktraces").exists()) {

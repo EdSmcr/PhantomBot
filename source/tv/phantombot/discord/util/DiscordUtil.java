@@ -32,26 +32,17 @@ import discord4j.core.spec.EmbedCreateSpec;
 import discord4j.rest.http.client.ClientException;
 import discord4j.rest.json.response.ErrorResponse;
 import discord4j.rest.util.Permission;
-import discord4j.common.util.Snowflake;
-import discord4j.core.object.entity.channel.Category;
-import discord4j.core.object.entity.channel.GuildChannel;
-import discord4j.core.object.entity.channel.NewsChannel;
-import discord4j.core.object.entity.channel.StoreChannel;
-import discord4j.core.object.entity.channel.TextChannel;
-import discord4j.core.object.entity.channel.VoiceChannel;
-import discord4j.rest.util.Color;
+import discord4j.rest.util.Snowflake;
+import java.awt.Color;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
@@ -123,7 +114,6 @@ public class DiscordUtil {
      *
      * @param channel
      * @param message
-     * @param iteration
      * @return {Message}
      */
     public Mono<Message> sendMessageAsync(MessageChannel channel, String message, int iteration) {
@@ -137,7 +127,7 @@ public class DiscordUtil {
         }
 
         if (channel != null) {
-            if (channel.getType() == Channel.Type.DM || channel.getType() == Channel.Type.GROUP_DM) {
+            if (channel.getType() == Channel.Type.DM) {
                 sendPrivateMessage((PrivateChannel) channel, message);
                 return null;
             }
@@ -145,7 +135,7 @@ public class DiscordUtil {
             return channel.createMessage(message).doOnError(e -> {
                 com.gmt2001.Console.err.printStackTrace(e);
             }).onErrorResume(e -> sendMessageAsync(channel, message, iteration + 1))
-                    .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + DiscordUtil.channelName(channel) + "] [CHAT] " + message));
+                    .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + ((GuildMessageChannel) channel).getName() + "] [CHAT] " + message));
         } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
             return sendMessageAsync(channel, message, iteration + 1);
         } else {
@@ -204,7 +194,6 @@ public class DiscordUtil {
      *
      * @param channel
      * @param message
-     * @param iteration
      */
     public void sendPrivateMessage(PrivateChannel channel, String message, int iteration) {
         if (iteration >= MAX_ITERATION) {
@@ -257,7 +246,6 @@ public class DiscordUtil {
      *
      * @param channel
      * @param embed
-     * @param iteration
      * @return {Message}
      */
     public Mono<Message> sendMessageEmbedAsync(GuildMessageChannel channel, Consumer<? super EmbedCreateSpec> embed, int iteration) {
@@ -276,7 +264,7 @@ public class DiscordUtil {
             ).doOnError(e -> {
                 com.gmt2001.Console.err.printStackTrace(e);
             }).onErrorResume(e -> sendMessageEmbedAsync(channel, embed, iteration + 1))
-                    .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + DiscordUtil.channelName(channel) + "] [EMBED] " + m.getEmbeds().get(0).getDescription().orElse(m.getEmbeds().get(0).getTitle().orElse(""))));
+                    .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [EMBED] " + m.getEmbeds().get(0).getDescription().orElse(m.getEmbeds().get(0).getTitle().orElse(""))));
         } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
             return sendMessageEmbedAsync(channel, embed, iteration + 1);
         } else {
@@ -349,7 +337,6 @@ public class DiscordUtil {
      * @param channel
      * @param message
      * @param fileLocation
-     * @param iteration
      * @return {Message}
      */
     public Mono<Message> sendFileAsync(GuildMessageChannel channel, String message, String fileLocation, int iteration) {
@@ -364,7 +351,7 @@ public class DiscordUtil {
 
         if (channel != null) {
             if (!this.isValidFilePath(fileLocation)) {
-                com.gmt2001.Console.err.println("[DISCORD] [#" + DiscordUtil.channelName(channel) + "] [UPLOAD] [" + fileLocation + "] Rejecting fileLocation");
+                com.gmt2001.Console.err.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "] Rejecting fileLocation");
                 return null;
             } else {
                 if (message.isEmpty()) {
@@ -379,7 +366,7 @@ public class DiscordUtil {
                     ).doOnError(e -> {
                         com.gmt2001.Console.err.printStackTrace(e);
                     }).onErrorResume(e -> sendFileAsync(channel, message, fileLocation, iteration + 1))
-                            .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + DiscordUtil.channelName(channel) + "] [UPLOAD] [" + fileLocation + "]"));
+                            .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "]"));
                 } else {
                     return channel.createMessage(msg
                             -> {
@@ -392,7 +379,7 @@ public class DiscordUtil {
                     ).doOnError(e -> {
                         com.gmt2001.Console.err.printStackTrace(e);
                     }).onErrorResume(e -> sendFileAsync(channel, message, fileLocation, iteration + 1))
-                            .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + DiscordUtil.channelName(channel) + "] [UPLOAD] [" + fileLocation + "] " + message));
+                            .doOnSuccess(m -> com.gmt2001.Console.out.println("[DISCORD] [#" + channel.getName() + "] [UPLOAD] [" + fileLocation + "] " + message));
                 }
             }
         } else if (DiscordAPI.instance().checkConnectionStatus() == DiscordAPI.ConnectionState.RECONNECTED) {
@@ -541,85 +528,12 @@ public class DiscordUtil {
     public Mono<GuildMessageChannel> getChannelAsync(String channelName) {
         String schannelName = sanitizeChannelName(channelName);
         try {
-            return DiscordAPI.getGuild().getChannels().filter(channel -> DiscordUtil.channelName(channel).equalsIgnoreCase(schannelName)
-                    || DiscordUtil.channelIdAsString(channel).equals(schannelName)).take(1).single().map(c -> (GuildMessageChannel) c);
+            return DiscordAPI.getGuild().getChannels().filter(channel -> channel.getName().equalsIgnoreCase(schannelName)
+                    || channel.getId().asString().equals(schannelName)).take(1).single().map(c -> (GuildMessageChannel) c);
         } catch (NoSuchElementException ex) {
             com.gmt2001.Console.err.println("Unable to find channelName [" + channelName + "]");
             throw ex;
         }
-    }
-
-    @Deprecated
-    public Map<String, Map<String, String>> getAllChannelInfo() {
-        HashMap<String, Map<String, String>> data = new HashMap<>();
-        getAllChannelInfoAsync(data).blockLast(Duration.ofSeconds(5L));
-        return data;
-    }
-
-    public Flux<GuildChannel> getAllChannelInfoAsync(Map<String, Map<String, String>> data) {
-        return DiscordAPI.getGuild().getChannels().doOnNext(channel -> {
-            if (null != channel.getType()) {
-                switch (channel.getType()) {
-                    case GUILD_CATEGORY:
-                        Category rc = (Category) channel;
-                        data.putIfAbsent(rc.getId().asString(), new HashMap<>());
-                        data.get(rc.getId().asString()).putIfAbsent("name", rc.getName());
-                        break;
-                    case GUILD_NEWS:
-                        NewsChannel rn = (NewsChannel) channel;
-                        if (rn.getCategoryId().isPresent()) {
-                            if (!data.containsKey(rn.getCategoryId().get().asString())) {
-                                data.putIfAbsent(rn.getCategoryId().get().asString(), new HashMap<>());
-                            }
-
-                            data.get(rn.getCategoryId().get().asString()).putIfAbsent(rn.getId().asString(), rn.getType().name() + ":" + rn.getName());
-                        }
-                        break;
-                    case GUILD_STAGE_VOICE:
-                        VoiceChannel rsv = (VoiceChannel) channel;
-                        if (rsv.getCategoryId().isPresent()) {
-                            if (!data.containsKey(rsv.getCategoryId().get().asString())) {
-                                data.putIfAbsent(rsv.getCategoryId().get().asString(), new HashMap<>());
-                            }
-
-                            data.get(rsv.getCategoryId().get().asString()).putIfAbsent(rsv.getId().asString(), rsv.getType().name() + ":" + rsv.getName());
-                        }
-                        break;
-                    case GUILD_STORE:
-                        StoreChannel rs = (StoreChannel) channel;
-                        if (rs.getCategoryId().isPresent()) {
-                            if (!data.containsKey(rs.getCategoryId().get().asString())) {
-                                data.putIfAbsent(rs.getCategoryId().get().asString(), new HashMap<>());
-                            }
-
-                            data.get(rs.getCategoryId().get().asString()).putIfAbsent(rs.getId().asString(), rs.getType().name() + ":" + rs.getName());
-                        }
-                        break;
-                    case GUILD_TEXT:
-                        TextChannel rt = (TextChannel) channel;
-                        if (rt.getCategoryId().isPresent()) {
-                            if (!data.containsKey(rt.getCategoryId().get().asString())) {
-                                data.putIfAbsent(rt.getCategoryId().get().asString(), new HashMap<>());
-                            }
-
-                            data.get(rt.getCategoryId().get().asString()).putIfAbsent(rt.getId().asString(), rt.getType().name() + ":" + rt.getName());
-                        }
-                        break;
-                    case GUILD_VOICE:
-                        VoiceChannel rv = (VoiceChannel) channel;
-                        if (rv.getCategoryId().isPresent()) {
-                            if (!data.containsKey(rv.getCategoryId().get().asString())) {
-                                data.putIfAbsent(rv.getCategoryId().get().asString(), new HashMap<>());
-                            }
-
-                            data.get(rv.getCategoryId().get().asString()).putIfAbsent(rv.getId().asString(), rv.getType().name() + ":" + rv.getName());
-                        }
-                        break;
-                    default:
-                        break;
-                }
-            }
-        });
     }
 
     /**
@@ -635,7 +549,7 @@ public class DiscordUtil {
 
     public Mono<GuildMessageChannel> getChannelByIDAsync(String channelId) {
         try {
-            return DiscordAPI.getGuild().getChannels().filter(channel -> DiscordUtil.channelIdAsString(channel).equals(channelId)).take(1).single().map(c -> (GuildMessageChannel) c);
+            return DiscordAPI.getGuild().getChannels().filter(channel -> channel.getId().asString().equals(channelId)).take(1).single().map(c -> (GuildMessageChannel) c);
         } catch (NoSuchElementException ex) {
             com.gmt2001.Console.err.println("Unable to find channelId [" + channelId + "]");
             throw ex;
@@ -837,12 +751,8 @@ public class DiscordUtil {
             m.edit(eds
                     -> eds.setRoles(rolesSf)
             ).doOnError(e -> {
-                com.gmt2001.Console.err.println("Unable to edit member roles" + user.getMention() + " (" + DiscordAPI.getGuild().getName() + ")");
                 com.gmt2001.Console.err.printStackTrace(e);
             }).subscribe();
-        }).doOnError(e -> {
-            com.gmt2001.Console.err.println("Unable to convert user to member " + user.getMention() + " (" + DiscordAPI.getGuild().getName() + ")");
-            com.gmt2001.Console.err.printStackTrace(e);
         }).subscribe();
     }
 
@@ -869,12 +779,8 @@ public class DiscordUtil {
 
         user.asMember(DiscordAPI.getGuild().getId()).doOnSuccess(m -> {
             m.addRole(role.getId()).doOnError(e -> {
-                com.gmt2001.Console.err.println("Unable to add member role" + user.getMention() + " (" + DiscordAPI.getGuild().getName() + ")");
                 com.gmt2001.Console.err.printStackTrace(e);
             }).subscribe();
-        }).doOnError(e -> {
-            com.gmt2001.Console.err.println("Unable to convert user to member " + user.getMention() + " (" + DiscordAPI.getGuild().getName() + ")");
-            com.gmt2001.Console.err.printStackTrace(e);
         }).subscribe();
     }
 
@@ -918,13 +824,9 @@ public class DiscordUtil {
 
         user.asMember(DiscordAPI.getGuild().getId()).doOnSuccess(m -> {
             m.removeRole(role.getId()).doOnError(e -> {
-                com.gmt2001.Console.err.println("Unable to remove member role" + user.getMention() + " (" + DiscordAPI.getGuild().getName() + ")");
                 com.gmt2001.Console.err.printStackTrace(e);
             }).subscribe();
-        }).doOnError(e -> {
-            com.gmt2001.Console.err.println("Unable to convert user to member " + user.getMention() + " (" + DiscordAPI.getGuild().getName() + ")");
-            com.gmt2001.Console.err.printStackTrace(e);
-        }).subscribe();
+        });
     }
 
     /**
@@ -946,7 +848,6 @@ public class DiscordUtil {
         DiscordAPI.getGuild().createRole(role
                 -> role.setName(roleName)
         ).doOnError(e -> {
-            com.gmt2001.Console.err.println("Unable to create role" + roleName + " (" + DiscordAPI.getGuild().getName() + ")");
             com.gmt2001.Console.err.printStackTrace(e);
         }).subscribe();
     }
@@ -958,7 +859,6 @@ public class DiscordUtil {
      */
     public void deleteRole(Role role) {
         role.delete().doOnError(e -> {
-            com.gmt2001.Console.err.println("Unable to delete role" + role.getName() + " (" + DiscordAPI.getGuild().getName() + ")");
             com.gmt2001.Console.err.printStackTrace(e);
         }).subscribe();
     }
@@ -1034,7 +934,7 @@ public class DiscordUtil {
             throw new IllegalArgumentException("channel object was null or amount was less than 2");
         }
 
-        com.gmt2001.Console.debug.println("Attempting to delete " + amount + " messages from " + DiscordUtil.channelName(channel));
+        com.gmt2001.Console.debug.println("Attempting to delete " + amount + " messages from " + channel.getName());
         Thread thread;
         thread = new Thread(() -> {
             channel.getMessagesBefore(channel.getLastMessageId().orElseThrow()).take(amount).collectList().doOnSuccess(msgs -> {
@@ -1170,33 +1070,33 @@ public class DiscordUtil {
         Matcher match = Pattern.compile("(\\d{1,3}),?\\s?(\\d{1,3}),?\\s?(\\d{1,3})").matcher(color);
 
         if (match.find()) {
-            return Color.of(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)), Integer.parseInt(match.group(3)));
+            return new Color(Integer.parseInt(match.group(1)), Integer.parseInt(match.group(2)), Integer.parseInt(match.group(3)));
         } else {
             switch (color) {
                 case "black":
-                    return Color.BLACK;
+                    return Color.black;
                 case "blue":
-                    return Color.BLUE;
+                    return Color.blue;
                 case "cyan":
-                    return Color.CYAN;
+                    return Color.cyan;
                 case "gray":
-                    return Color.GRAY;
+                    return Color.gray;
                 case "green":
-                    return Color.GREEN;
+                    return Color.green;
                 case "magenta":
-                    return Color.MAGENTA;
+                    return Color.magenta;
                 case "orange":
-                    return Color.ORANGE;
+                    return Color.orange;
                 case "pink":
-                    return Color.PINK;
+                    return Color.pink;
                 case "red":
-                    return Color.RED;
+                    return Color.red;
                 case "white":
-                    return Color.WHITE;
+                    return Color.white;
                 case "yellow":
-                    return Color.YELLOW;
+                    return Color.yellow;
                 default:
-                    return Color.GRAY;
+                    return Color.gray;
             }
         }
     }
@@ -1210,11 +1110,7 @@ public class DiscordUtil {
      */
     public Message getMessageById(String channelName, String messageId) {
         GuildMessageChannel channel = getChannelAsync(channelName).block();
-        if (channel != null) {
-            return channel.getMessageById(Snowflake.of(messageId)).block();
-        }
-
-        return null;
+        return channel.getMessageById(Snowflake.of(messageId)).block();
     }
 
     /**
@@ -1246,10 +1142,8 @@ public class DiscordUtil {
      */
     public List<Message> getMessagesBefore(String channelName, String messageId) {
         GuildMessageChannel channel = getChannelAsync(channelName).block();
-        List<Message> messageList = new ArrayList<>();
-        if (channel != null) {
-            channel.getMessagesBefore(Snowflake.of(messageId)).toIterable().forEach(message -> messageList.add(message));
-        }
+        List<Message> messageList = new ArrayList<Message>();
+        channel.getMessagesBefore(Snowflake.of(messageId)).toIterable().forEach(message -> messageList.add(message));
         return messageList;
     }
 
@@ -1261,72 +1155,7 @@ public class DiscordUtil {
      */
     public Message getLastMessage(String channelName) {
         GuildMessageChannel channel = getChannelAsync(channelName).block();
-        if (channel != null) {
-            return channel.getLastMessage().block();
-        }
-
-        return null;
+        return channel.getLastMessage().block();
     }
 
-    public static Optional<Snowflake> channelId(Channel channel) {
-        if (null != channel.getType()) {
-            switch (channel.getType()) {
-                case DM:
-                case GROUP_DM:
-                    return Optional.of(((PrivateChannel) channel).getId());
-                case GUILD_CATEGORY:
-                    return Optional.of(((Category) channel).getId());
-                case GUILD_NEWS:
-                    return Optional.of(((NewsChannel) channel).getId());
-                case GUILD_STAGE_VOICE:
-                    return Optional.of(((VoiceChannel) channel).getId());
-                case GUILD_STORE:
-                    return Optional.of(((StoreChannel) channel).getId());
-                case GUILD_TEXT:
-                    return Optional.of(((TextChannel) channel).getId());
-                case GUILD_VOICE:
-                    return Optional.of(((VoiceChannel) channel).getId());
-                default:
-                    break;
-            }
-        }
-
-        return Optional.empty();
-    }
-
-    public static String channelIdAsString(Channel channel) {
-        Optional<Snowflake> channelId = DiscordUtil.channelId(channel);
-
-        if (channelId.isPresent()) {
-            return channelId.get().asString();
-        }
-
-        return "";
-    }
-
-    public static String channelName(Channel channel) {
-        if (null != channel.getType()) {
-            switch (channel.getType()) {
-                case DM:
-                case GROUP_DM:
-                    return ((PrivateChannel) channel).getMention();
-                case GUILD_CATEGORY:
-                    return ((Category) channel).getName();
-                case GUILD_NEWS:
-                    return ((NewsChannel) channel).getName();
-                case GUILD_STAGE_VOICE:
-                    return ((VoiceChannel) channel).getName();
-                case GUILD_STORE:
-                    return ((StoreChannel) channel).getName();
-                case GUILD_TEXT:
-                    return ((TextChannel) channel).getName();
-                case GUILD_VOICE:
-                    return ((VoiceChannel) channel).getName();
-                default:
-                    break;
-            }
-        }
-
-        return "";
-    }
 }

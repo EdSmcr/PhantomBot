@@ -45,12 +45,10 @@ public class Helix {
     private static final String CONTENT_TYPE = "application/json";
     // Timeout which to wait for a response before killing it (5 seconds).
     private static final int TIMEOUT_TIME = 5000;
-    // Time when our limit will fully reset.
+    // Time when our limit will reset.
     private long rateLimitResetEpoch = System.currentTimeMillis();
     // Our current rate limit before making any requests.
-    private int remainingRateLimit = 120;
-    // The rate limit, when full
-    private int maxRateLimit = 120;
+    private int currentRateLimit = 120;
     // The user's oauth token -- this is required.
     private final String oAuthToken;
     private final String clientid;
@@ -102,9 +100,8 @@ public class Helix {
      * @param limit The number of requests left.
      * @param reset The time when our limits will reset.
      */
-    private synchronized void updateRateLimits(int maxLimit, int limit, long reset) {
-        maxRateLimit = maxLimit;
-        remainingRateLimit = limit;
+    private synchronized void updateRateLimits(int limit, long reset) {
+        currentRateLimit = limit;
         rateLimitResetEpoch = reset;
     }
     
@@ -122,18 +119,18 @@ public class Helix {
      * 
      * @return 
      */
-    private synchronized int getRemainingRateLimit() {
-        return remainingRateLimit;
+    private synchronized int getCurrentRateLimit() {
+        return currentRateLimit;
     }
     
     /**
      * Method that checks if we hit the limit.
      */
     private void checkRateLimit() {
-        if (getRemainingRateLimit() <= 0) {
+        if (getCurrentRateLimit() <= 0) {
             try {
-                // Sleep until a token is returned to the bucket
-                Thread.sleep(System.currentTimeMillis() - (getLimitResetTime() / maxRateLimit) + 20);
+                // Sleep for the time remaining for the limit to reset.
+                Thread.sleep(System.currentTimeMillis() - getLimitResetTime());
             } catch (InterruptedException ex) {
                 com.gmt2001.Console.err.printStackTrace(ex);
             }
@@ -146,10 +143,10 @@ public class Helix {
      * @param limitReturned The limit returned from Helix.
      * @param limitResetTimeReturned The reset time for our limit returned from Helix.
      */
-    private void handleUpdateRateLimits(String maxLimit, String limitReturned, String limitResetTimeReturned) {
+    private void handleUpdateRateLimits(String limitReturned, String limitResetTimeReturned) {
         try {
             // Parse the rate limit returned.
-            updateRateLimits(Integer.parseInt(maxLimit), Integer.parseInt(limitReturned), 
+            updateRateLimits(Integer.parseInt(limitReturned), 
                     Long.parseLong(limitResetTimeReturned));
         } catch (NumberFormatException ex) {
             com.gmt2001.Console.err.printStackTrace(ex);
@@ -261,11 +258,10 @@ public class Helix {
             responseCode = connection.getResponseCode();
             
             // Get the current rate limits.
-            String maxlimit = connection.getHeaderField("Ratelimit-Limit");
             String limit = connection.getHeaderField("Ratelimit-Remaining");
             String reset = connection.getHeaderField("Ratelimit-Reset");
             // Handle the current limits.
-            handleUpdateRateLimits(maxlimit, limit, reset);
+            handleUpdateRateLimits(limit, reset);
                 
             // Get our response stream.
             if (responseCode == 200) {
